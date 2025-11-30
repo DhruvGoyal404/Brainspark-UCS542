@@ -1,0 +1,217 @@
+/* Authentication Pages Styles */
+
+.auth-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-4);
+    position: relative;
+    overflow: hidden;
+}
+
+.auth-background {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg,
+            var(--primary-alpha-10) 0%,
+            var(--secondary) 50%,
+            var(--accent) 100%);
+    opacity: 0.15;
+    z-index: -1;
+}
+
+.auth-background::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 30% 20%,
+            var(--primary-alpha-20) 0%,
+            transparent 50%);
+}
+
+.auth-container {
+    width: 100%;
+    max-width: 480px;
+}
+
+.auth-content {
+    width: 100%;
+}
+
+.auth-header {
+    text-align: center;
+    margin-bottom: var(--space-8);
+}
+
+.auth-title {
+    font-family: var(--font-display);
+    font-size: var(--text-3xl);
+    font-weight: var(--font-extrabold);
+    color: var(--text-primary);
+    margin-bottom: var(--space-2);
+}
+
+.auth-subtitle {
+    font-size: var(--text-lg);
+    color: var(--text-secondary);
+}
+
+.auth-card {
+    padding: var(--space-8);
+    box-shadow: var(--shadow-xl);
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+}
+
+/* ==== FORM ELEMENTS ==== */
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.form-label {
+    font-size: var(--text-sm);
+    font-weight: var(--font-semibold);
+    color: var(--text-primary);
+}
+
+.input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-icon {
+    position: absolute;
+    left: var(--space-4);
+    color: var(--text-tertiary);
+    pointer-events: none;
+}
+
+.input-icon-button {
+    position: absolute;
+    right: var(--space-4);
+    color: var(--text-tertiary);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: var(--space-2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color var(--duration-fast) var(--ease-out);
+}
+
+.input-icon-button:hover {
+    color: var(--text-primary);
+}
+
+.form-input {
+    width: 100%;
+    padding: var(--space-3) var(--space-4);
+    padding-left: var(--space-12);
+    font-size: var(--text-base);
+    color: var(--text-primary);
+    background: var(--background);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-sm);
+    transition: all var(--duration-normal) var(--ease-out);
+    min-height: 48px;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--primary);
+    background: var(--surface);
+    box-shadow: 0 0 0 3px var(--primary-alpha-10);
+}
+
+.form-input::placeholder {
+    color: var(--text-tertiary);
+}
+
+.input-error {
+    border-color: var(--error);
+}
+
+.input-error:focus {
+    border-color: var(--error);
+    box-shadow: 0 0 0 3px var(--error-bg);
+}
+
+.error-message {
+    font-size: var(--text-sm);
+    color: var(--error);
+    font-weight: var(--font-medium);
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+}
+
+.error-banner {
+    padding: var(--space-4);
+    background: var(--error-bg);
+    border: 1px solid var(--error);
+    border-radius: var(--radius-sm);
+    color: var(--error);
+    font-size: var(--text-sm);
+    font-weight: var(--font-medium);
+    text-align: center;
+}
+
+/* ==== AUTH FOOTER ==== */
+
+.auth-footer {
+    margin-top: var(--space-4);
+    text-align: center;
+}
+
+.auth-footer-text {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+}
+
+.auth-link {
+    color: var(--primary);
+    font-weight: var(--font-semibold);
+    transition: color var(--duration-fast) var(--ease-out);
+}
+
+.auth-link:hover {
+    color: var(--primary-hover);
+    text-decoration: underline;
+}
+
+/* ==== RESPONSIVE ==== */
+
+@media (max-width: 640px) {
+    .auth-card {
+        padding: var(--space-6);
+    }
+
+    .auth-title {
+        font-size: var(--text-2xl);
+    }
+
+    .auth-subtitle {
+        font-size: var(--text-base);
+    }
+}
+
+/* ==== REDUCED MOTION ==== */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .form-input,
+    .input-icon-button,
+    .auth-link {
+        transition: none;
+    }
+}

@@ -1,0 +1,307 @@
+/* Quiz Page Styles */
+
+.quiz-page {
+    min-height: 100vh;
+    padding: var(--space-8) 0;
+    background: var(--background);
+}
+
+.quiz-container {
+    max-width: 900px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+}
+
+.quiz-loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh;
+}
+
+/* ==== QUIZ HEADER ==== */
+
+.quiz-header {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: var(--space-6);
+    box-shadow: var(--shadow-sm);
+}
+
+.quiz-progress-section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.quiz-progress-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+}
+
+.quiz-title {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    font-weight: var(--font-extrabold);
+    color: var(--text-primary);
+}
+
+.question-counter {
+    font-size: var(--text-base);
+    font-weight: var(--font-semibold);
+    color: var(--text-secondary);
+    padding: var(--space-2) var(--space-4);
+    background: var(--primary-alpha-10);
+    color: var(--primary);
+    border-radius: var(--radius-full);
+}
+
+.progress-bar-container {
+    width: 100%;
+    height: 8px;
+    background: var(--background);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    border-radius: var(--radius-full);
+    transition: width var(--duration-slow) var(--ease-out);
+}
+
+/* ==== QUESTION CARD ==== */
+
+.question-card {
+    padding: var(--space-8);
+    box-shadow: var(--shadow-xl);
+}
+
+.question-header {
+    margin-bottom: var(--space-8);
+}
+
+.question-text {
+    font-size: var(--text-xl);
+    font-weight: var(--font-bold);
+    color: var(--text-primary);
+    line-height: var(--leading-relaxed);
+}
+
+/* ==== ANSWERS GRID ==== */
+
+.answers-grid {
+    display: grid;
+    gap: var(--space-4);
+    margin-bottom: var(--space-8);
+}
+
+.answer-option {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-5);
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--duration-normal) var(--ease-out);
+    text-align: left;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+.answer-option::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: transparent;
+    transition: background var(--duration-fast) var(--ease-out);
+}
+
+.answer-option:hover:not(.disabled) {
+    border-color: var(--primary);
+    background: var(--primary-alpha-10);
+    transform: translateX(4px);
+}
+
+.answer-option.selected {
+    border-color: var(--primary);
+    background: var(--primary-alpha-10);
+}
+
+.answer-option.selected::before {
+    background: var(--primary);
+}
+
+.answer-option.correct {
+    border-color: var(--success);
+    background: var(--success-bg);
+}
+
+.answer-option.correct::before {
+    background: var(--success);
+}
+
+.answer-option.incorrect {
+    border-color: var(--error);
+    background: var(--error-bg);
+    animation: shake var(--duration-slower) var(--ease-in-out);
+}
+
+.answer-option.incorrect::before {
+    background: var(--error);
+}
+
+.answer-option.disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.option-id {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background: var(--background);
+    color: var(--text-primary);
+    font-weight: var(--font-bold);
+    font-size: var(--text-base);
+    border-radius: var(--radius-sm);
+    flex-shrink: 0;
+}
+
+.answer-option.selected .option-id {
+    background: var(--primary);
+    color: white;
+}
+
+.answer-option.correct .option-id {
+    background: var(--success);
+    color: white;
+}
+
+.answer-option.incorrect .option-id {
+    background: var(--error);
+    color: white;
+}
+
+.option-text {
+    flex: 1;
+    font-size: var(--text-base);
+    color: var(--text-primary);
+    font-weight: var(--font-medium);
+    line-height: var(--leading-relaxed);
+}
+
+.option-icon {
+    color: inherit;
+    flex-shrink: 0;
+}
+
+/* ==== FEEDBACK ==== */
+
+.feedback-container {
+    padding: var(--space-6);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-6);
+}
+
+.feedback-container.correct {
+    background: var(--success-bg);
+    border: 2px solid var(--success);
+}
+
+.feedback-container.incorrect {
+    background: var(--error-bg);
+    border: 2px solid var(--error);
+}
+
+.feedback-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-3);
+}
+
+.feedback-container.correct .feedback-header {
+    color: var(--success);
+}
+
+.feedback-container.incorrect .feedback-header {
+    color: var(--error);
+}
+
+.feedback-header span {
+    font-size: var(--text-lg);
+    font-weight: var(--font-bold);
+}
+
+.feedback-explanation {
+    font-size: var(--text-base);
+    color: var(--text-secondary);
+    line-height: var(--leading-relaxed);
+    margin: 0;
+}
+
+/* ==== QUESTION ACTIONS ==== */
+
+.question-actions {
+    display: flex;
+    gap: var(--space-4);
+}
+
+/* ==== RESPONSIVE ==== */
+
+@media (max-width: 768px) {
+    .quiz-title {
+        font-size: var(--text-xl);
+    }
+
+    .question-text {
+        font-size: var(--text-lg);
+    }
+
+    .question-card {
+        padding: var(--space-6);
+    }
+
+    .answer-option {
+        padding: var(--space-4);
+    }
+
+    .option-text {
+        font-size: var(--text-sm);
+    }
+}
+
+/* ==== REDUCED MOTION ==== */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .progress-bar-fill,
+    .answer-option,
+    .answer-option::before {
+        transition: none;
+    }
+
+    .answer-option:hover:not(.disabled) {
+        transform: none;
+    }
+
+    .answer-option.incorrect {
+        animation: none;
+    }
+}

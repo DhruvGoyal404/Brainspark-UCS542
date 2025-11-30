@@ -1,0 +1,132 @@
+/* Progress Component Styles */
+
+/* ==== LINEAR PROGRESS BAR ==== */
+
+.progress-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.progress-label {
+    font-size: var(--text-sm);
+    font-weight: var(--font-semibold);
+    color: var(--text-primary);
+}
+
+.progress-percentage {
+    font-size: var(--text-sm);
+    font-weight: var(--font-bold);
+    color: var(--text-secondary);
+}
+
+.progress-bar {
+    width: 100%;
+    background: var(--border);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+    position: relative;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    border-radius: var(--radius-full);
+    transition: width var(--duration-slow) var(--ease-out);
+}
+
+/* ==== SIZES ==== */
+
+.progress-bar-sm {
+    height: 4px;
+}
+
+.progress-bar-md {
+    height: 8px;
+}
+
+.progress-bar-lg {
+    height: 12px;
+}
+
+/* ==== VARIANTS ==== */
+
+.progress-bar-primary .progress-fill {
+    background: linear-gradient(90deg, var(--primary), var(--primary-light));
+}
+
+.progress-bar-secondary .progress-fill {
+    background: linear-gradient(90deg, var(--secondary), var(--secondary-light));
+}
+
+.progress-bar-success .progress-fill {
+    background: linear-gradient(90deg, var(--success), var(--success-light));
+}
+
+.progress-bar-warning .progress-fill {
+    background: var(--warning);
+}
+
+.progress-bar-error .progress-fill {
+    background: var(--error);
+}
+
+.progress-bar-info .progress-fill {
+    background: var(--info);
+}
+
+/* ==== CIRCULAR PROGRESS ==== */
+
+.progress-circle {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.progress-circle svg {
+    transform: rotate(-90deg);
+}
+
+.progress-circle-bg {
+    fill: none;
+    stroke: var(--border);
+}
+
+.progress-circle-fill {
+    fill: none;
+    stroke-linecap: round;
+    transition: stroke-dashoffset var(--duration-slow) var(--ease-out);
+}
+
+.progress-circle-label {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+}
+
+.progress-circle-value {
+    font-size: var(--text-lg);
+    font-weight: var(--font-extrabold);
+    color: var(--text-primary);
+}
+
+/* ==== REDUCED MOTION ==== */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .progress-fill,
+    .progress-circle-fill {
+        transition: none;
+    }
+}

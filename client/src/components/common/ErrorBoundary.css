@@ -1,0 +1,122 @@
+/* Error Boundary Styles */
+
+.error-boundary {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--background);
+    padding: var(--space-8);
+}
+
+.error-boundary-container {
+    max-width: 600px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-6);
+}
+
+.error-icon {
+    color: var(--error);
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.error-boundary-title {
+    font-size: var(--text-3xl);
+    font-weight: var(--font-extrabold);
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.error-boundary-message {
+    font-size: var(--text-lg);
+    color: var(--text-secondary);
+    line-height: var(--leading-relaxed);
+    margin: 0;
+}
+
+.error-details {
+    width: 100%;
+    margin: var(--space-4) 0;
+    text-align: left;
+}
+
+.error-details summary {
+    cursor: pointer;
+    font-weight: var(--font-semibold);
+    color: var(--text-secondary);
+    padding: var(--space-3);
+    background: var(--surface);
+    border-radius: var(--radius-sm);
+}
+
+.error-details summary:hover {
+    background: var(--surface-hover);
+}
+
+.error-stack {
+    margin-top: var(--space-3);
+    padding: var(--space-4);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    color: var(--error);
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.error-boundary-actions {
+    display: flex;
+    gap: var(--space-4);
+    margin-top: var(--space-4);
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.7;
+        transform: scale(1.05);
+    }
+}
+
+/* Responsive */
+
+@media (max-width: 768px) {
+    .error-boundary-title {
+        font-size: var(--text-2xl);
+    }
+
+    .error-boundary-message {
+        font-size: var(--text-base);
+    }
+
+    .error-boundary-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .error-boundary-actions button {
+        width: 100%;
+    }
+}
+
+/* Reduced Motion */
+
+@media (prefers-reduced-motion: reduce) {
+    .error-icon {
+        animation: none;
+    }
+}

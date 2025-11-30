@@ -1,0 +1,82 @@
+/* Card Component Styles */
+
+.card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    transition: all var(--duration-normal) var(--ease-out);
+}
+
+/* ==== VARIANTS ==== */
+
+.card-default {
+    box-shadow: var(--shadow-sm);
+}
+
+.card-elevated {
+    box-shadow: var(--shadow-lg);
+}
+
+.card-interactive {
+    box-shadow: var(--shadow-md);
+    cursor: pointer;
+}
+
+.card-interactive:hover {
+    box-shadow: var(--shadow-xl);
+    transform: translateY(-4px);
+    border-color: var(--primary);
+}
+
+/* ==== PADDING ==== */
+
+.card-padding-none {
+    padding: 0;
+}
+
+.card-padding-sm {
+    padding: var(--space-4);
+}
+
+.card-padding-md {
+    padding: var(--space-6);
+}
+
+.card-padding-lg {
+    padding: var(--space-8);
+}
+
+/* ==== MODIFIERS ==== */
+
+.card-hoverable:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+    border-color: var(--border-hover);
+}
+
+.card-clickable {
+    cursor: pointer;
+    user-select: none;
+}
+
+.card-clickable:focus-visible {
+    outline: 3px solid var(--primary);
+    outline-offset: 2px;
+}
+
+.card-clickable:active {
+    transform: scale(0.98);
+}
+
+/* ==== REDUCED MOTION ==== */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .card,
+    .card-hoverable:hover,
+    .card-interactive:hover,
+    .card-clickable:active {
+        transform: none;
+        transition: none;
+    }
+}

@@ -1,0 +1,482 @@
+/* ============================================
+   BRAINSPARK QUIZ APP - GLOBAL STYLES
+   Design System Foundation
+   ============================================ */
+
+/* ============================================
+   CSS RESET & BASE STYLES
+   ============================================ */
+
+/* Box sizing reset */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Root element */
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  scroll-behavior: smooth;
+}
+
+/* Body defaults */
+body {
+  font-family: var(--font-primary);
+  font-size: var(--text-base);
+  line-height: 1.6;
+  color: var(--text-primary);
+  background-color: var(--background);
+  transition: background-color 0.3s ease, color 0.3s ease;
+  overflow-x: hidden;
+}
+
+/* Remove default list styles */
+ul, ol {
+  list-style: none;
+}
+
+/* Remove default link styles */
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Button reset */
+button {
+  font-family: inherit;
+  font-size: inherit;
+  border: none;
+  background: none;
+  cursor: pointer;
+  outline: none;
+}
+
+/* Form elements */
+input,
+textarea,
+select {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+}
+
+/* Images */
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* ============================================
+   CSS VARIABLES - DESIGN TOKENS
+   ============================================ */
+
+:root {
+  /* ================== COLORS ================== */
+  
+  /* Primary Colors */
+  --primary: hsl(243, 75%, 59%);
+  --primary-hover: hsl(243, 75%, 49%);
+  --primary-light: hsl(243, 75%, 69%);
+  --primary-dark: hsl(243, 75%, 39%);
+  --primary-alpha-10: hsla(243, 75%, 59%, 0.1);
+  --primary-alpha-20: hsla(243, 75%, 59%, 0.2);
+  --primary-alpha-30: hsla(243, 75%, 59%, 0.3);
+  
+  /* Secondary Colors */
+  --secondary: hsl(160, 84%, 39%);
+  --secondary-hover: hsl(160, 84%, 29%);
+  --secondary-light: hsl(160, 84%, 49%);
+  
+  /* Accent Colors */
+  --accent: hsl(31, 100%, 63%);
+  --accent-hover: hsl(31, 100%, 53%);
+  
+  /* Semantic Colors */
+  --success: hsl(142, 71%, 45%);
+  --success-light: hsl(142, 71%, 55%);
+  --success-bg: hsla(142, 71%, 45%, 0.1);
+  
+  --error: hsl(0, 84%, 60%);
+  --error-light: hsl(0, 84%, 70%);
+  --error-bg: hsla(0, 84%, 60%, 0.1);
+  
+  --warning: hsl(45, 100%, 51%);
+  --warning-bg: hsla(45, 100%, 51%, 0.1);
+  
+  --info: hsl(199, 89%, 48%);
+  --info-bg: hsla(199, 89%, 48%, 0.1);
+  
+  /* Neutral Colors (Light Theme) */
+  --background: hsl(0, 0%, 98%);
+  --surface: hsl(0, 0%, 100%);
+  --surface-hover: hsl(0, 0%, 96%);
+  --surface-elevated: hsl(0, 0%, 100%);
+  
+  --text-primary: hsl(222, 47%, 11%);
+  --text-secondary: hsl(215, 14%, 34%);
+  --text-tertiary: hsl(214, 15%, 55%);
+  --text-disabled: hsl(214, 15%, 70%);
+  
+  --border: hsl(214, 15%, 85%);
+  --border-hover: hsl(214, 15%, 75%);
+  
+  --overlay: hsla(222, 47%, 11%, 0.5);
+  
+  /* ================== TYPOGRAPHY ================== */
+  
+  /* Font Families */
+  --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 
+                  Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  --font-display: 'Plus Jakarta Sans', 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+  
+  /* Font Sizes (Type Scale - Major Third 1.250) */
+  --text-xs: 0.64rem;      /* 10.24px */
+  --text-sm: 0.8rem;       /* 12.8px */
+  --text-base: 1rem;       /* 16px */
+  --text-lg: 1.25rem;      /* 20px */
+  --text-xl: 1.563rem;     /* 25px */
+  --text-2xl: 1.953rem;    /* 31.25px */
+  --text-3xl: 2.441rem;    /* 39px */
+  --text-4xl: 3.052rem;    /* 48.83px */
+  
+  /* Font Weights */
+  --font-normal: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+  --font-extrabold: 800;
+  
+  /* Line Heights */
+  --leading-tight: 1.2;
+  --leading-normal: 1.6;
+  --leading-relaxed: 1.8;
+  
+  /* ================== SPACING ================== */
+  
+  /* Spacing Scale (8px base) */
+  --space-1: 0.25rem;   /* 4px */
+  --space-2: 0.5rem;    /* 8px */
+  --space-3: 0.75rem;   /* 12px */
+  --space-4: 1rem;      /* 16px */
+  --space-5: 1.25rem;   /* 20px */
+  --space-6: 1.5rem;    /* 24px */
+  --space-8: 2rem;      /* 32px */
+  --space-10: 2.5rem;   /* 40px */
+  --space-12: 3rem;     /* 48px */
+  --space-16: 4rem;     /* 64px */
+  --space-20: 5rem;     /* 80px */
+  --space-24: 6rem;     /* 96px */
+  
+  /* ================== LAYOUT ================== */
+  
+  /* Border Radius */
+  --radius-sm: 0.5rem;     /* 8px - Cards, buttons */
+  --radius-md: 1rem;       /* 16px - Modals */
+  --radius-lg: 1.5rem;     /* 24px - Large sections */
+  --radius-full: 9999px;   /* Pills, avatars */
+  
+  /* Shadows (Layered) */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 
+               0 2px 4px -1px rgb(0 0 0 / 0.06);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 
+               0 4px 6px -2px rgb(0 0 0 / 0.05);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 
+               0 10px 10px -5px rgb(0 0 0 / 0.04);
+  --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+  --shadow-glow: 0 0 20px var(--primary-alpha-30);
+  --shadow-glow-success: 0 0 20px hsla(142, 71%, 45%, 0.3);
+  --shadow-glow-error: 0 0 20px hsla(0, 84%, 60%, 0.3);
+  
+  /* Z-Index Scale */
+  --z-base: 0;
+  --z-dropdown: 10;
+  --z-sticky: 20;
+  --z-fixed: 30;
+  --z-modal-backdrop: 40;
+  --z-modal: 50;
+  --z-popover: 60;
+  --z-tooltip: 70;
+  
+  /* Container Widths */
+  --container-sm: 640px;
+  --container-md: 768px;
+  --container-lg: 1024px;
+  --container-xl: 1280px;
+  --container-2xl: 1536px;
+  
+  /* ================== ANIMATIONS ================== */
+  
+  /* Durations */
+  --duration-instant: 100ms;
+  --duration-fast: 150ms;
+  --duration-normal: 200ms;
+  --duration-slow: 300ms;
+  --duration-slower: 400ms;
+  --duration-slowest: 500ms;
+  
+  /* Easing Functions */
+  --ease-linear: linear;
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* ============================================
+   DARK THEME
+   ============================================ */
+
+[data-theme="dark"] {
+  /* Primary Colors (Slightly brighter for dark mode) */
+  --primary: hsl(243, 75%, 65%);
+  --primary-hover: hsl(243, 75%, 55%);
+  --primary-light: hsl(243, 75%, 75%);
+  --primary-dark: hsl(243, 75%, 45%);
+  
+  /* Secondary Colors */
+  --secondary: hsl(160, 84%, 45%);
+  --secondary-hover: hsl(160, 84%, 35%);
+  --secondary-light: hsl(160, 84%, 55%);
+  
+  /* Accent Colors */
+  --accent: hsl(31, 100%, 68%);
+  --accent-hover: hsl(31, 100%, 58%);
+  
+  /* Semantic Colors (Brighter for dark mode) */
+  --success: hsl(142, 71%, 50%);
+  --success-light: hsl(142, 71%, 60%);
+  --success-bg: hsla(142, 71%, 50%, 0.15);
+  
+  --error: hsl(0, 84%, 65%);
+  --error-light: hsl(0, 84%, 75%);
+  --error-bg: hsla(0, 84%, 65%, 0.15);
+  
+  --warning: hsl(45, 100%, 60%);
+  --warning-bg: hsla(45, 100%, 60%, 0.15);
+  
+  --info: hsl(199, 89%, 58%);
+  --info-bg: hsla(199, 89%, 58%, 0.15);
+  
+  /* Neutral Colors (Dark Theme) */
+  --background: hsl(222, 47%, 11%);
+  --surface: hsl(217, 33%, 17%);
+  --surface-hover: hsl(217, 33%, 22%);
+  --surface-elevated: hsl(217, 33%, 20%);
+  
+  --text-primary: hsl(0, 0%, 95%);
+  --text-secondary: hsl(214, 15%, 70%);
+  --text-tertiary: hsl(214, 15%, 55%);
+  --text-disabled: hsl(214, 15%, 40%);
+  
+  --border: hsl(217, 33%, 25%);
+  --border-hover: hsl(217, 33%, 35%);
+  
+  --overlay: hsla(0, 0%, 0%, 0.7);
+  
+  /* Shadows (More subtle in dark mode) */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 
+               0 2px 4px -1px rgb(0 0 0 / 0.3);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5), 
+               0 4px 6px -2px rgb(0 0 0 / 0.4);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.6), 
+               0 10px 10px -5px rgb(0 0 0 / 0.5);
+  --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.7);
+}
+
+/* ============================================
+   HIGH CONTRAST MODE (Accessibility)
+   ============================================ */
+
+@media (prefers-contrast: high) {
+  :root {
+    --primary: hsl(243, 100%, 50%);
+    --background: hsl(0, 0%, 100%);
+    --text-primary: hsl(0, 0%, 0%);
+    --border: hsl(0, 0%, 0%);
+  }
+  
+  [data-theme="dark"] {
+    --primary: hsl(243, 100%, 70%);
+    --background: hsl(0, 0%, 0%);
+    --text-primary: hsl(0, 0%, 100%);
+    --border: hsl(0, 0%, 100%);
+  }
+}
+
+/* ============================================
+   REDUCED MOTION (Accessibility)
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ============================================
+   SCREEN READER ONLY
+   ============================================ */
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* ============================================
+   FOCUS STYLES (Accessibility)
+   ============================================ */
+
+*:focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* Remove outline for mouse users */
+*:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ============================================
+   SELECTION STYLES
+   ============================================ */
+
+::selection {
+  background-color: var(--primary);
+  color: white;
+}
+
+::-moz-selection {
+  background-color: var(--primary);
+  color: white;
+}
+
+/* ============================================
+   SCROLLBAR STYLES
+   ============================================ */
+
+/* Webkit browsers (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--surface);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--border-hover);
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) var(--surface);
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+
+/* Container */
+.container {
+  width: 100%;
+  max-width: var(--container-xl);
+  margin: 0 auto;
+  padding: 0 var(--space-4);
+}
+
+/* Flex utilities */
+.flex {
+  display: flex;
+}
+
+.flex-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.gap-1 { gap: var(--space-1); }
+.gap-2 { gap: var(--space-2); }
+.gap-3 { gap: var(--space-3); }
+.gap-4 { gap: var(--space-4); }
+.gap-6 { gap: var(--space-6); }
+.gap-8 { gap: var(--space-8); }
+
+/* Grid utilities */
+.grid {
+  display: grid;
+}
+
+.grid-cols-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.grid-cols-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+/* Text utilities */
+.text-center {
+  text-align: center;
+}
+
+.font-bold {
+  font-weight: var(--font-bold);
+}
+
+.font-semibold {
+  font-weight: var(--font-semibold);
+}
+
+/* Responsive utilities */
+@media (max-width: 768px) {
+  .grid-cols-3 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .grid-cols-2 {
+    grid-template-columns: 1fr;
+  }
+}
