@@ -30,6 +30,7 @@ const Header = () => {
         ? [{ to: '/admin', label: 'Admin Panel' }]
         : [
             { to: '/dashboard', label: 'Dashboard', authRequired: true },
+            { to: '/bookmarks', label: 'Bookmarks', authRequired: true },
             { to: '/leaderboard', label: 'Leaderboard', authRequired: true },
             { to: '/analytics', label: 'Analytics', authRequired: true }
         ];

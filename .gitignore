@@ -1,6 +1,8 @@
 .env
 node_modules
 seeds/
+*.txt
+*.pdf
 .env.development
 .env
 .env.prod
