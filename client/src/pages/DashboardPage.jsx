@@ -1,9 +1,9 @@
-import { useState } from 'react'; // ADD THIS IF NOT THERE
+import { useState, useMemo } from 'react';
 import ConfirmationModal from '../components/ui/ConfirmationModal';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Brain, Code, Database, Server, Trophy, Flame, TrendingUp, LayoutGrid, List, Search, Filter } from 'lucide-react';
+import { Brain, Code, Database, Server, Trophy, Flame, TrendingUp, LayoutGrid, List, Search, Network, Cpu, BookOpen } from 'lucide-react';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import './DashboardPage.css';
@@ -25,8 +25,8 @@ const DashboardPage = () => {
         navigate(`/quiz/${quizToStart.id}`);
     };
 
-    // Mock quiz data
-    const quizzes = [
+    // Mock quiz data - expanded with more subjects
+    const quizzes = useMemo(() => [
         {
             id: 'dsa-basics',
             title: 'DSA Basics',
@@ -37,6 +37,17 @@ const DashboardPage = () => {
             estimatedTime: 20,
             icon: <Brain size={32} />,
             color: 'hsl(243, 75%, 59%)'
+        },
+        {
+            id: 'advanced-dsa',
+            title: 'Advanced DSA',
+            description: 'Complex algorithms, dynamic programming, and graphs',
+            category: 'Data Structures',
+            difficulty: 'Hard',
+            questionCount: 25,
+            estimatedTime: 35,
+            icon: <Code size={32} />,
+            color: 'hsl(0, 84%, 60%)'
         },
         {
             id: 'operating-systems',
@@ -61,39 +72,39 @@ const DashboardPage = () => {
             color: 'hsl(31, 100%, 63%)'
         },
         {
-            id: 'advanced-dsa',
-            title: 'Advanced DSA',
-            description: 'Complex algorithms, dynamic programming, and graphs',
-            category: 'Data Structures',
+            id: 'computer-networks',
+            title: 'Computer Networks',
+            description: 'Networking protocols, OSI model, and TCP/IP',
+            category: 'Networks',
+            difficulty: 'Medium',
+            questionCount: 20,
+            estimatedTime: 25,
+            icon: <Network size={32} />,
+            color: 'hsl(199, 89%, 48%)'
+        },
+        {
+            id: 'oops-concepts',
+            title: 'OOPs Concepts',
+            description: 'Object-oriented programming principles and design patterns',
+            category: 'OOPs',
+            difficulty: 'Easy',
+            questionCount: 15,
+            estimatedTime: 18,
+            icon: <Cpu size={32} />,
+            color: 'hsl(280, 75%, 55%)'
+        },
+        {
+            id: 'system-design',
+            title: 'System Design Basics',
+            description: 'Learn to design scalable systems and architectures',
+            category: 'System Design',
             difficulty: 'Hard',
-            questionCount: 25,
-            estimatedTime: 35,
-            icon: <Code size={32} />,
-            color: 'hsl(0, 84%, 60%)'
+            questionCount: 12,
+            estimatedTime: 30,
+            icon: <BookOpen size={32} />,
+            color: 'hsl(340, 80%, 55%)'
         }
-    ];
-
-    const containerVariants = {
-        hidden: { opacity: 0 },
-        visible: {
-            opacity: 1,
-            transition: {
-                staggerChildren: 0.1
-            }
-        }
-    };
-
-    const itemVariants = {
-        hidden: { opacity: 0, y: 20 },
-        visible: {
-            opacity: 1,
-            y: 0,
-            transition: {
-                duration: 0.4,
-                ease: 'easeOut'
-            }
-        }
-    };
+    ], []);
 
     const getDifficultyColor = (difficulty) => {
         switch (difficulty.toLowerCase()) {
@@ -108,17 +119,28 @@ const DashboardPage = () => {
         }
     };
 
-    // Filter quizzes based on search and filters
-    const filteredQuizzes = quizzes.filter(quiz => {
-        const matchesSearch = quiz.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                              quiz.description.toLowerCase().includes(searchQuery.toLowerCase());
-        const matchesCategory = categoryFilter === 'all' || quiz.category === categoryFilter;
-        const matchesDifficulty = difficultyFilter === 'all' || quiz.difficulty.toLowerCase() === difficultyFilter;
-        return matchesSearch && matchesCategory && matchesDifficulty;
-    });
+    // Filter quizzes based on search and filters - using useMemo for performance
+    const filteredQuizzes = useMemo(() => {
+        return quizzes.filter(quiz => {
+            // Search filter - empty string matches all
+            const searchTerm = searchQuery.trim().toLowerCase();
+            const matchesSearch = searchTerm === '' || 
+                quiz.title.toLowerCase().includes(searchTerm) ||
+                quiz.description.toLowerCase().includes(searchTerm) ||
+                quiz.category.toLowerCase().includes(searchTerm);
+            
+            // Category filter
+            const matchesCategory = categoryFilter === 'all' || quiz.category === categoryFilter;
+            
+            // Difficulty filter
+            const matchesDifficulty = difficultyFilter === 'all' || quiz.difficulty.toLowerCase() === difficultyFilter;
+            
+            return matchesSearch && matchesCategory && matchesDifficulty;
+        });
+    }, [quizzes, searchQuery, categoryFilter, difficultyFilter]);
 
-    // Get unique categories for filter
-    const categories = [...new Set(quizzes.map(q => q.category))];
+    // Get unique categories for filter dropdown
+    const categories = useMemo(() => [...new Set(quizzes.map(q => q.category))], [quizzes]);
 
     return (
         <main className="dashboard-page">
@@ -227,45 +249,54 @@ const DashboardPage = () => {
                             />
                         </div>
                         <div className="filter-controls">
-                            <div className="filter-select-wrapper">
-                                <Filter size={16} className="filter-icon" />
-                                <select
-                                    value={categoryFilter}
-                                    onChange={(e) => setCategoryFilter(e.target.value)}
-                                    className="filter-select"
-                                >
-                                    <option value="all">All Subjects</option>
-                                    <optgroup label="Subjects">
-                                        {categories.map(cat => (
-                                            <option key={cat} value={cat}>{cat}</option>
-                                        ))}
-                                    </optgroup>
-                                </select>
-                            </div>
+                            <select
+                                value={categoryFilter}
+                                onChange={(e) => setCategoryFilter(e.target.value)}
+                                className="filter-select"
+                            >
+                                <option value="all">All Subjects</option>
+                                {categories.map(cat => (
+                                    <option key={cat} value={cat}>{cat}</option>
+                                ))}
+                            </select>
                             <select
                                 value={difficultyFilter}
                                 onChange={(e) => setDifficultyFilter(e.target.value)}
                                 className="filter-select"
                             >
                                 <option value="all">All Levels</option>
-                                <optgroup label="Difficulty">
-                                    <option value="easy">Easy</option>
-                                    <option value="medium">Medium</option>
-                                    <option value="hard">Hard</option>
-                                </optgroup>
+                                <option value="easy">Easy</option>
+                                <option value="medium">Medium</option>
+                                <option value="hard">Hard</option>
                             </select>
+                            {(categoryFilter !== 'all' || difficultyFilter !== 'all' || searchQuery) && (
+                                <Button 
+                                    variant="ghost" 
+                                    size="sm"
+                                    onClick={() => { 
+                                        setSearchQuery(''); 
+                                        setCategoryFilter('all'); 
+                                        setDifficultyFilter('all'); 
+                                    }}
+                                >
+                                    Clear
+                                </Button>
+                            )}
                         </div>
                     </div>
 
-                    <motion.div
-                        variants={containerVariants}
-                        initial="hidden"
-                        animate="visible"
-                        className={quizViewMode === 'card' ? 'quizzes-grid' : 'quizzes-list'}
-                    >
-                        {filteredQuizzes.length > 0 ? filteredQuizzes.map((quiz) => (
-                            <motion.article key={quiz.id} variants={itemVariants}>
-                                <Card className="quiz-card" hoverable>
+                    <div className={quizViewMode === 'card' ? 'quizzes-grid' : 'quizzes-list'}>
+                        <AnimatePresence mode="popLayout">
+                            {filteredQuizzes.length > 0 ? filteredQuizzes.map((quiz) => (
+                                <motion.article 
+                                    key={quiz.id} 
+                                    layout
+                                    initial={{ opacity: 0, scale: 0.9 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    exit={{ opacity: 0, scale: 0.9 }}
+                                    transition={{ duration: 0.2 }}
+                                >
+                                    <Card className="quiz-card" hoverable>
                                     <div className="quiz-card-header">
                                         <figure className="quiz-icon" style={{ backgroundColor: quiz.color + '20', color: quiz.color }}>
                                             {quiz.icon}
@@ -309,14 +340,20 @@ const DashboardPage = () => {
                                 </Card>
                             </motion.article>
                         )) : (
-                            <div className="no-quizzes-found">
+                            <motion.div 
+                                className="no-quizzes-found"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                key="no-results"
+                            >
                                 <p>No quizzes found matching your criteria.</p>
                                 <Button variant="ghost" onClick={() => { setSearchQuery(''); setCategoryFilter('all'); setDifficultyFilter('all'); }}>
                                     Clear Filters
                                 </Button>
-                            </div>
+                            </motion.div>
                         )}
-                    </motion.div>
+                        </AnimatePresence>
+                    </div>
                 </section>
 
                 {/* Quick Links */}
