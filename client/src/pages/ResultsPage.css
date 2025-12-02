@@ -113,6 +113,7 @@
 .score-grade {
     font-size: var(--text-2xl);
     font-weight: var(--font-bold);
+    display: none;
 }
 
 .score-message {

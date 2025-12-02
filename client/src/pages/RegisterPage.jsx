@@ -59,10 +59,43 @@ const RegisterPage = () => {
         }
     };
 
+    const VALIDATION_PATTERNS = {
+        username: /^[a-zA-Z0-9_]{3,20}$/,
+        email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+        password: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
+    };
+
+    // const [errors, setErrors] = useState({});
+
+    const validateField = (name, value) => {
+        let error = '';
+
+        switch (name) {
+            case 'username':
+                if (!VALIDATION_PATTERNS.username.test(value)) {
+                    error = 'Username must be 3-20 alphanumeric characters or underscores';
+                }
+                break;
+            case 'email':
+                if (!VALIDATION_PATTERNS.email.test(value)) {
+                    error = 'Please enter a valid email address';
+                }
+                break;
+            case 'password':
+                if (!VALIDATION_PATTERNS.password.test(value)) {
+                    error = 'Password must be 8+ characters with uppercase, lowercase, number, and special character';
+                }
+                break;
+        }
+
+        setErrors(prev => ({ ...prev, [name]: error }));
+        return !error;
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (!validateForm()) return;
+        if (!validateForm()) return;  // This line is PERFECT - keep it!
 
         setLoading(true);
         try {
@@ -109,17 +142,24 @@ const RegisterPage = () => {
                                 </label>
                                 <div className="input-wrapper">
                                     <User className="input-icon" size={20} />
-                                    <input
+                                    <Input
                                         type="text"
-                                        id="username"
+                                        label="Username"
                                         name="username"
                                         value={formData.username}
                                         onChange={handleChange}
-                                        className={`form-input ${errors.username ? 'input-error' : ''}`}
-                                        placeholder="Choose a username"
-                                        aria-invalid={errors.username ? 'true' : 'false'}
+                                        onBlur={(e) => validateField('username', e.target.value)}
+                                        error={errors.username}
+                                        aria-invalid={!!errors.username}
                                         aria-describedby={errors.username ? 'username-error' : undefined}
+                                        pattern="[a-zA-Z0-9_]{3,20}"
+                                        required
                                     />
+                                    {errors.username && (
+                                        <span id="username-error" className="error-message" role="alert" style={{ color: 'var(--error)', fontSize: 'var(--text-sm)', display: 'block', marginTop: 'var(--space-2)' }}>
+                                            {errors.username}
+                                        </span>
+                                    )}
                                 </div>
                                 {errors.username && (
                                     <span id="username-error" className="error-message" role="alert">
@@ -135,7 +175,7 @@ const RegisterPage = () => {
                                 </label>
                                 <div className="input-wrapper">
                                     <Mail className="input-icon" size={20} />
-                                    <input
+                                    <Input
                                         type="email"
                                         id="email"
                                         name="email"
