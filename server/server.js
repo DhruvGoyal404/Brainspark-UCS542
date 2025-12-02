@@ -12,7 +12,8 @@ const app = express();
 app.use(cors({
     origin: [
         'http://localhost:5173',
-        'https://brainspark.dhruvgoyal.tech'
+        'https://brainspark.dhruvgoyal.tech',
+        'brainspark-ucs542-ui-gdl8bfvfr-dhruv-goyals-projects.vercel.app'
     ],
     credentials: true
 }));
