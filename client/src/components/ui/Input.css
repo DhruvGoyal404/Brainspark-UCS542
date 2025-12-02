@@ -31,11 +31,14 @@
 .input-icon {
     position: absolute;
     left: var(--space-4);
+    top: 50%;
+    transform: translateY(-50%);
     color: var(--text-tertiary);
     pointer-events: none;
     display: flex;
     align-items: center;
     justify-content: center;
+    z-index: 1;
 }
 
 .input-field {
@@ -52,7 +55,7 @@
 }
 
 .input-with-icon {
-    padding-left: var(--space-12);
+    padding-left: 46px;
 }
 
 .input-field:focus {

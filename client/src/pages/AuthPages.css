@@ -90,7 +90,7 @@
 
 .input-icon {
     position: absolute;
-    left: var(--space-4);
+    left: 14px;
     color: var(--text-tertiary);
     pointer-events: none;
 }
@@ -116,7 +116,7 @@
 .form-input {
     width: 100%;
     padding: var(--space-3) var(--space-4);
-    padding-left: var(--space-12);
+    padding-left: 46px;
     font-size: var(--text-base);
     color: var(--text-primary);
     background: var(--background);

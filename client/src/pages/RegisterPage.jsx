@@ -141,20 +141,19 @@ const RegisterPage = () => {
                                 <label htmlFor="username" className="form-label">
                                     Username
                                 </label>
-                                <div className="input-wrapper">
-                                    <User className="input-icon" size={20} />
-                                    <Input
-                                        type="text"
-                                        name="username"
-                                        placeholder="Choose a username"
-                                        value={formData.username}
-                                        onChange={handleChange}
-                                        error={errors.username}
-                                        aria-invalid={!!errors.username}
-                                        pattern="[a-zA-Z0-9_]{3,20}"
-                                        required
-                                    />
-                                </div>
+                                <Input
+                                    type="text"
+                                    id="username"
+                                    name="username"
+                                    placeholder="Choose a username"
+                                    value={formData.username}
+                                    onChange={handleChange}
+                                    error={errors.username}
+                                    icon={<User size={20} />}
+                                    aria-invalid={!!errors.username}
+                                    pattern="[a-zA-Z0-9_]{3,20}"
+                                    required
+                                />
                             </div>
 
                             {/* Email Field */}
@@ -162,25 +161,17 @@ const RegisterPage = () => {
                                 <label htmlFor="email" className="form-label">
                                     Email Address
                                 </label>
-                                <div className="input-wrapper">
-                                    <Mail className="input-icon" size={20} />
-                                    <Input
-                                        type="email"
-                                        id="email"
-                                        name="email"
-                                        value={formData.email}
-                                        onChange={handleChange}
-                                        className={`form-input ${errors.email ? 'input-error' : ''}`}
-                                        placeholder="you@example.com"
-                                        aria-invalid={errors.email ? 'true' : 'false'}
-                                        aria-describedby={errors.email ? 'email-error' : undefined}
-                                    />
-                                </div>
-                                {errors.email && (
-                                    <span id="email-error" className="error-message" role="alert">
-                                        {errors.email}
-                                    </span>
-                                )}
+                                <Input
+                                    type="email"
+                                    id="email"
+                                    name="email"
+                                    value={formData.email}
+                                    onChange={handleChange}
+                                    icon={<Mail size={20} />}
+                                    error={errors.email}
+                                    placeholder="you@example.com"
+                                    aria-invalid={errors.email ? 'true' : 'false'}
+                                />
                             </div>
 
                             {/* Password Field */}

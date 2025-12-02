@@ -41,12 +41,14 @@ export const AuthProvider = ({ children }) => {
     const login = async (email, password) => {
         try {
             const response = await api.post('/auth/login', { email, password });
-            const { token, user } = response.data;
+            // Backend returns { success: true, data: { user, token } }
+            const { token, user } = response.data.data;
 
-            localStorage.setItem('token', token);
-            localStorage.setItem('user', JSON.stringify(user));
+            // Fix: Use consistent localStorage keys matching the rest of the codebase
+            localStorage.setItem('auth_token', token);
+            localStorage.setItem('user_data', JSON.stringify(user));
             setUser(user);
-            setIsAuthenticated(true);
+            setToken(token);
 
             // REDIRECT BASED ON ROLE
             if (user.role === 'admin') {

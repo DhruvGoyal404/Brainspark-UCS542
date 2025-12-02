@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Sparkles, Trophy, Target, Zap, Users, Brain } from 'lucide-react';
 import Button from '../components/ui/Button';
 import Card from '../components/ui/Card';
@@ -53,19 +53,20 @@ const LandingPage = () => {
         visible: {
             opacity: 1,
             transition: {
-                staggerChildren: 0.1
+                staggerChildren: 0.15,
+                delayChildren: 0.1
             }
         }
     };
 
     const itemVariants = {
-        hidden: { opacity: 0, y: 20 },
+        hidden: { opacity: 0, y: 30 },
         visible: {
             opacity: 1,
             y: 0,
             transition: {
-                duration: 0.5,
-                ease: 'easeOut'
+                duration: 0.7,
+                ease: [0.25, 0.46, 0.45, 0.94]
             }
         }
     };
@@ -79,7 +80,10 @@ const LandingPage = () => {
                     <motion.div
                         initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.8, ease: 'easeOut' }}
+                        transition={{ 
+                            duration: 1, 
+                            ease: [0.25, 0.46, 0.45, 0.94]
+                        }}
                         className="hero-text"
                     >
                         <h1 id="hero-title" className="hero-title">
@@ -110,11 +114,29 @@ const LandingPage = () => {
 
                     <aside className="hero-visual" aria-label="Learning statistics preview">
                         <motion.div
-                            initial={{ opacity: 0, scale: 0.8 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ duration: 0.8, delay: 0.2 }}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ duration: 0.5 }}
                         >
-                            <figure className="floating-card card-1">
+                            <motion.figure 
+                                className="floating-card card-1"
+                                initial={{ opacity: 0, y: 20, scale: 0.9 }}
+                                animate={{ 
+                                    opacity: 1, 
+                                    scale: 1,
+                                    y: [0, -12, 0]
+                                }}
+                                transition={{ 
+                                    opacity: { duration: 0.6, delay: 0.3 },
+                                    scale: { duration: 0.6, delay: 0.3 },
+                                    y: { 
+                                        duration: 4, 
+                                        repeat: Infinity, 
+                                        ease: "easeInOut",
+                                        delay: 0.9
+                                    }
+                                }}
+                            >
                                 <div className="card-content">
                                     <div className="card-icon">🎯</div>
                                     <figcaption className="card-text">
@@ -122,8 +144,26 @@ const LandingPage = () => {
                                         <div className="card-value">7 Days 🔥</div>
                                     </figcaption>
                                 </div>
-                            </figure>
-                            <figure className="floating-card card-2">
+                            </motion.figure>
+                            <motion.figure 
+                                className="floating-card card-2"
+                                initial={{ opacity: 0, y: 20, scale: 0.9 }}
+                                animate={{ 
+                                    opacity: 1, 
+                                    scale: 1,
+                                    y: [0, -12, 0]
+                                }}
+                                transition={{ 
+                                    opacity: { duration: 0.6, delay: 0.5 },
+                                    scale: { duration: 0.6, delay: 0.5 },
+                                    y: { 
+                                        duration: 4.5, 
+                                        repeat: Infinity, 
+                                        ease: "easeInOut",
+                                        delay: 1.1
+                                    }
+                                }}
+                            >
                                 <div className="card-content">
                                     <div className="card-icon">⭐</div>
                                     <figcaption className="card-text">
@@ -131,8 +171,26 @@ const LandingPage = () => {
                                         <div className="card-value">12</div>
                                     </figcaption>
                                 </div>
-                            </figure>
-                            <figure className="floating-card card-3">
+                            </motion.figure>
+                            <motion.figure 
+                                className="floating-card card-3"
+                                initial={{ opacity: 0, y: 20, scale: 0.9 }}
+                                animate={{ 
+                                    opacity: 1, 
+                                    scale: 1,
+                                    y: [0, -12, 0]
+                                }}
+                                transition={{ 
+                                    opacity: { duration: 0.6, delay: 0.7 },
+                                    scale: { duration: 0.6, delay: 0.7 },
+                                    y: { 
+                                        duration: 5, 
+                                        repeat: Infinity, 
+                                        ease: "easeInOut",
+                                        delay: 1.3
+                                    }
+                                }}
+                            >
                                 <div className="card-content">
                                     <div className="card-icon">🏆</div>
                                     <figcaption className="card-text">
@@ -140,7 +198,7 @@ const LandingPage = () => {
                                         <div className="card-value">#42</div>
                                     </figcaption>
                                 </div>
-                            </figure>
+                            </motion.figure>
                         </motion.div>
                     </aside>
                 </article>
@@ -154,7 +212,7 @@ const LandingPage = () => {
                         variants={containerVariants}
                         initial="hidden"
                         whileInView="visible"
-                        viewport={{ once: true }}
+                        viewport={{ once: true, margin: "-100px" }}
                         className="stats-grid"
                     >
                         {stats.map((stat, index) => (
@@ -177,8 +235,11 @@ const LandingPage = () => {
                     <motion.header
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.6 }}
+                        viewport={{ once: true, margin: "-50px" }}
+                        transition={{ 
+                            duration: 0.8,
+                            ease: [0.25, 0.46, 0.45, 0.94]
+                        }}
                         className="section-header"
                     >
                         <h2 id="features-title" className="section-title">Why Choose BrainSpark?</h2>
@@ -191,7 +252,7 @@ const LandingPage = () => {
                         variants={containerVariants}
                         initial="hidden"
                         whileInView="visible"
-                        viewport={{ once: true }}
+                        viewport={{ once: true, margin: "-100px" }}
                         className="features-grid"
                     >
                         {features.map((feature, index) => (
@@ -220,8 +281,11 @@ const LandingPage = () => {
                     <motion.article
                         initial={{ opacity: 0, scale: 0.95 }}
                         whileInView={{ opacity: 1, scale: 1 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.6 }}
+                        viewport={{ once: true, margin: "-50px" }}
+                        transition={{ 
+                            duration: 0.8,
+                            ease: [0.25, 0.46, 0.45, 0.94]
+                        }}
                         className="cta-card"
                     >
                         <h2 id="cta-title" className="cta-title">Ready to Start Your Learning Journey?</h2>
@@ -249,13 +313,14 @@ const LandingPage = () => {
                         </div>
                         <nav className="footer-links" aria-label="Footer navigation">
                             <a href="#features">Features</a>
-                            <a href="#about">About</a>
                             <a href="#contact">Contact</a>
                             <a href="#privacy">Privacy</a>
+                            <Link to="/about">About</Link>
                         </nav>
                     </div>
                     <div className="footer-bottom">
-                        <p><small>&copy; 2024 BrainSpark. Crafted with passion for learners.</small></p>
+                        <p><small>&copy; 2025 BrainSpark. Crafted with passion for learners.</small></p>
+                        <p><small>Made By: <a href="https://github.com/DhruvGoyal404" target="_blank" rel="noopener noreferrer" className="footer-credit-link">Dhruv Goyal</a></small></p>
                     </div>
                 </div>
             </footer>

@@ -1,0 +1,189 @@
+.logout-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    padding: var(--space-4);
+}
+
+.logout-modal {
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    padding: var(--space-8);
+    max-width: 440px;
+    width: 100%;
+    position: relative;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5),
+        0 0 0 1px rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--border-color);
+}
+
+.logout-modal-close {
+    position: absolute;
+    top: var(--space-4);
+    right: var(--space-4);
+    background: var(--surface);
+    border: none;
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.logout-modal-close:hover {
+    background: var(--error-alpha-10);
+    color: var(--error);
+    transform: scale(1.1);
+}
+
+.logout-modal-icon {
+    width: 88px;
+    height: 88px;
+    margin: 0 auto var(--space-6);
+    background: linear-gradient(135deg,
+            hsla(45, 100%, 51%, 0.15),
+            hsla(0, 84%, 60%, 0.15));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--warning);
+    box-shadow: 0 8px 16px rgba(255, 159, 10, 0.2);
+}
+
+.logout-modal-content {
+    text-align: center;
+    margin-bottom: var(--space-8);
+}
+
+.logout-modal-title {
+    font-size: var(--text-2xl);
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: var(--space-3);
+    font-family: var(--font-display);
+}
+
+.logout-modal-message {
+    font-size: var(--text-base);
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.logout-modal-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-3);
+}
+
+/* Native HTML Button Styles */
+.logout-btn {
+    padding: var(--space-3) var(--space-5);
+    font-size: var(--text-base);
+    font-weight: 600;
+    font-family: var(--font-primary);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    min-height: 48px;
+    border: 2px solid transparent;
+}
+
+/* Cancel Button */
+.logout-btn-cancel {
+    background: var(--surface);
+    color: var(--text-primary);
+    border-color: var(--border);
+}
+
+.logout-btn-cancel:hover {
+    background: var(--surface-hover);
+    border-color: var(--primary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.logout-btn-cancel:active {
+    transform: translateY(0);
+}
+
+/* Confirm Button */
+.logout-btn-confirm {
+    background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+    color: white;
+    border-color: var(--primary);
+    box-shadow: 0 4px 12px var(--primary-alpha-30);
+}
+
+.logout-btn-confirm:hover {
+    background: linear-gradient(135deg, var(--primary-hover), var(--primary-dark));
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px var(--primary-alpha-30);
+}
+
+.logout-btn-confirm:active {
+    transform: translateY(0);
+}
+
+/* Focus states for accessibility */
+.logout-btn:focus-visible {
+    outline: 3px solid var(--primary);
+    outline-offset: 2px;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+    .logout-modal {
+        padding: var(--space-6);
+        max-width: 100%;
+    }
+
+    .logout-modal-icon {
+        width: 72px;
+        height: 72px;
+    }
+
+    .logout-modal-title {
+        font-size: var(--text-xl);
+    }
+
+    .logout-modal-actions {
+        grid-template-columns: 1fr;
+        gap: var(--space-2);
+    }
+
+    .logout-btn {
+        width: 100%;
+    }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+
+    .logout-modal-close,
+    .logout-btn {
+        transition: none;
+    }
+
+    .logout-btn-cancel:hover,
+    .logout-btn-confirm:hover {
+        transform: none;
+    }
+}

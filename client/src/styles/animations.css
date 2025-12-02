@@ -233,14 +233,16 @@
 
 /* Float */
 @keyframes float {
-
-    0%,
-    100% {
-        transform: translateY(0px);
+    0% {
+        transform: translateY(0px) translateZ(0);
     }
 
     50% {
-        transform: translateY(-20px);
+        transform: translateY(-15px) translateZ(0);
+    }
+
+    100% {
+        transform: translateY(0px) translateZ(0);
     }
 }
 

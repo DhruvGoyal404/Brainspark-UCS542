@@ -24,10 +24,26 @@ const QuestionBank = () => {
 
     const fetchQuestions = async () => {
         try {
-            const response = await api.get('/admin/questions');
-            setQuestions(response.data);
+            // Note: Backend doesn't have /admin/questions endpoint
+            // We'll fetch from quizzes and extract all questions
+            const response = await api.get('/quiz');
+            // Extract all questions from all quizzes
+            const allQuestions = [];
+            if (response.data?.data) {
+                response.data.data.forEach(quiz => {
+                    quiz.questions?.forEach(q => {
+                        allQuestions.push({
+                            ...q,
+                            category: quiz.category,
+                            quizTitle: quiz.title
+                        });
+                    });
+                });
+            }
+            setQuestions(allQuestions);
         } catch (error) {
             console.error('Failed to fetch questions:', error);
+            setQuestions([]); // Ensure it's an array even on error
         }
     };
 

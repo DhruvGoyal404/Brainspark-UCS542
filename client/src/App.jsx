@@ -10,9 +10,11 @@ import QuizPage from './pages/QuizPage';
 import ResultsPage from './pages/ResultsPage';
 import LeaderboardPage from './pages/LeaderboardPage';
 import ProfilePage from './pages/ProfilePage';
+import AdminProfilePage from './pages/AdminProfilePage';
 import AnalyticsPage from './pages/AnalyticsPage';
 import SettingsPage from './pages/SettingsPage';
 import AdminPage from './pages/AdminPage';
+import AboutPage from './pages/AboutPage';
 import NotFoundPage from './pages/NotFoundPage';
 import ErrorBoundary from './components/common/ErrorBoundary';
 import './styles/global.css';
@@ -38,6 +40,53 @@ const ProtectedRoute = ({ children }) => {
   return isAuthenticated ? children : <Navigate to="/login" />;
 };
 
+// Public Route Component - redirects authenticated users to dashboard or admin
+const PublicRoute = ({ children }) => {
+  const { isAuthenticated, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        minHeight: '100vh'
+      }}>
+        <div className="spinner spinner-lg"></div>
+      </div>
+    );
+  }
+
+  if (isAuthenticated) {
+    // Check user role to redirect accordingly
+    const userDataString = localStorage.getItem('user_data');
+    if (userDataString) {
+      try {
+        const userData = JSON.parse(userDataString);
+        if (userData.role === 'admin') {
+          return <Navigate to="/admin" />;
+        }
+      } catch (error) {
+        console.error('Error parsing user data:', error);
+      }
+    }
+    return <Navigate to="/dashboard" />;
+  }
+
+  return children;
+};
+
+// Profile Route Component - redirects to appropriate profile based on role
+const ProfileRedirect = () => {
+  const { user } = useAuth();
+
+  if (user?.role === 'admin') {
+    return <AdminProfilePage />;
+  }
+
+  return <ProfilePage />;
+};
+
 // Layout wrapper to conditionally show header
 const Layout = ({ children }) => {
   const location = useLocation();
@@ -54,9 +103,10 @@ const Layout = ({ children }) => {
 function AppRoutes() {
   return (
     <Routes>
-      <Route path="/" element={<LandingPage />} />
-      <Route path="/register" element={<RegisterPage />} />
-      <Route path="/login" element={<LoginPage />} />
+      <Route path="/" element={<PublicRoute><LandingPage /></PublicRoute>} />
+      <Route path="/about" element={<AboutPage />} />
+      <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
+      <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
       <Route
         path="/dashboard"
         element={
@@ -93,7 +143,7 @@ function AppRoutes() {
         path="/profile"
         element={
           <ProtectedRoute>
-            <ProfilePage />
+            <ProfileRedirect />
           </ProtectedRoute>
         }
       />

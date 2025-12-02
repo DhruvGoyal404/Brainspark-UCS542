@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Save, X, GripVertical } from 'lucide-react';
+import { Plus, Save, X, GripVertical, FileText } from 'lucide-react';
 import Card from '../ui/Card';
 import Button from '../ui/Button';
 import Input from '../ui/Input';
@@ -103,14 +103,25 @@ const QuizCreator = () => {
         }
 
         try {
+            // Generate unique quiz ID
+            const quizId = `quiz-${Date.now()}`;
+
             await api.post('/admin/quiz', {
-                ...quizData,
+                id: quizId,
+                title: quizData.title,
+                description: quizData.description,
+                category: quizData.category,
+                difficulty: quizData.difficulty,
                 questions: questions.map(q => ({
                     questionText: q.questionText,
                     options: q.options,
                     explanation: q.explanation,
                     difficulty: q.difficulty,
                 })),
+                metadata: {
+                    estimatedTime: quizData.estimatedTime,
+                    totalQuestions: questions.length
+                }
             });
 
             setToastMessage('Quiz created successfully!');
@@ -290,8 +301,10 @@ const QuizCreator = () => {
 
             {showToast && (
                 <Toast
-                    message={toastMessage}
-                    type={toastMessage.includes('success') ? 'success' : 'error'}
+                    toast={{
+                        message: toastMessage,
+                        type: toastMessage.includes('success') ? 'success' : 'error'
+                    }}
                     onClose={() => setShowToast(false)}
                 />
             )}
