@@ -13,7 +13,8 @@ app.use(cors({
     origin: [
         'http://localhost:5173',
         'https://brainspark.dhruvgoyal.tech',
-        'brainspark-ucs542-ui-gdl8bfvfr-dhruv-goyals-projects.vercel.app'
+        'https://brainspark-ucs542-ui-gdl8bfvfr-dhruv-goyals-projects.vercel.app',
+        'https://brainspark-api-bshyexhfgadjhuah.centralindia-01.azurewebsites.net'
     ],
     credentials: true
 }));

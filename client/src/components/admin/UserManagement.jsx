@@ -3,7 +3,7 @@ import { Users, Search, Shield } from 'lucide-react';
 import Card from '../ui/Card';
 import Avatar from '../ui/Avatar';
 import Input from '../ui/Input';
-import axios from 'axios';
+import api from '../../utils/api';
 import './UserManagement.css';
 
 const UserManagement = () => {
@@ -16,10 +16,7 @@ const UserManagement = () => {
 
     const fetchUsers = async () => {
         try {
-            const token = localStorage.getItem('token');
-            const response = await axios.get('http://localhost:5000/api/admin/users', {
-                headers: { Authorization: `Bearer ${token}` },
-            });
+            const response = await api.get('/admin/users');
             setUsers(response.data);
         } catch (error) {
             console.error('Failed to fetch users:', error);

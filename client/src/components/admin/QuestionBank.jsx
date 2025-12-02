@@ -4,7 +4,7 @@ import Card from '../ui/Card';
 import Button from '../ui/Button';
 import Input from '../ui/Input';
 import Select from '../ui/Select';
-import axios from 'axios';
+import api from '../../utils/api';
 import './QuestionBank.css';
 
 const QuestionBank = () => {
@@ -24,10 +24,7 @@ const QuestionBank = () => {
 
     const fetchQuestions = async () => {
         try {
-            const token = localStorage.getItem('token');
-            const response = await axios.get('http://localhost:5000/api/admin/questions', {
-                headers: { Authorization: `Bearer ${token}` },
-            });
+            const response = await api.get('/admin/questions');
             setQuestions(response.data);
         } catch (error) {
             console.error('Failed to fetch questions:', error);
@@ -58,10 +55,7 @@ const QuestionBank = () => {
         if (!window.confirm('Are you sure you want to delete this question?')) return;
 
         try {
-            const token = localStorage.getItem('token');
-            await axios.delete(`http://localhost:5000/api/admin/questions/${id}`, {
-                headers: { Authorization: `Bearer ${token}` },
-            });
+            await api.delete(`/admin/questions/${id}`);
             fetchQuestions();
         } catch (error) {
             console.error('Failed to delete question:', error);

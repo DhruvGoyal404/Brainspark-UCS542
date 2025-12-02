@@ -6,7 +6,7 @@ import Input from '../ui/Input';
 import Select from '../ui/Select';
 import Checkbox from '../ui/Checkbox';
 import Toast from '../ui/Toast';
-import axios from 'axios';
+import api from '../../utils/api';
 import './QuizCreator.css';
 
 const QuizCreator = () => {
@@ -103,8 +103,7 @@ const QuizCreator = () => {
         }
 
         try {
-            const token = localStorage.getItem('token');
-            await axios.post('http://localhost:5000/api/admin/quiz', {
+            await api.post('/admin/quiz', {
                 ...quizData,
                 questions: questions.map(q => ({
                     questionText: q.questionText,
@@ -112,8 +111,6 @@ const QuizCreator = () => {
                     explanation: q.explanation,
                     difficulty: q.difficulty,
                 })),
-            }, {
-                headers: { Authorization: `Bearer ${token}` },
             });
 
             setToastMessage('Quiz created successfully!');
