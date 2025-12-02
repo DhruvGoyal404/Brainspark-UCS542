@@ -1,0 +1,121 @@
+/* Confirmation Modal Styles */
+
+.confirmation-backdrop {
+    position: fixed;
+    inset: 0;
+    background: var(--overlay);
+    z-index: var(--z-modal-backdrop);
+}
+
+.confirmation-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 450px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-2xl);
+    z-index: var(--z-modal);
+    overflow: hidden;
+}
+
+.confirmation-header {
+    position: relative;
+    padding: var(--space-6) var(--space-6) var(--space-4);
+    display: flex;
+    justify-content: center;
+}
+
+.confirmation-icon-wrapper {
+    display: flex;
+    justify-content: center;
+}
+
+.confirmation-icon {
+    width: 64px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-full);
+    background: var(--primary-alpha-10);
+    color: var(--primary);
+}
+
+.confirmation-icon-danger {
+    background: var(--error-alpha-10);
+    color: var(--error);
+}
+
+.confirmation-icon-warning {
+    background: var(--warning-alpha-10);
+    color: var(--warning);
+}
+
+.confirmation-close {
+    position: absolute;
+    top: var(--space-4);
+    right: var(--space-4);
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-sm);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all var(--duration-fast);
+}
+
+.confirmation-close:hover {
+    background: var(--surface-hover);
+    color: var(--text-primary);
+}
+
+.confirmation-content {
+    padding: 0 var(--space-6) var(--space-6);
+    text-align: center;
+}
+
+.confirmation-title {
+    font-size: var(--text-xl);
+    font-weight: var(--font-bold);
+    color: var(--text-primary);
+    margin-bottom: var(--space-3);
+}
+
+.confirmation-message {
+    font-size: var(--text-base);
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.confirmation-actions {
+    display: flex;
+    gap: var(--space-3);
+    padding: var(--space-4) var(--space-6) var(--space-6);
+    border-top: 1px solid var(--border);
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .confirmation-modal {
+        max-width: 95%;
+    }
+
+    .confirmation-actions {
+        flex-direction: column-reverse;
+    }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+    .confirmation-modal {
+        animation: none;
+    }
+}

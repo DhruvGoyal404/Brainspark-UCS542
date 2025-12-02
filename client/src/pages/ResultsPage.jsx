@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Trophy, Target, TrendingUp, RotateCcw, Home, Share2 } from 'lucide-react';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
+import { Share } from 'lucide-react';
 import './ResultsPage.css';
 
 const ResultsPage = () => {
@@ -31,6 +32,25 @@ const ResultsPage = () => {
             createConfetti();
         }
     }, [location.state, navigate, percentage]);
+
+    const handleShare = async () => {
+        const shareData = {
+            title: 'BrainSpark Quiz Results',
+            text: `I scored ${score}% on ${quizTitle}! 🎉`,
+            url: window.location.href
+        };
+
+        try {
+            if (navigator.share) {
+                await navigator.share(shareData);
+            } else {
+                await navigator.clipboard.writeText(window.location.href);
+                alert('Link copied to clipboard!');
+            }
+        } catch (error) {
+            console.error('Error sharing:', error);
+        }
+    };
 
     const createConfetti = () => {
         const duration = 3000;
@@ -204,15 +224,7 @@ const ResultsPage = () => {
                         Back to Dashboard
                     </Button>
 
-                    <Button
-                        variant="ghost"
-                        size="lg"
-                        icon={<Share2 size={20} />}
-                        onClick={() => {
-                            // Share functionality (to be implemented)
-                            alert('Share feature coming soon!');
-                        }}
-                    >
+                    <Button variant="outline" onClick={handleShare} icon={<Share size={20} />}>
                         Share Results
                     </Button>
                 </motion.div>

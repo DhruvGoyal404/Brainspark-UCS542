@@ -1,0 +1,99 @@
+.xp-progress-bar {
+    width: 100%;
+}
+
+.xp-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-2);
+}
+
+.xp-label {
+    font-size: var(--text-sm);
+    font-weight: 700;
+    color: var(--text-primary);
+    padding: var(--space-1) var(--space-3);
+    background: var(--primary-alpha-20);
+    border-radius: var(--radius-full);
+    color: var(--primary);
+}
+
+.xp-value {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.xp-track {
+    position: relative;
+    width: 100%;
+    background: var(--border);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+}
+
+.xp-progress-bar.sm .xp-track {
+    height: 6px;
+}
+
+.xp-progress-bar.md .xp-track {
+    height: 10px;
+}
+
+.xp-progress-bar.lg .xp-track {
+    height: 16px;
+}
+
+.xp-fill {
+    position: relative;
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    border-radius: var(--radius-full);
+    transition: width 0.5s ease;
+    overflow: hidden;
+}
+
+.xp-shine {
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg,
+            transparent,
+            rgba(255, 255, 255, 0.3),
+            transparent);
+    animation: shine 2s ease-in-out infinite;
+}
+
+.level-up-message {
+    margin-top: var(--space-2);
+    text-align: center;
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--success);
+    animation: bounce 1s ease-in-out infinite;
+}
+
+@keyframes shine {
+    0% {
+        left: -100%;
+    }
+
+    100% {
+        left: 100%;
+    }
+}
+
+@keyframes bounce {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-4px);
+    }
+}

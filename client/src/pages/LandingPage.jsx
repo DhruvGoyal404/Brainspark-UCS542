@@ -71,18 +71,18 @@ const LandingPage = () => {
     };
 
     return (
-        <div className="landing-page">
+        <main className="landing-page">
             {/* Hero Section */}
-            <section className="hero">
+            <section className="hero" aria-labelledby="hero-title">
                 <div className="hero-background"></div>
-                <div className="hero-content container">
+                <article className="hero-content container">
                     <motion.div
                         initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.8, ease: 'easeOut' }}
                         className="hero-text"
                     >
-                        <h1 className="hero-title">
+                        <h1 id="hero-title" className="hero-title">
                             Ignite Your Learning with
                             <span className="gradient-text"> BrainSpark</span>
                         </h1>
@@ -108,46 +108,48 @@ const LandingPage = () => {
                         </div>
                     </motion.div>
 
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.8, delay: 0.2 }}
-                        className="hero-visual"
-                    >
-                        <div className="floating-card card-1">
-                            <div className="card-content">
-                                <div className="card-icon">🎯</div>
-                                <div className="card-text">
-                                    <div className="card-label">Current Streak</div>
-                                    <div className="card-value">7 Days 🔥</div>
+                    <aside className="hero-visual" aria-label="Learning statistics preview">
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.8, delay: 0.2 }}
+                        >
+                            <figure className="floating-card card-1">
+                                <div className="card-content">
+                                    <div className="card-icon">🎯</div>
+                                    <figcaption className="card-text">
+                                        <div className="card-label">Current Streak</div>
+                                        <div className="card-value">7 Days 🔥</div>
+                                    </figcaption>
                                 </div>
-                            </div>
-                        </div>
-                        <div className="floating-card card-2">
-                            <div className="card-content">
-                                <div className="card-icon">⭐</div>
-                                <div className="card-text">
-                                    <div className="card-label">Level</div>
-                                    <div className="card-value">12</div>
+                            </figure>
+                            <figure className="floating-card card-2">
+                                <div className="card-content">
+                                    <div className="card-icon">⭐</div>
+                                    <figcaption className="card-text">
+                                        <div className="card-label">Level</div>
+                                        <div className="card-value">12</div>
+                                    </figcaption>
                                 </div>
-                            </div>
-                        </div>
-                        <div className="floating-card card-3">
-                            <div className="card-content">
-                                <div className="card-icon">🏆</div>
-                                <div className="card-text">
-                                    <div className="card-label">Rank</div>
-                                    <div className="card-value">#42</div>
+                            </figure>
+                            <figure className="floating-card card-3">
+                                <div className="card-content">
+                                    <div className="card-icon">🏆</div>
+                                    <figcaption className="card-text">
+                                        <div className="card-label">Rank</div>
+                                        <div className="card-value">#42</div>
+                                    </figcaption>
                                 </div>
-                            </div>
-                        </div>
-                    </motion.div>
-                </div>
+                            </figure>
+                        </motion.div>
+                    </aside>
+                </article>
             </section>
 
             {/* Stats Section */}
-            <section className="stats-section">
+            <section className="stats-section" aria-labelledby="stats-title">
                 <div className="container">
+                    <h2 id="stats-title" className="sr-only">Platform Statistics</h2>
                     <motion.div
                         variants={containerVariants}
                         initial="hidden"
@@ -156,34 +158,34 @@ const LandingPage = () => {
                         className="stats-grid"
                     >
                         {stats.map((stat, index) => (
-                            <motion.div
+                            <motion.article
                                 key={index}
                                 variants={itemVariants}
                                 className="stat-card"
                             >
                                 <div className="stat-value">{stat.value}</div>
                                 <div className="stat-label">{stat.label}</div>
-                            </motion.div>
+                            </motion.article>
                         ))}
                     </motion.div>
                 </div>
             </section>
 
             {/* Features Section */}
-            <section className="features-section">
+            <section className="features-section" aria-labelledby="features-title">
                 <div className="container">
-                    <motion.div
+                    <motion.header
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ duration: 0.6 }}
                         className="section-header"
                     >
-                        <h2 className="section-title">Why Choose BrainSpark?</h2>
+                        <h2 id="features-title" className="section-title">Why Choose BrainSpark?</h2>
                         <p className="section-subtitle">
                             Everything you need to master any subject through interactive learning
                         </p>
-                    </motion.div>
+                    </motion.header>
 
                     <motion.div
                         variants={containerVariants}
@@ -193,32 +195,36 @@ const LandingPage = () => {
                         className="features-grid"
                     >
                         {features.map((feature, index) => (
-                            <motion.div
+                            <motion.article
                                 key={index}
                                 variants={itemVariants}
                             >
                                 <Card hoverable className="feature-card">
-                                    <div className="feature-icon">{feature.icon}</div>
-                                    <h3 className="feature-title">{feature.title}</h3>
-                                    <p className="feature-description">{feature.description}</p>
+                                    <figure>
+                                        <div className="feature-icon">{feature.icon}</div>
+                                        <figcaption>
+                                            <h3 className="feature-title">{feature.title}</h3>
+                                            <p className="feature-description">{feature.description}</p>
+                                        </figcaption>
+                                    </figure>
                                 </Card>
-                            </motion.div>
+                            </motion.article>
                         ))}
                     </motion.div>
                 </div>
             </section>
 
             {/* CTA Section */}
-            <section className="cta-section">
+            <section className="cta-section" aria-labelledby="cta-title">
                 <div className="container">
-                    <motion.div
+                    <motion.article
                         initial={{ opacity: 0, scale: 0.95 }}
                         whileInView={{ opacity: 1, scale: 1 }}
                         viewport={{ once: true }}
                         transition={{ duration: 0.6 }}
                         className="cta-card"
                     >
-                        <h2 className="cta-title">Ready to Start Your Learning Journey?</h2>
+                        <h2 id="cta-title" className="cta-title">Ready to Start Your Learning Journey?</h2>
                         <p className="cta-subtitle">
                             Join thousands of learners who are already sparking their potential
                         </p>
@@ -229,7 +235,7 @@ const LandingPage = () => {
                         >
                             Create Free Account
                         </Button>
-                    </motion.div>
+                    </motion.article>
                 </div>
             </section>
 
@@ -241,19 +247,19 @@ const LandingPage = () => {
                             <h3 className="brand-name">BrainSpark</h3>
                             <p className="brand-tagline">Ignite Your Learning</p>
                         </div>
-                        <div className="footer-links">
+                        <nav className="footer-links" aria-label="Footer navigation">
                             <a href="#features">Features</a>
                             <a href="#about">About</a>
                             <a href="#contact">Contact</a>
                             <a href="#privacy">Privacy</a>
-                        </div>
+                        </nav>
                     </div>
                     <div className="footer-bottom">
-                        <p>&copy; 2024 BrainSpark. Crafted with passion for learners.</p>
+                        <p><small>&copy; 2024 BrainSpark. Crafted with passion for learners.</small></p>
                     </div>
                 </div>
             </footer>
-        </div>
+        </main>
     );
 };
 

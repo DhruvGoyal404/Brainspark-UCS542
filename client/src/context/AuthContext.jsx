@@ -41,22 +41,25 @@ export const AuthProvider = ({ children }) => {
     const login = async (email, password) => {
         try {
             const response = await api.post('/auth/login', { email, password });
+            const { token, user } = response.data;
 
-            if (response.data.success) {
-                const { user: userData, token: authToken } = response.data.data;
+            localStorage.setItem('token', token);
+            localStorage.setItem('user', JSON.stringify(user));
+            setUser(user);
+            setIsAuthenticated(true);
 
-                setUser(userData);
-                setToken(authToken);
-                localStorage.setItem('auth_token', authToken);
-                localStorage.setItem('user_data', JSON.stringify(userData));
-
-                return { success: true };
+            // REDIRECT BASED ON ROLE
+            if (user.role === 'admin') {
+                window.location.href = '/admin'; // Force navigate to admin
+            } else {
+                window.location.href = '/dashboard';
             }
+
+            return { success: true };
         } catch (error) {
-            console.error('Login failed:', error);
             return {
                 success: false,
-                error: error.response?.data?.message || 'Login failed. Please try again.'
+                message: error.response?.data?.message || 'Login failed'
             };
         }
     };

@@ -1,0 +1,21 @@
+.filter-controls {
+    display: flex;
+    gap: var(--space-4);
+    margin-bottom: var(--space-6);
+    flex-wrap: wrap;
+}
+
+.filter-controls>* {
+    flex: 1;
+    min-width: 200px;
+}
+
+@media (max-width: 768px) {
+    .filter-controls {
+        flex-direction: column;
+    }
+
+    .filter-controls>* {
+        width: 100%;
+    }
+}

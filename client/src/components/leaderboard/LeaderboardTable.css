@@ -1,0 +1,101 @@
+.leaderboard-table {
+    width: 100%;
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+thead {
+    background: var(--surface);
+    border-bottom: 2px solid var(--border);
+}
+
+th {
+    padding: var(--space-4);
+    text-align: left;
+    font-size: var(--text-sm);
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+}
+
+tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: all 0.2s ease;
+}
+
+tbody tr:hover {
+    background: var(--primary-alpha-10);
+}
+
+tbody tr.current-user {
+    background: var(--primary-alpha-20);
+    font-weight: 600;
+}
+
+td {
+    padding: var(--space-4);
+    font-size: var(--text-base);
+    color: var(--text-primary);
+}
+
+.rank-cell {
+    width: 80px;
+    font-size: var(--text-xl);
+    text-align: center;
+}
+
+.rank-number {
+    font-weight: 700;
+    color: var(--text-secondary);
+}
+
+.user-cell {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.username {
+    font-weight: 600;
+}
+
+.you-badge {
+    margin-left: var(--space-2);
+    padding: var(--space-1) var(--space-2);
+    background: var(--primary);
+    color: white;
+    font-size: var(--text-xs);
+    border-radius: var(--radius-sm);
+    font-weight: 700;
+}
+
+.accuracy {
+    font-weight: 600;
+    color: var(--success);
+}
+
+.xp-cell {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-weight: 700;
+}
+
+.xp-icon {
+    color: var(--warning);
+}
+
+@media (max-width: 768px) {
+    .leaderboard-table {
+        font-size: var(--text-sm);
+    }
+
+    th,
+    td {
+        padding: var(--space-3);
+    }
+}

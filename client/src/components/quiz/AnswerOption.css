@@ -1,0 +1,116 @@
+.answer-option {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    width: 100%;
+    padding: var(--space-4);
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left;
+    font-size: var(--text-base);
+    color: var(--text-primary);
+}
+
+.answer-option:hover:not(.disabled) {
+    border-color: var(--primary);
+    transform: translateX(4px);
+    box-shadow: var(--shadow-md);
+}
+
+.answer-option.selected {
+    border-color: var(--primary);
+    background: var(--primary-alpha-10);
+}
+
+.answer-option.correct {
+    border-color: var(--success);
+    background: var(--success-bg);
+    animation: correctPulse 0.4s ease;
+}
+
+.answer-option.incorrect {
+    border-color: var(--error);
+    background: var(--error-bg);
+    animation: shake 0.4s ease;
+}
+
+.answer-option.disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.option-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    height: 32px;
+    background: var(--primary-alpha-20);
+    border-radius: var(--radius-sm);
+    font-weight: 700;
+    color: var(--primary);
+    flex-shrink: 0;
+}
+
+.answer-option.correct .option-label {
+    background: var(--success-bg);
+    color: var(--success);
+}
+
+.answer-option.incorrect .option-label {
+    background: var(--error-bg);
+    color: var(--error);
+}
+
+.option-text {
+    flex: 1;
+    font-weight: 500;
+}
+
+.feedback-icon {
+    flex-shrink: 0;
+    margin-left: auto;
+}
+
+.correct-icon {
+    color: var(--success);
+}
+
+.incorrect-icon {
+    color: var(--error);
+}
+
+@keyframes correctPulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.02);
+    }
+}
+
+@keyframes shake {
+
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-8px);
+    }
+
+    50% {
+        transform: translateX(8px);
+    }
+
+    75% {
+        transform: translateX(-4px);
+    }
+}

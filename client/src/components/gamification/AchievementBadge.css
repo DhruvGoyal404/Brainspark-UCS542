@@ -1,0 +1,102 @@
+.achievement-badge {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-4);
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-sm);
+    transition: all 0.3s ease;
+}
+
+.achievement-badge.unlocked {
+    border-color: var(--primary);
+    cursor: pointer;
+}
+
+.achievement-badge.unlocked:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+}
+
+.achievement-badge.locked {
+    opacity: 0.6;
+    filter: grayscale(1);
+}
+
+.badge-icon-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.achievement-badge.sm .badge-icon-wrapper {
+    font-size: 2rem;
+}
+
+.achievement-badge.md .badge-icon-wrapper {
+    font-size: 3rem;
+}
+
+.achievement-badge.lg .badge-icon-wrapper {
+    font-size: 4rem;
+}
+
+.badge-icon {
+    z-index: 1;
+}
+
+.lock-overlay {
+    position: absolute;
+    font-size: 1.5rem;
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 50%;
+    padding: var(--space-2);
+    backdrop-filter: blur(4px);
+}
+
+.badge-details {
+    flex: 1;
+}
+
+.badge-name {
+    margin: 0 0 var(--space-1) 0;
+    font-size: var(--text-base);
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.badge-description {
+    margin: 0;
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+}
+
+.badge-glow {
+    position: absolute;
+    inset: -4px;
+    border-radius: var(--radius-sm);
+    background: linear-gradient(45deg, var(--primary), var(--secondary));
+    opacity: 0.1;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.achievement-badge.unlocked .badge-glow {
+    animation: bglow 2s ease-in-out infinite;
+}
+
+@keyframes bglow {
+
+    0%,
+    100% {
+        opacity: 0.1;
+    }
+
+    50% {
+        opacity: 0.2;
+    }
+}

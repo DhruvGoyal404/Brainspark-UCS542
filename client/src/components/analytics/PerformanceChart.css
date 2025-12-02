@@ -1,0 +1,7 @@
+.performance-chart {
+    width: 100%;
+    height: 300px;
+    padding: var(--space-4);
+    background: var(--surface);
+    border-radius: var(--radius-sm);
+}

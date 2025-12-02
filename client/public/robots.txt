@@ -1,0 +1,49 @@
+# BrainSpark Quiz Platform - robots.txt
+# This file tells search engine crawlers which pages to crawl and which to ignore
+
+User-agent: *
+# Allow all bots to crawl the site
+
+# Allow main pages
+Allow: /
+Allow: /register
+Allow: /login
+Allow: /dashboard
+Allow: /leaderboard
+Allow: /analytics
+Allow: /profile
+
+# Disallow admin pages (for security)
+Disallow: /admin
+
+# Disallow API endpoints (not needed in search results)
+Disallow: /api/
+
+# Disallow user-specific dynamic routes
+Disallow: /quiz/*/results
+
+# Allow quiz pages
+Allow: /quiz/
+
+# Sitemap location
+Sitemap: https://brainspark.app/sitemap.xml
+
+# Crawl delay (optional - be nice to servers)
+Crawl-delay: 1
+
+# Specific rules for common bots
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Slurp
+Allow: /
+
+# Block bad bots (optional)
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /

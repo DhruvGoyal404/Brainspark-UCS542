@@ -1,0 +1,219 @@
+.answer-review {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-6);
+    flex-wrap: wrap;
+    gap: var(--space-4);
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+}
+
+.header-icon {
+    color: var(--primary);
+}
+
+.review-title {
+    font-size: var(--text-2xl);
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.review-subtitle {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    margin: var(--space-1) 0 0 0;
+}
+
+.header-actions {
+    display: flex;
+    gap: var(--space-2);
+}
+
+.review-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.review-item {
+    padding: 0;
+    overflow: hidden;
+    border-left: 4px solid;
+}
+
+.review-item.correct {
+    border-left-color: var(--success);
+}
+
+.review-item.incorrect {
+    border-left-color: var(--error);
+}
+
+.review-question-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-4);
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.review-question-header:hover {
+    background: var(--primary-alpha-10);
+}
+
+.question-info {
+    flex: 1;
+}
+
+.question-number {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--text-sm);
+    font-weight: 700;
+    color: var(--text-secondary);
+    margin-bottom: var(--space-2);
+}
+
+.status-icon.correct {
+    color: var(--success);
+}
+
+.status-icon.incorrect {
+    color: var(--error);
+}
+
+.question-text {
+    font-size: var(--text-base);
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.expand-icon {
+    color: var(--text-secondary);
+    flex-shrink: 0;
+}
+
+.review-details {
+    padding: 0 var(--space-4) var(--space-4) var(--space-4);
+    border-top: 1px solid var(--border);
+    overflow: hidden;
+}
+
+.options-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    margin: var(--space-4) 0;
+}
+
+.option-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    border: 2px solid var(--border);
+}
+
+.option-item.correct-option {
+    background: var(--success-bg);
+    border-color: var(--success);
+}
+
+.option-item.selected-option:not(.correct-option) {
+    background: var(--error-bg);
+    border-color: var(--error);
+}
+
+.option-label {
+    min-width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--primary-alpha-20);
+    color: var(--primary);
+    font-weight: 700;
+    border-radius: var(--radius-sm);
+    flex-shrink: 0;
+}
+
+.correct-option .option-label {
+    background: var(--success-bg);
+    color: var(--success);
+}
+
+.selected-option:not(.correct-option) .option-label {
+    background: var(--error-bg);
+    color: var(--error);
+}
+
+.option-text {
+    flex: 1;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.correct-marker {
+    color: var(--success);
+    flex-shrink: 0;
+}
+
+.incorrect-marker {
+    color: var(--error);
+    flex-shrink: 0;
+}
+
+.explanation {
+    margin-top: var(--space-4);
+    padding: var(--space-4);
+    background: var(--primary-alpha-10);
+    border-radius: var(--radius-sm);
+    border-left: 3px solid var(--primary);
+}
+
+.explanation-title {
+    font-size: var(--text-sm);
+    font-weight: 700;
+    color: var(--primary);
+    margin: 0 0 var(--space-2) 0;
+    text-transform: uppercase;
+}
+
+.explanation-text {
+    font-size: var(--text-base);
+    color: var(--text-primary);
+    margin: 0;
+    line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+    .review-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .header-actions {
+        width: 100%;
+    }
+
+    .header-actions button {
+        flex: 1;
+    }
+}

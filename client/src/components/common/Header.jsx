@@ -4,27 +4,35 @@ import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import { Menu, X, Sun, Moon, LogOut, User, Settings } from 'lucide-react';
 import Button from '../ui/Button';
+import ConfirmationModal from '../ui/ConfirmationModal';
 import './Header.css';
 
 const Header = () => {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [userMenuOpen, setUserMenuOpen] = useState(false);
+    const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
     const { user, logout, isAuthenticated } = useAuth();
     const { theme, toggleTheme } = useTheme();
     const navigate = useNavigate();
 
-    const handleLogout = () => {
-        logout();
-        navigate('/');
+    const handleLogoutClick = () => {
+        setShowLogoutConfirm(true);
         setUserMenuOpen(false);
         setMobileMenuOpen(false);
     };
 
-    const navLinks = [
-        { to: '/dashboard', label: 'Dashboard', authRequired: true },
-        { to: '/leaderboard', label: 'Leaderboard', authRequired: true },
-        { to: '/analytics', label: 'Analytics', authRequired: true }
-    ];
+    const confirmLogout = () => {
+        logout();
+        navigate('/');
+    };
+
+    const navLinks = user?.role === 'admin'
+        ? [{ to: '/admin', label: 'Admin Panel' }]
+        : [
+            { to: '/dashboard', label: 'Dashboard', authRequired: true },
+            { to: '/leaderboard', label: 'Leaderboard', authRequired: true },
+            { to: '/analytics', label: 'Analytics', authRequired: true }
+        ];
 
     const closeMobileMenu = () => {
         setMobileMenuOpen(false);
@@ -34,7 +42,7 @@ const Header = () => {
         <header className="header">
             <nav className="nav container">
                 {/* Logo */}
-                <Link to={isAuthenticated ? '/dashboard' : '/'} className="logo">
+                <Link to={isAuthenticated ? (user?.role === 'admin' ? '/admin' : '/dashboard') : '/'} className="logo">
                     <span className="logo-text">BrainSpark</span>
                 </Link>
 
@@ -110,7 +118,7 @@ const Header = () => {
                                             <span>Settings</span>
                                         </Link>
                                         <div className="dropdown-divider"></div>
-                                        <button className="dropdown-item" onClick={handleLogout}>
+                                        <button className="dropdown-item" onClick={handleLogoutClick}>
                                             <LogOut size={18} />
                                             <span>Logout</span>
                                         </button>
@@ -176,7 +184,7 @@ const Header = () => {
                                 >
                                     Settings
                                 </Link>
-                                <button className="mobile-menu-link" onClick={handleLogout}>
+                                <button className="mobile-menu-link" onClick={handleLogoutClick}>
                                     Logout
                                 </button>
                             </>
@@ -207,6 +215,18 @@ const Header = () => {
                     </div>
                 </>
             )}
+
+            {/* Logout Confirmation Modal */}
+            <ConfirmationModal
+                isOpen={showLogoutConfirm}
+                onClose={() => setShowLogoutConfirm(false)}
+                onConfirm={confirmLogout}
+                title="Confirm Logout"
+                message="Are you sure you want to log out? Your progress is saved."
+                confirmText="Log Out"
+                cancelText="Stay"
+                variant="warning"
+            />
         </header>
     );
 };

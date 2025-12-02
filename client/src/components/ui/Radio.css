@@ -1,0 +1,84 @@
+.radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.radio-wrapper {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+    cursor: pointer;
+    user-select: none;
+}
+
+.radio-wrapper.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.radio-input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.radio-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--border);
+    border-radius: 50%;
+    background: var(--surface);
+    transition: all 0.2s ease;
+}
+
+.radio-wrapper:hover .radio-button {
+    border-color: var(--primary);
+}
+
+.radio-button.checked {
+    border-color: var(--primary);
+}
+
+.radio-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--primary);
+    transform: scale(0);
+    transition: transform 0.2s ease;
+}
+
+.radio-button.checked .radio-dot {
+    transform: scale(1);
+    animation: radioPop 0.2s ease;
+}
+
+.radio-input:focus-visible+.radio-button {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
+.radio-label {
+    font-size: var(--text-base);
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+@keyframes radioPop {
+    0% {
+        transform: scale(0);
+    }
+
+    50% {
+        transform: scale(1.2);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
