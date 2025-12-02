@@ -145,28 +145,16 @@ const RegisterPage = () => {
                                     <User className="input-icon" size={20} />
                                     <Input
                                         type="text"
-                                        label="Username"
                                         name="username"
+                                        placeholder="Choose a username"
                                         value={formData.username}
                                         onChange={handleChange}
-                                        onBlur={(e) => validateField('username', e.target.value)}
                                         error={errors.username}
                                         aria-invalid={!!errors.username}
-                                        aria-describedby={errors.username ? 'username-error' : undefined}
                                         pattern="[a-zA-Z0-9_]{3,20}"
                                         required
                                     />
-                                    {errors.username && (
-                                        <span id="username-error" className="error-message" role="alert" style={{ color: 'var(--error)', fontSize: 'var(--text-sm)', display: 'block', marginTop: 'var(--space-2)' }}>
-                                            {errors.username}
-                                        </span>
-                                    )}
                                 </div>
-                                {errors.username && (
-                                    <span id="username-error" className="error-message" role="alert">
-                                        {errors.username}
-                                    </span>
-                                )}
                             </div>
 
                             {/* Email Field */}
