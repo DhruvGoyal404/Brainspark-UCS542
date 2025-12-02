@@ -42,6 +42,10 @@ app.get('/api/health', (req, res) => {
     res.json({ status: 'OK', message: 'BrainSpark API is running!' });
 });
 
+app.get('/health', (req, res) => {
+    res.json({ status: 'OK', message: 'BrainSpark API is running!' });
+});
+
 // Error handling middleware
 app.use((err, req, res, next) => {
     console.error(err.stack);
