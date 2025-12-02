@@ -8,6 +8,7 @@
     border-bottom: 1px solid var(--border);
     box-shadow: var(--shadow-sm);
     z-index: var(--z-sticky);
+    -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
 }
 
@@ -118,13 +119,14 @@
 .user-menu-button {
     display: flex;
     align-items: center;
-    gap: var(--space-3);
-    padding: var(--space-2) var(--space-3);
+    gap: var(--space-2);
+    padding: var(--space-1) var(--space-2);
     background: var(--surface-hover);
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
     cursor: pointer;
     transition: all var(--duration-fast) var(--ease-out);
+    height: 40px;
 }
 
 .user-menu-button:hover {
@@ -133,15 +135,15 @@
 }
 
 .user-avatar {
-    width: 36px;
-    height: 36px;
+    width: 28px;
+    height: 28px;
     display: flex;
     align-items: center;
     justify-content: center;
     background: linear-gradient(135deg, var(--primary), var(--secondary));
     color: white;
     font-weight: var(--font-bold);
-    font-size: var(--text-sm);
+    font-size: var(--text-xs);
     border-radius: var(--radius-full);
 }
 

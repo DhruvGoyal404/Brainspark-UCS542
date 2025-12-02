@@ -1,7 +1,7 @@
-import { useState } from 'react';
-import { motion } from 'framer-motion';
+import { useState, useEffect } from 'react';
+import { motion as Motion } from 'framer-motion';
 import { Line, Doughnut, Bar } from 'react-chartjs-2';
-import { TrendingUp, Target, Award, Calendar, Filter } from 'lucide-react';
+import { TrendingUp, Target, Award, Calendar, Filter, Download } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import Card from '../components/ui/Card';
@@ -41,6 +41,11 @@ const AnalyticsPage = () => {
     const { user } = useAuth();
     const { theme } = useTheme();
     const [timeRange, setTimeRange] = useState('30d');
+
+    // Scroll to top on page load
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
 
     const isDark = theme === 'dark';
 
@@ -196,7 +201,7 @@ const AnalyticsPage = () => {
         <div className="analytics-page">
             <div className="analytics-container container">
                 {/* Header */}
-                <motion.div
+                <Motion.div
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5 }}
@@ -220,10 +225,10 @@ const AnalyticsPage = () => {
                             </Button>
                         ))}
                     </div>
-                </motion.div>
+                </Motion.div>
 
                 {/* Stats Cards */}
-                <motion.div
+                <Motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.1 }}
@@ -243,12 +248,25 @@ const AnalyticsPage = () => {
                             </div>
                         </Card>
                     ))}
-                </motion.div>
+                </Motion.div>
 
                 {/* Charts Grid */}
                 <div className="charts-section">
+                    {/* Download Report Button */}
+                    <Motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 0.15 }}
+                        className="download-report-section"
+                    >
+                        <Button variant="secondary" onClick={() => alert('Report download feature coming soon!')}>
+                            <Download size={18} />
+                            Download Your Report
+                        </Button>
+                    </Motion.div>
+
                     {/* Performance Over Time */}
-                    <motion.div
+                    <Motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.5, delay: 0.2 }}
@@ -262,11 +280,11 @@ const AnalyticsPage = () => {
                                 <Line data={performanceData} options={chartOptions} />
                             </div>
                         </Card>
-                    </motion.div>
+                    </Motion.div>
 
                     {/* Category Breakdown & Accuracy */}
                     <div className="charts-row">
-                        <motion.div
+                        <Motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.5, delay: 0.3 }}
@@ -280,9 +298,9 @@ const AnalyticsPage = () => {
                                     <Doughnut data={categoryData} options={doughnutOptions} />
                                 </div>
                             </Card>
-                        </motion.div>
+                        </Motion.div>
 
-                        <motion.div
+                        <Motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.5, delay: 0.4 }}
@@ -296,12 +314,12 @@ const AnalyticsPage = () => {
                                     <Bar data={accuracyData} options={chartOptions} />
                                 </div>
                             </Card>
-                        </motion.div>
+                        </Motion.div>
                     </div>
                 </div>
 
                 {/* Insights */}
-                <motion.div
+                <Motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.5 }}
@@ -340,7 +358,7 @@ const AnalyticsPage = () => {
                             </div>
                         </div>
                     </Card>
-                </motion.div>
+                </Motion.div>
             </div>
         </div>
     );

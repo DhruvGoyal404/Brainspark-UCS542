@@ -54,6 +54,7 @@ const Header = () => {
                                 key={link.to}
                                 to={link.to}
                                 className="nav-link"
+                                onClick={() => setUserMenuOpen(false)}
                             >
                                 {link.label}
                             </Link>

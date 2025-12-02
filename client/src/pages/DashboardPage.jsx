@@ -3,7 +3,7 @@ import ConfirmationModal from '../components/ui/ConfirmationModal';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Brain, Code, Database, Server, Trophy, Flame, TrendingUp } from 'lucide-react';
+import { Brain, Code, Database, Server, Trophy, Flame, TrendingUp, LayoutGrid, List } from 'lucide-react';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import './DashboardPage.css';
@@ -12,6 +12,7 @@ const DashboardPage = () => {
     const { user } = useAuth();
     const navigate = useNavigate();
     const [quizToStart, setQuizToStart] = useState(null);
+    const [quizViewMode, setQuizViewMode] = useState('card');
 
     const handleQuizClick = (quizId, quizTitle) => {
         setQuizToStart({ id: quizId, title: quizTitle });
@@ -176,15 +177,33 @@ const DashboardPage = () => {
                 {/* Available Quizzes */}
                 <section className="quizzes-section" aria-labelledby="quizzes-title">
                     <header className="section-header">
-                        <h2 id="quizzes-title" className="section-title">Available Quizzes</h2>
-                        <p className="section-subtitle">Choose a quiz to test your knowledge</p>
+                        <div className="section-header-content">
+                            <h2 id="quizzes-title" className="section-title">Available Quizzes</h2>
+                            <p className="section-subtitle">Choose a quiz to test your knowledge</p>
+                        </div>
+                        <div className="view-toggle">
+                            <button 
+                                className={`view-toggle-btn ${quizViewMode === 'card' ? 'active' : ''}`}
+                                onClick={() => setQuizViewMode('card')}
+                                aria-label="Card view"
+                            >
+                                <LayoutGrid size={18} />
+                            </button>
+                            <button 
+                                className={`view-toggle-btn ${quizViewMode === 'list' ? 'active' : ''}`}
+                                onClick={() => setQuizViewMode('list')}
+                                aria-label="List view"
+                            >
+                                <List size={18} />
+                            </button>
+                        </div>
                     </header>
 
                     <motion.div
                         variants={containerVariants}
                         initial="hidden"
                         animate="visible"
-                        className="quizzes-grid"
+                        className={quizViewMode === 'card' ? 'quizzes-grid' : 'quizzes-list'}
                     >
                         {quizzes.map((quiz) => (
                             <motion.article key={quiz.id} variants={itemVariants}>

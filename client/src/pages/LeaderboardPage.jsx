@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Trophy, Medal, Award, TrendingUp, Filter } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -8,6 +8,11 @@ import './LeaderboardPage.css';
 
 const LeaderboardPage = () => {
     const { user } = useAuth();
+    
+    // Scroll to top on page load
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
     const [timeFilter, setTimeFilter] = useState('all-time');
     const [categoryFilter, setCategoryFilter] = useState('all');
 

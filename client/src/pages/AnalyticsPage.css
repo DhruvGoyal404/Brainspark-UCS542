@@ -111,6 +111,17 @@
     gap: var(--space-8);
 }
 
+.download-report-section {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.download-report-section button {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
 .charts-row {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
