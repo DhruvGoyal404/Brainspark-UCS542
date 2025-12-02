@@ -4,26 +4,29 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.7);
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 10000;
+    z-index: 99999;
     padding: var(--space-4);
+    isolation: isolate;
 }
 
 .logout-modal {
-    background: var(--card-bg);
+    background: var(--card-bg, var(--surface));
     border-radius: var(--radius-lg);
     padding: var(--space-8);
     max-width: 440px;
     width: 100%;
     position: relative;
+    z-index: 100000;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5),
         0 0 0 1px rgba(255, 255, 255, 0.1);
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--border-color, var(--border));
 }
 
 .logout-modal-close {

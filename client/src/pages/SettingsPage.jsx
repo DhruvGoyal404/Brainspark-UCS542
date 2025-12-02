@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { Bell, User, Shield, Palette, Volume2, Accessibility } from 'lucide-react';
@@ -18,6 +18,11 @@ const SettingsPage = () => {
         fontSize: 'medium',
         language: 'en'
     });
+
+    // Scroll to top on page load
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
 
     const handleToggle = (key) => {
         setSettings(prev => ({ ...prev, [key]: !prev[key] }));

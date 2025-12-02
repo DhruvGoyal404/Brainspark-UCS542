@@ -97,10 +97,11 @@ const QuestionBank = () => {
                         onChange={(e) => setCategoryFilter(e.target.value)}
                         options={[
                             { value: 'all', label: 'All Categories' },
-                            { value: 'DSA', label: 'DSA' },
-                            { value: 'DBMS', label: 'DBMS' },
-                            { value: 'OS', label: 'OS' },
-                            { value: 'Networks', label: 'Networks' },
+                            { value: 'dsa', label: 'DSA' },
+                            { value: 'dbms', label: 'DBMS' },
+                            { value: 'operating-systems', label: 'Operating Systems' },
+                            { value: 'networks', label: 'Networks' },
+                            { value: 'other', label: 'Other' },
                         ]}
                     />
 

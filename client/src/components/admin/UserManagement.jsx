@@ -29,10 +29,13 @@ const UserManagement = () => {
 
     // Filter to ONLY show users with role="user" (exclude admins)
     const filteredUsers = users.filter(user => {
-        const isRegularUser = user.role === 'user' || !user.isAdmin;
+        // Exclude any user with admin role
+        if (user.role === 'admin' || user.isAdmin === true) {
+            return false;
+        }
         const matchesSearch = user.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
             user.email?.toLowerCase().includes(searchTerm.toLowerCase());
-        return isRegularUser && matchesSearch;
+        return matchesSearch;
     });
 
     return (

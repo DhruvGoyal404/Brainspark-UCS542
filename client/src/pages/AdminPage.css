@@ -20,6 +20,16 @@
 
 .header-icon {
     color: var(--primary);
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    padding: var(--space-4);
+    border-radius: var(--radius-lg);
+    width: 72px;
+    height: 72px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    box-shadow: var(--shadow-lg);
 }
 
 .admin-title {

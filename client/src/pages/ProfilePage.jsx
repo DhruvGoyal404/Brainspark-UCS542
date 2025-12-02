@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { User, Mail, Calendar, Trophy, Award, Settings as SettingsIcon, Edit2, Camera } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -11,6 +11,11 @@ const ProfilePage = () => {
     const { user, updateUser } = useAuth();
     const { theme, fontSize, soundEnabled, reducedMotion, setFontSize, setSoundEnabled, setReducedMotion } = useTheme();
     const [isEditing, setIsEditing] = useState(false);
+
+    // Scroll to top on page load
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
 
     // Mock achievements
     const achievements = [

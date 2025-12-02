@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion as Motion } from 'framer-motion';
 import { Line, Doughnut, Bar } from 'react-chartjs-2';
-import { TrendingUp, Target, Award, Calendar, Filter, Download } from 'lucide-react';
+import { TrendingUp, Target, Award, Calendar, Filter, Download, BarChart3 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import Card from '../components/ui/Card';
@@ -208,6 +208,9 @@ const AnalyticsPage = () => {
                     className="analytics-header"
                 >
                     <div className="header-content">
+                        <div className="analytics-icon-wrapper">
+                            <BarChart3 size={48} />
+                        </div>
                         <h1 className="page-title">Analytics Dashboard</h1>
                         <p className="page-subtitle">Track your learning progress and insights</p>
                     </div>

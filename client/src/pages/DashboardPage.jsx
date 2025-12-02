@@ -3,7 +3,7 @@ import ConfirmationModal from '../components/ui/ConfirmationModal';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Brain, Code, Database, Server, Trophy, Flame, TrendingUp, LayoutGrid, List } from 'lucide-react';
+import { Brain, Code, Database, Server, Trophy, Flame, TrendingUp, LayoutGrid, List, Search, Filter } from 'lucide-react';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import './DashboardPage.css';
@@ -13,6 +13,9 @@ const DashboardPage = () => {
     const navigate = useNavigate();
     const [quizToStart, setQuizToStart] = useState(null);
     const [quizViewMode, setQuizViewMode] = useState('card');
+    const [searchQuery, setSearchQuery] = useState('');
+    const [categoryFilter, setCategoryFilter] = useState('all');
+    const [difficultyFilter, setDifficultyFilter] = useState('all');
 
     const handleQuizClick = (quizId, quizTitle) => {
         setQuizToStart({ id: quizId, title: quizTitle });
@@ -104,6 +107,18 @@ const DashboardPage = () => {
                 return 'var(--text-secondary)';
         }
     };
+
+    // Filter quizzes based on search and filters
+    const filteredQuizzes = quizzes.filter(quiz => {
+        const matchesSearch = quiz.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                              quiz.description.toLowerCase().includes(searchQuery.toLowerCase());
+        const matchesCategory = categoryFilter === 'all' || quiz.category === categoryFilter;
+        const matchesDifficulty = difficultyFilter === 'all' || quiz.difficulty.toLowerCase() === difficultyFilter;
+        return matchesSearch && matchesCategory && matchesDifficulty;
+    });
+
+    // Get unique categories for filter
+    const categories = [...new Set(quizzes.map(q => q.category))];
 
     return (
         <main className="dashboard-page">
@@ -199,13 +214,56 @@ const DashboardPage = () => {
                         </div>
                     </header>
 
+                    {/* Search and Filter Bar */}
+                    <div className="quiz-filters">
+                        <div className="search-bar">
+                            <Search size={18} className="search-icon" />
+                            <input
+                                type="text"
+                                placeholder="Search quizzes..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="search-input"
+                            />
+                        </div>
+                        <div className="filter-controls">
+                            <div className="filter-select-wrapper">
+                                <Filter size={16} className="filter-icon" />
+                                <select
+                                    value={categoryFilter}
+                                    onChange={(e) => setCategoryFilter(e.target.value)}
+                                    className="filter-select"
+                                >
+                                    <option value="all">All Subjects</option>
+                                    <optgroup label="Subjects">
+                                        {categories.map(cat => (
+                                            <option key={cat} value={cat}>{cat}</option>
+                                        ))}
+                                    </optgroup>
+                                </select>
+                            </div>
+                            <select
+                                value={difficultyFilter}
+                                onChange={(e) => setDifficultyFilter(e.target.value)}
+                                className="filter-select"
+                            >
+                                <option value="all">All Levels</option>
+                                <optgroup label="Difficulty">
+                                    <option value="easy">Easy</option>
+                                    <option value="medium">Medium</option>
+                                    <option value="hard">Hard</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                    </div>
+
                     <motion.div
                         variants={containerVariants}
                         initial="hidden"
                         animate="visible"
                         className={quizViewMode === 'card' ? 'quizzes-grid' : 'quizzes-list'}
                     >
-                        {quizzes.map((quiz) => (
+                        {filteredQuizzes.length > 0 ? filteredQuizzes.map((quiz) => (
                             <motion.article key={quiz.id} variants={itemVariants}>
                                 <Card className="quiz-card" hoverable>
                                     <div className="quiz-card-header">
@@ -250,7 +308,14 @@ const DashboardPage = () => {
                                     </div>
                                 </Card>
                             </motion.article>
-                        ))}
+                        )) : (
+                            <div className="no-quizzes-found">
+                                <p>No quizzes found matching your criteria.</p>
+                                <Button variant="ghost" onClick={() => { setSearchQuery(''); setCategoryFilter('all'); setDifficultyFilter('all'); }}>
+                                    Clear Filters
+                                </Button>
+                            </div>
+                        )}
                     </motion.div>
                 </section>
 

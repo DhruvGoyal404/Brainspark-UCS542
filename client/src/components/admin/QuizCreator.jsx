@@ -165,11 +165,11 @@ const QuizCreator = () => {
                                 value={quizData.category}
                                 onChange={(e) => setQuizData({ ...quizData, category: e.target.value })}
                                 options={[
-                                    { value: 'DSA', label: 'Data Structures & Algorithms' },
-                                    { value: 'DBMS', label: 'Database Management' },
-                                    { value: 'OS', label: 'Operating Systems' },
-                                    { value: 'Networks', label: 'Computer Networks' },
-                                    { value: 'Other', label: 'Other' },
+                                    { value: 'dsa', label: 'Data Structures & Algorithms' },
+                                    { value: 'dbms', label: 'Database Management' },
+                                    { value: 'operating-systems', label: 'Operating Systems' },
+                                    { value: 'networks', label: 'Computer Networks' },
+                                    { value: 'other', label: 'Other' },
                                 ]}
                                 required
                             />
