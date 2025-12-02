@@ -1,51 +1,32 @@
 # 🎓 BrainSpark
 
-Interactive quiz platform for CS students. Built with React + Node.js + MongoDB.
+![Deploy to Azure](https://github.com/DhruvGoyal404/Brainspark---UI-UX/actions/workflows/azure-deploy.yml/badge.svg)
 
-## Features
+**[Live Demo →](https://brainspark.dhruvgoyal.tech)**
 
-- 🎯 Interactive quizzes (DSA, OS, DBMS)
-- 📊 Analytics & leaderboards
-- 🎨 Dark/Light themes
-- 🔐 User authentication
-- 👨‍💼 Admin panel
+Interactive quiz platform for students. Built for UI/UX Course Project.
 
-## Tech Stack
-
-**Frontend:** React + Vite + Framer Motion  
-**Backend:** Node.js + Express + MongoDB  
-**Auth:** JWT + bcrypt
-
-## Quick Start
+## 🚀 Quick Start
 
 ```bash
 # Install dependencies
 cd server && npm install
-cd ../client && npm install
+cd client && npm install
 
-# Run
-npm run dev (in both client & server folders)
+# Run locally
+npm run dev  # (in both client & server folders)
 ```
 
-## Environment Variables
+### Environment Variables
 
 **server/.env:**
-```
+```env
 MONGO_URI=your_mongodb_uri
 JWT_SECRET=your_secret
 PORT=5000
 ```
 
 **client/.env:**
+```env
+VITE_API_URL=http://localhost:5000/api
 ```
-VITE_API_URL=http://localhost:5000
-```
-
-## Default Admin
-
-Email: `admin@brainspark.com`  
-Password: `admin123`
-
----
-
-**Made for UI/UX Course Project**
