@@ -140,6 +140,29 @@
     animation: heartbeat 1.5s ease-in-out infinite;
 }
 
+.github-repo-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.github-repo-link:hover {
+    color: var(--secondary);
+    text-decoration: underline;
+}
+
+.github-repo-link svg {
+    transition: transform 0.3s ease;
+}
+
+.github-repo-link:hover svg {
+    transform: translateY(-2px);
+}
+
 @keyframes heartbeat {
 
     0%,

@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom';
-import { Github, Twitter, Linkedin, Mail, Heart } from 'lucide-react';
+import { Github, Twitter, Linkedin, Mail, Heart, ExternalLink } from 'lucide-react';
 import './Footer.css';
+
+const GITHUB_REPO_URL = 'https://github.com/DhruvGoyal404/Brainspark-UCS542';
 
 const Footer = () => {
     const currentYear = new Date().getFullYear();
@@ -26,7 +28,7 @@ const Footer = () => {
     };
 
     const socialLinks = [
-        { icon: Github, href: 'https://github.com', label: 'GitHub' },
+        { icon: Github, href: GITHUB_REPO_URL, label: 'GitHub' },
         { icon: Twitter, href: 'https://twitter.com', label: 'Twitter' },
         { icon: Linkedin, href: 'https://linkedin.com', label: 'LinkedIn' },
         { icon: Mail, href: 'mailto:contact@brainspark.com', label: 'Email' },
@@ -113,7 +115,15 @@ const Footer = () => {
                         © {currentYear} BrainSpark. All rights reserved.
                     </p>
                     <p className="built-with">
-                        Built with <Heart size={16} className="heart-icon" /> for learning
+                        Built with <Heart size={16} className="heart-icon" /> by{' '}
+                        <a 
+                            href={GITHUB_REPO_URL} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="github-repo-link"
+                        >
+                            Dhruv Goyal <Github size={14} /> <ExternalLink size={12} />
+                        </a>
                     </p>
                 </div>
             </div>

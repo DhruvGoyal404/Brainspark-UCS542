@@ -2,10 +2,12 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
-import { Menu, X, Sun, Moon, LogOut, User, Settings } from 'lucide-react';
+import { Menu, X, Sun, Moon, LogOut, User, Settings, Github } from 'lucide-react';
 import Button from '../ui/Button';
 import ConfirmationModal from '../ui/ConfirmationModal';
 import './Header.css';
+
+const GITHUB_REPO_URL = 'https://github.com/DhruvGoyal404/Brainspark-UCS542';
 
 const Header = () => {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -65,6 +67,18 @@ const Header = () => {
 
                 {/* Right Section */}
                 <div className="nav-right">
+                    {/* GitHub Repo Link */}
+                    <a
+                        href={GITHUB_REPO_URL}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="github-icon-link"
+                        aria-label="View GitHub Repository"
+                        title="View Source Code on GitHub"
+                    >
+                        <Github size={22} />
+                    </a>
+
                     {/* Theme Toggle */}
                     <button
                         className="icon-button"
