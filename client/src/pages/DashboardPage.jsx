@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import ConfirmationModal from '../components/ui/ConfirmationModal';
+import QuizModeModal from '../components/quiz/QuizModeModal';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -17,12 +17,12 @@ const DashboardPage = () => {
     const [categoryFilter, setCategoryFilter] = useState('all');
     const [difficultyFilter, setDifficultyFilter] = useState('all');
 
-    const handleQuizClick = (quizId, quizTitle) => {
-        setQuizToStart({ id: quizId, title: quizTitle });
+    const handleQuizClick = (quiz) => {
+        setQuizToStart(quiz);
     };
 
-    const confirmStartQuiz = () => {
-        navigate(`/quiz/${quizToStart.id}`);
+    const handleModeSelect = (mode) => {
+        navigate(`/quiz/${quizToStart.id}`, { state: { mode, quizTitle: quizToStart.title } });
     };
 
     // Mock quiz data - expanded with more subjects
@@ -332,7 +332,7 @@ const DashboardPage = () => {
                                             <Button
                                                 variant="primary"
                                                 fullWidth
-                                                onClick={() => handleQuizClick(quiz.id, quiz.title)}
+                                                onClick={() => handleQuizClick(quiz)}
                                             >
                                                 Start Quiz
                                             </Button>
@@ -393,15 +393,14 @@ const DashboardPage = () => {
                 </motion.section>
             </div>
 
-            {/* Quiz Start Confirmation */}
-            <ConfirmationModal
+            {/* Quiz Mode Selection Modal */}
+            <QuizModeModal
                 isOpen={!!quizToStart}
                 onClose={() => setQuizToStart(null)}
-                onConfirm={confirmStartQuiz}
-                title="Ready to Start?"
-                message={`You're about to begin "${quizToStart?.title}". Make sure you're ready!`}
-                confirmText="Start Quiz"
-                cancelText="Not Yet"
+                onSelectMode={handleModeSelect}
+                quizTitle={quizToStart?.title}
+                questionCount={quizToStart?.questionCount}
+                estimatedTime={quizToStart?.estimatedTime}
             />
         </main>
     );

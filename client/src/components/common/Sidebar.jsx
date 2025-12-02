@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { Home, BookOpen, Trophy, BarChart3, User, Settings, X, Menu } from 'lucide-react';
+import { Home, BookOpen, Trophy, BarChart3, User, Settings, X, Menu, Bookmark } from 'lucide-react';
 import './Sidebar.css';
 
 const Sidebar = ({ isOpen = true, onToggle }) => {
@@ -9,6 +9,7 @@ const Sidebar = ({ isOpen = true, onToggle }) => {
     const navItems = [
         { to: '/dashboard', icon: Home, label: 'Dashboard' },
         { to: '/quiz', icon: BookOpen, label: 'Quizzes' },
+        { to: '/bookmarks', icon: Bookmark, label: 'Bookmarks' },
         { to: '/leaderboard', icon: Trophy, label: 'Leaderboard' },
         { to: '/analytics', icon: BarChart3, label: 'Analytics' },
         { to: '/profile', icon: User, label: 'Profile' },

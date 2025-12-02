@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useState, useEffect, useCallback } from 'react';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Clock, CheckCircle, XCircle, ArrowRight } from 'lucide-react';
+import { Clock, CheckCircle, XCircle, ArrowRight, Coffee, Zap, AlertTriangle, Bookmark } from 'lucide-react';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
+import useBookmarks from '../hooks/useBookmarks';
 import './QuizPage.css';
 
 // Mock quiz data
@@ -103,12 +104,23 @@ const mockQuizzes = {
 const QuizPage = () => {
     const { id } = useParams();
     const navigate = useNavigate();
+    const location = useLocation();
+    
+    // Get mode from navigation state (default to 'timed' for backwards compatibility)
+    const quizMode = location.state?.mode || 'timed';
+    const QUESTION_TIME_LIMIT = 30; // 30 seconds per question in timed mode
+    
     const [quiz, setQuiz] = useState(null);
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [selectedAnswer, setSelectedAnswer] = useState(null);
     const [showFeedback, setShowFeedback] = useState(false);
     const [answers, setAnswers] = useState([]);
     const [direction, setDirection] = useState(1);
+    const [timeLeft, setTimeLeft] = useState(QUESTION_TIME_LIMIT);
+    const [timedOut, setTimedOut] = useState(false);
+    
+    // Bookmarks hook
+    const { isBookmarked, toggleBookmark } = useBookmarks();
 
     useEffect(() => {
         const quizData = mockQuizzes[id];
@@ -118,6 +130,45 @@ const QuizPage = () => {
             navigate('/dashboard');
         }
     }, [id, navigate]);
+
+    // Timer effect for timed mode only
+    useEffect(() => {
+        if (quizMode !== 'timed' || showFeedback || !quiz) return;
+        
+        const timer = setInterval(() => {
+            setTimeLeft((prev) => {
+                if (prev <= 1) {
+                    clearInterval(timer);
+                    // Auto-submit when time runs out
+                    handleTimeOut();
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+
+        return () => clearInterval(timer);
+    }, [quizMode, showFeedback, currentQuestionIndex, quiz]);
+
+    // Handle timeout - auto submit with no answer
+    const handleTimeOut = useCallback(() => {
+        if (showFeedback) return;
+        
+        setTimedOut(true);
+        setAnswers(prev => [...prev, {
+            questionId: quiz?.questions[currentQuestionIndex]?.id,
+            selectedOption: null,
+            isCorrect: false,
+            timedOut: true
+        }]);
+        setShowFeedback(true);
+    }, [showFeedback, quiz, currentQuestionIndex]);
+
+    // Reset timer when moving to next question
+    useEffect(() => {
+        setTimeLeft(QUESTION_TIME_LIMIT);
+        setTimedOut(false);
+    }, [currentQuestionIndex]);
 
     if (!quiz) {
         return (
@@ -154,13 +205,16 @@ const QuizPage = () => {
     const handleNextQuestion = () => {
         if (isLastQuestion) {
             // Navigate to results
-            const score = (answers.filter(a => a.isCorrect).length / quiz.questions.length) * 100;
+            const correctAnswers = answers.filter(a => a.isCorrect).length;
+            const score = (correctAnswers / quiz.questions.length) * 100;
             navigate(`/quiz/${id}/results`, {
                 state: {
                     score,
                     answers,
                     totalQuestions: quiz.questions.length,
-                    quizTitle: quiz.title
+                    quizTitle: quiz.title,
+                    quizMode,
+                    timedOutCount: answers.filter(a => a.timedOut).length
                 }
             });
         } else {
@@ -210,10 +264,33 @@ const QuizPage = () => {
                 <div className="quiz-header">
                     <div className="quiz-progress-section">
                         <div className="quiz-progress-info">
-                            <h2 className="quiz-title">{quiz.title}</h2>
-                            <span className="question-counter">
-                                Question {currentQuestionIndex + 1} of {quiz.questions.length}
-                            </span>
+                            <div className="quiz-title-section">
+                                <h2 className="quiz-title">{quiz.title}</h2>
+                                <span className={`quiz-mode-badge ${quizMode}`}>
+                                    {quizMode === 'timed' ? (
+                                        <>
+                                            <Zap size={14} />
+                                            Timed Mode
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Coffee size={14} />
+                                            Practice Mode
+                                        </>
+                                    )}
+                                </span>
+                            </div>
+                            <div className="quiz-stats">
+                                <span className="question-counter">
+                                    Question {currentQuestionIndex + 1} of {quiz.questions.length}
+                                </span>
+                                {quizMode === 'timed' && (
+                                    <div className={`timer-display ${timeLeft <= 10 ? 'warning' : ''} ${timeLeft <= 5 ? 'critical' : ''}`}>
+                                        <Clock size={18} />
+                                        <span>{timeLeft}s</span>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                         <div className="progress-bar-container">
                             <div className="progress-bar-fill" style={{ width: `${progress}%` }}></div>
@@ -265,10 +342,21 @@ const QuizPage = () => {
                                 <motion.div
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    className={`feedback-container ${selectedAnswer === currentQuestion.options.find(o => o.isCorrect)?.id ? 'correct' : 'incorrect'}`}
+                                    className={`feedback-container ${
+                                        timedOut 
+                                            ? 'timed-out' 
+                                            : selectedAnswer === currentQuestion.options.find(o => o.isCorrect)?.id 
+                                                ? 'correct' 
+                                                : 'incorrect'
+                                    }`}
                                 >
                                     <div className="feedback-header">
-                                        {selectedAnswer === currentQuestion.options.find(o => o.isCorrect)?.id ? (
+                                        {timedOut ? (
+                                            <>
+                                                <AlertTriangle size={24} />
+                                                <span>Time's Up!</span>
+                                            </>
+                                        ) : selectedAnswer === currentQuestion.options.find(o => o.isCorrect)?.id ? (
                                             <>
                                                 <CheckCircle size={24} />
                                                 <span>Correct!</span>
