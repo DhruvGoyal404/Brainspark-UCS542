@@ -1,3 +1,5 @@
+import { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Clock, BookOpen, Zap, Coffee } from 'lucide-react';
 import Button from '../ui/Button';
@@ -12,6 +14,18 @@ const QuizModeModal = ({
     questionCount,
     estimatedTime
 }) => {
+    // Prevent body scroll when modal is open
+    useEffect(() => {
+        if (isOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+        return () => {
+            document.body.style.overflow = '';
+        };
+    }, [isOpen]);
+
     if (!isOpen) return null;
 
     const handleSelectMode = (mode) => {
@@ -19,10 +33,10 @@ const QuizModeModal = ({
         onClose();
     };
 
-    return (
+    const modalContent = (
         <AnimatePresence>
             {isOpen && (
-                <>
+                <div className="quiz-mode-overlay">
                     {/* Backdrop */}
                     <motion.div
                         className="quiz-mode-backdrop"
@@ -39,10 +53,10 @@ const QuizModeModal = ({
                         role="dialog"
                         aria-modal="true"
                         aria-labelledby="quiz-mode-title"
-                        initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                        transition={{ duration: 0.2 }}
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
+                        transition={{ duration: 0.2, ease: 'easeOut' }}
                     >
                         {/* Header */}
                         <div className="quiz-mode-header">
@@ -138,10 +152,13 @@ const QuizModeModal = ({
                             </motion.div>
                         </div>
                     </motion.div>
-                </>
+                </div>
             )}
         </AnimatePresence>
     );
+
+    // Render modal in a portal to document.body
+    return createPortal(modalContent, document.body);
 };
 
 export default QuizModeModal;
