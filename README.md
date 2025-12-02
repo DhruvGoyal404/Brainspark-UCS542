@@ -1,7 +1,5 @@
 # 🎓 BrainSpark
 
-![Deploy to Azure](https://github.com/DhruvGoyal404/Brainspark---UI-UX/actions/workflows/azure-deploy.yml/badge.svg)
-
 **[Live Demo →](https://brainspark.dhruvgoyal.tech)**
 
 Interactive quiz platform for students. Built for UI/UX Course Project.

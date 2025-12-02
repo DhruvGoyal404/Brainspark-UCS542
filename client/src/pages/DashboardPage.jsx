@@ -124,17 +124,17 @@ const DashboardPage = () => {
         return quizzes.filter(quiz => {
             // Search filter - empty string matches all
             const searchTerm = searchQuery.trim().toLowerCase();
-            const matchesSearch = searchTerm === '' || 
+            const matchesSearch = searchTerm === '' ||
                 quiz.title.toLowerCase().includes(searchTerm) ||
                 quiz.description.toLowerCase().includes(searchTerm) ||
                 quiz.category.toLowerCase().includes(searchTerm);
-            
+
             // Category filter
             const matchesCategory = categoryFilter === 'all' || quiz.category === categoryFilter;
-            
+
             // Difficulty filter
             const matchesDifficulty = difficultyFilter === 'all' || quiz.difficulty.toLowerCase() === difficultyFilter;
-            
+
             return matchesSearch && matchesCategory && matchesDifficulty;
         });
     }, [quizzes, searchQuery, categoryFilter, difficultyFilter]);
@@ -219,14 +219,14 @@ const DashboardPage = () => {
                             <p className="section-subtitle">Choose a quiz to test your knowledge</p>
                         </div>
                         <div className="view-toggle">
-                            <button 
+                            <button
                                 className={`view-toggle-btn ${quizViewMode === 'card' ? 'active' : ''}`}
                                 onClick={() => setQuizViewMode('card')}
                                 aria-label="Card view"
                             >
                                 <LayoutGrid size={18} />
                             </button>
-                            <button 
+                            <button
                                 className={`view-toggle-btn ${quizViewMode === 'list' ? 'active' : ''}`}
                                 onClick={() => setQuizViewMode('list')}
                                 aria-label="List view"
@@ -270,13 +270,13 @@ const DashboardPage = () => {
                                 <option value="hard">Hard</option>
                             </select>
                             {(categoryFilter !== 'all' || difficultyFilter !== 'all' || searchQuery) && (
-                                <Button 
-                                    variant="ghost" 
+                                <Button
+                                    variant="ghost"
                                     size="sm"
-                                    onClick={() => { 
-                                        setSearchQuery(''); 
-                                        setCategoryFilter('all'); 
-                                        setDifficultyFilter('all'); 
+                                    onClick={() => {
+                                        setSearchQuery('');
+                                        setCategoryFilter('all');
+                                        setDifficultyFilter('all');
                                     }}
                                 >
                                     Clear
@@ -288,8 +288,8 @@ const DashboardPage = () => {
                     <div className={quizViewMode === 'card' ? 'quizzes-grid' : 'quizzes-list'}>
                         <AnimatePresence mode="popLayout">
                             {filteredQuizzes.length > 0 ? filteredQuizzes.map((quiz) => (
-                                <motion.article 
-                                    key={quiz.id} 
+                                <motion.article
+                                    key={quiz.id}
                                     layout
                                     initial={{ opacity: 0, scale: 0.9 }}
                                     animate={{ opacity: 1, scale: 1 }}
@@ -297,61 +297,61 @@ const DashboardPage = () => {
                                     transition={{ duration: 0.2 }}
                                 >
                                     <Card className="quiz-card" hoverable>
-                                    <div className="quiz-card-header">
-                                        <figure className="quiz-icon" style={{ backgroundColor: quiz.color + '20', color: quiz.color }}>
-                                            {quiz.icon}
-                                        </figure>
-                                        <span
-                                            className="quiz-difficulty-badge"
-                                            style={{
-                                                backgroundColor: getDifficultyColor(quiz.difficulty) + '20',
-                                                color: getDifficultyColor(quiz.difficulty)
-                                            }}
-                                        >
-                                            {quiz.difficulty}
-                                        </span>
-                                    </div>
+                                        <div className="quiz-card-header">
+                                            <figure className="quiz-icon" style={{ backgroundColor: quiz.color + '20', color: quiz.color }}>
+                                                {quiz.icon}
+                                            </figure>
+                                            <span
+                                                className="quiz-difficulty-badge"
+                                                style={{
+                                                    backgroundColor: getDifficultyColor(quiz.difficulty) + '20',
+                                                    color: getDifficultyColor(quiz.difficulty)
+                                                }}
+                                            >
+                                                {quiz.difficulty}
+                                            </span>
+                                        </div>
 
-                                    <div className="quiz-card-body">
-                                        <h3 className="quiz-title">{quiz.title}</h3>
-                                        <p className="quiz-description">{quiz.description}</p>
+                                        <div className="quiz-card-body">
+                                            <h3 className="quiz-title">{quiz.title}</h3>
+                                            <p className="quiz-description">{quiz.description}</p>
 
-                                        <dl className="quiz-meta">
-                                            <div className="quiz-meta-item">
-                                                <dt className="meta-label">Questions:</dt>
-                                                <dd className="meta-value">{quiz.questionCount}</dd>
-                                            </div>
-                                            <div className="quiz-meta-item">
-                                                <dt className="meta-label">Time:</dt>
-                                                <dd className="meta-value">~{quiz.estimatedTime} min</dd>
-                                            </div>
-                                        </dl>
-                                    </div>
+                                            <dl className="quiz-meta">
+                                                <div className="quiz-meta-item">
+                                                    <dt className="meta-label">Questions:</dt>
+                                                    <dd className="meta-value">{quiz.questionCount}</dd>
+                                                </div>
+                                                <div className="quiz-meta-item">
+                                                    <dt className="meta-label">Time:</dt>
+                                                    <dd className="meta-value">~{quiz.estimatedTime} min</dd>
+                                                </div>
+                                            </dl>
+                                        </div>
 
-                                    <div className="quiz-card-footer">
-                                        <Button
-                                            variant="primary"
-                                            fullWidth
-                                            onClick={() => handleQuizClick(quiz.id, quiz.title)}
-                                        >
-                                            Start Quiz
-                                        </Button>
-                                    </div>
-                                </Card>
-                            </motion.article>
-                        )) : (
-                            <motion.div 
-                                className="no-quizzes-found"
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                key="no-results"
-                            >
-                                <p>No quizzes found matching your criteria.</p>
-                                <Button variant="ghost" onClick={() => { setSearchQuery(''); setCategoryFilter('all'); setDifficultyFilter('all'); }}>
-                                    Clear Filters
-                                </Button>
-                            </motion.div>
-                        )}
+                                        <div className="quiz-card-footer">
+                                            <Button
+                                                variant="primary"
+                                                fullWidth
+                                                onClick={() => handleQuizClick(quiz.id, quiz.title)}
+                                            >
+                                                Start Quiz
+                                            </Button>
+                                        </div>
+                                    </Card>
+                                </motion.article>
+                            )) : (
+                                <motion.div
+                                    className="no-quizzes-found"
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    key="no-results"
+                                >
+                                    <p>No quizzes found matching your criteria.</p>
+                                    <Button variant="ghost" onClick={() => { setSearchQuery(''); setCategoryFilter('all'); setDifficultyFilter('all'); }}>
+                                        Clear Filters
+                                    </Button>
+                                </motion.div>
+                            )}
                         </AnimatePresence>
                     </div>
                 </section>
