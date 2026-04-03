@@ -131,47 +131,48 @@ const QuestionBank = () => {
                                     { value: 'hard', label: 'Hard' },
                                 ]}
                             />
-                </div>
-
-                {/* Questions List */}
-                <div className="questions-list">
-                    {filteredQuestions.map((question, index) => (
-                        <Card key={question._id} className="question-item">
-                            <div className="question-content">
-                                <span className="question-index">#{index + 1}</span>
-                                <div className="question-details">
-                                    <p className="question-text">{question.questionText}</p>
-                                    <div className="question-meta">
-                                        <span className={`difficulty-badge ${question.difficulty}`}>
-                                            {question.difficulty}
-                                        </span>
-                                        <span className="category-badge">{question.category}</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="question-actions">
-                                <Button variant="outline" size="sm" icon={<Edit size={16} />}>
-                                    Edit
-                                </Button>
-                                <Button
-                                    variant="danger"
-                                    size="sm"
-                                    icon={<Trash2 size={16} />}
-                                    onClick={() => deleteQuestion(question._id)}
-                                >
-                                    Delete
-                                </Button>
-                            </div>
-                        </Card>
-                    ))}
-
-                    {filteredQuestions.length === 0 && (
-                        <div className="empty-state">
-                            <Filter size={48} />
-                            <p>No questions found matching your filters.</p>
                         </div>
-                    )}
-                </>
+
+                        {/* Questions List */}
+                        <div className="questions-list">
+                            {filteredQuestions.map((question, index) => (
+                                <Card key={question._id} className="question-item">
+                                    <div className="question-content">
+                                        <span className="question-index">#{index + 1}</span>
+                                        <div className="question-details">
+                                            <p className="question-text">{question.questionText}</p>
+                                            <div className="question-meta">
+                                                <span className={`difficulty-badge ${question.difficulty}`}>
+                                                    {question.difficulty}
+                                                </span>
+                                                <span className="category-badge">{question.category}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="question-actions">
+                                        <Button variant="outline" size="sm" icon={<Edit size={16} />}>
+                                            Edit
+                                        </Button>
+                                        <Button
+                                            variant="danger"
+                                            size="sm"
+                                            icon={<Trash2 size={16} />}
+                                            onClick={() => deleteQuestion(question._id)}
+                                        >
+                                            Delete
+                                        </Button>
+                                    </div>
+                                </Card>
+                            ))}
+
+                            {filteredQuestions.length === 0 && (
+                                <div className="empty-state">
+                                    <Filter size={48} />
+                                    <p>No questions found matching your filters.</p>
+                                </div>
+                            )}
+                        </div>
+                    </>
                 )}
             </Card>
         </div>

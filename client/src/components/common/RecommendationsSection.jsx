@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Lightbulb, TrendingUp } from 'lucide-react';
-import Card from '../components/ui/Card';
-import Button from '../components/ui/Button';
-import api from '../utils/api';
+import Card from '../ui/Card';
+import Button from '../ui/Button';
+import api from '../../utils/api';
 import './RecommendationsSection.css';
 
 const RecommendationsSection = ({ onQuizSelect }) => {
