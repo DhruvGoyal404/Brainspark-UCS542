@@ -1,0 +1,45 @@
+.review-modal {
+    max-width: 600px;
+}
+
+.review-modal .modal-header {
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+}
+
+/* Question review grid */
+.review-modal button[style*="flex"][style*="gap"] {
+    transition: background 0.2s ease;
+}
+
+.review-modal button[style*="flex"][style*="gap"]:hover {
+    background: var(--bg-secondary);
+}
+
+/* Correct/Incorrect styling */
+.review-modal .check-icon {
+    color: var(--success);
+}
+
+.review-modal .cross-icon {
+    color: var(--error);
+}
+
+/* Summary grid */
+.review-modal [style*="grid-template-columns: repeat"] {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 16px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+    .review-modal {
+        max-width: 100%;
+        max-height: 80vh;
+    }
+
+    .review-modal [style*="grid-template-columns: repeat"] {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}

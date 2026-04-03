@@ -38,7 +38,7 @@ const quizSchema = new mongoose.Schema({
     category: {
         type: String,
         required: true,
-        enum: ['dsa', 'operating-systems', 'dbms', 'networks', 'other']
+        enum: ['dsa', 'operating-systems', 'dbms', 'networks', 'oops', 'web', 'other']
     },
     difficulty: {
         type: String,

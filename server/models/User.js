@@ -14,7 +14,8 @@ const userSchema = new mongoose.Schema({
         required: [true, 'Email is required'],
         unique: true,
         lowercase: true,
-        trim: true
+        trim: true,
+        match: [/^\S+@\S+\.\S+$/, 'Please provide a valid email address']
     },
     password: {
         type: String,
@@ -32,7 +33,13 @@ const userSchema = new mongoose.Schema({
         level: { type: Number, default: 1 },
         currentStreak: { type: Number, default: 0 },
         longestStreak: { type: Number, default: 0 },
-        lastQuizDate: { type: Date }
+        lastQuizDate: { type: Date },
+        averageScore: { type: Number, default: 0 }
+    },
+    dailyGoal: {
+        targetQuizzes: { type: Number, default: 3 },
+        todayCount: { type: Number, default: 0 },
+        lastResetDate: { type: Date, default: Date.now }
     },
     achievements: [{
         achievementId: String,
@@ -43,7 +50,9 @@ const userSchema = new mongoose.Schema({
         fontSize: { type: String, default: 'medium' },
         soundEnabled: { type: Boolean, default: true },
         reducedMotion: { type: Boolean, default: false }
-    }
+    },
+    passwordResetToken: String,
+    passwordResetExpires: Date
 }, {
     timestamps: true
 });

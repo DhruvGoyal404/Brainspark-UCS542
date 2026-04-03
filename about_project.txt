@@ -1,0 +1,862 @@
+╔══════════════════════════════════════════════════════════════════════════════════════════════════════╗
+║                                      🧠 BRAINSPARK - COMPLETE PROJECT GUIDE                          ║
+║                                          FOR VIVA PREPARATION                                         ║
+╚══════════════════════════════════════════════════════════════════════════════════════════════════════╝
+
+
+Created by: Dhruv Goyal
+Live URL: https://brainspark.dhruvgoyal.tech
+Deployment: Azure Web Services (Backend) + Vercel (Frontend)
+
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+                                        📚 TABLE OF CONTENTS
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+
+1. PROJECT OVERVIEW
+2. TECH STACK BREAKDOWN
+3. FRONTEND ARCHITECTURE (React + Vite)
+4. BACKEND ARCHITECTURE (Node.js + Express)
+5. DATABASE DESIGN (MongoDB + Mongoose)
+6. AUTHENTICATION SYSTEM (JWT)
+7. REACT HOOKS - IN-DEPTH EXPLANATION
+8. CONTEXT API - STATE MANAGEMENT
+9. CUSTOM HOOKS
+10. ROUTING (React Router)
+11. ANIMATIONS (Framer Motion)
+12. API INTEGRATION (Axios)
+13. GAMIFICATION FEATURES
+14. SECURITY CONSIDERATIONS
+15. PERFORMANCE OPTIMIZATIONS
+16. DEPLOYMENT GUIDE
+17. COMMON VIVA QUESTIONS & ANSWERS
+
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+                                    1️⃣ PROJECT OVERVIEW
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+
+BrainSpark is a full-stack quiz platform designed for B.Tech CSE students to practice 
+technical subjects like DSA, Operating Systems, DBMS, and Computer Networks.
+
+KEY FEATURES:
+✅ Interactive Quizzes with multiple categories and difficulty levels
+✅ Gamification (XP points, streaks, achievements, leaderboards)
+✅ Real-time Analytics and Performance Tracking
+✅ Admin Dashboard for quiz/user management
+✅ Responsive Design (Mobile + Desktop)
+✅ Dark/Light Theme Toggle
+✅ Sound Effects and Animations
+
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+                                    2️⃣ TECH STACK BREAKDOWN
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+
+FRONTEND:
+┌─────────────────────┬──────────────────────────────────────────────────────────────────────┐
+│ Technology          │ Purpose & Why Used                                                    │
+├─────────────────────┼──────────────────────────────────────────────────────────────────────┤
+│ React 19.2.0        │ UI Library - Component-based, Virtual DOM, excellent ecosystem       │
+│ Vite 7.2.4          │ Build Tool - Faster than CRA, Hot Module Replacement (HMR)           │
+│ React Router 7.9.6  │ Client-side routing - SPA navigation without page reloads            │
+│ Framer Motion       │ Animations - Declarative animations, gestures, transitions           │
+│ Chart.js 4.5.1      │ Data Visualization - Responsive charts for analytics                 │
+│ Axios 1.13.2        │ HTTP Client - Better than fetch, interceptors, error handling        │
+│ Howler.js 2.2.4     │ Sound Effects - Cross-browser audio support                          │
+│ Lucide React        │ Icons - Modern, lightweight SVG icons                                │
+└─────────────────────┴──────────────────────────────────────────────────────────────────────┘
+
+BACKEND:
+┌─────────────────────┬──────────────────────────────────────────────────────────────────────┐
+│ Technology          │ Purpose & Why Used                                                    │
+├─────────────────────┼──────────────────────────────────────────────────────────────────────┤
+│ Node.js             │ Runtime - JavaScript on server, non-blocking I/O, event-driven       │
+│ Express 5.1.0       │ Web Framework - Minimal, flexible, middleware support                │
+│ MongoDB             │ NoSQL Database - Flexible schema, good for JSON-like data            │
+│ Mongoose 9.0.0      │ ODM - Schema validation, query building, middleware                  │
+│ JWT                 │ Authentication - Stateless, scalable token-based auth                │
+│ bcryptjs            │ Password Hashing - Secure password storage                           │
+│ CORS                │ Cross-Origin Requests - Allows frontend to call backend API          │
+└─────────────────────┴──────────────────────────────────────────────────────────────────────┘
+
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+                                    3️⃣ FRONTEND ARCHITECTURE
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+
+FOLDER STRUCTURE:
+client/
+├── src/
+│   ├── components/          # Reusable UI components
+│   │   ├── admin/           # Admin-specific components (QuizCreator, UserManagement)
+│   │   ├── analytics/       # Charts and statistics components
+│   │   ├── common/          # Shared components (Header, Footer, Sidebar)
+│   │   ├── gamification/    # XP bars, achievements, confetti
+│   │   ├── leaderboard/     # Leaderboard components
+│   │   ├── quiz/            # Quiz-related components
+│   │   └── ui/              # Basic UI elements (buttons, cards)
+│   ├── context/             # React Context for global state
+│   ├── hooks/               # Custom React hooks
+│   ├── pages/               # Route-level components
+│   ├── styles/              # Global CSS files
+│   └── utils/               # Utility functions
+├── public/                  # Static assets
+└── index.html               # Entry HTML file
+
+COMPONENT PATTERN:
+- Each component has its own .jsx file and .css file
+- Components are functional (not class-based)
+- Props for parent-to-child data, Context for global state
+
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+                                    4️⃣ BACKEND ARCHITECTURE
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+
+FOLDER STRUCTURE:
+server/
+├── server.js               # Entry point - Express setup, middleware, routes
+├── middleware/
+│   └── auth.js             # JWT verification middleware
+├── models/                 # Mongoose schemas
+│   ├── User.js
+│   ├── Quiz.js
+│   └── QuizResult.js
+├── routes/                 # API routes
+│   ├── auth.js             # /api/auth (login, register)
+│   ├── quiz.js             # /api/quiz (CRUD operations)
+│   ├── user.js             # /api/user (profile, stats)
+│   └── admin.js            # /api/admin (admin-only operations)
+└── seeds/                  # Database seeders
+
+REST API DESIGN:
+┌─────────────────────────────┬────────┬─────────────────────────────────────────────────┐
+│ Endpoint                    │ Method │ Description                                     │
+├─────────────────────────────┼────────┼─────────────────────────────────────────────────┤
+│ /api/auth/register          │ POST   │ User registration                               │
+│ /api/auth/login             │ POST   │ User login, returns JWT                         │
+│ /api/auth/me                │ GET    │ Get current user (requires token)               │
+│ /api/quiz                   │ GET    │ Get all quizzes                                 │
+│ /api/quiz/:id               │ GET    │ Get specific quiz                               │
+│ /api/quiz/:id/submit        │ POST   │ Submit quiz answers                             │
+│ /api/user/profile           │ GET    │ Get user profile                                │
+│ /api/user/stats             │ GET    │ Get user statistics                             │
+│ /api/admin/users            │ GET    │ Get all users (admin only)                      │
+│ /api/admin/quizzes          │ POST   │ Create quiz (admin only)                        │
+└─────────────────────────────┴────────┴─────────────────────────────────────────────────┘
+
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+                                    5️⃣ DATABASE DESIGN (MongoDB + Mongoose)
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+
+WHY MONGODB?
+- Schema flexibility (good for quizzes with varying question formats)
+- JSON-like documents (natural fit for JavaScript)
+- Scalable and good for read-heavy applications
+- Free tier available (MongoDB Atlas)
+
+USER SCHEMA (models/User.js):
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ const userSchema = new mongoose.Schema({                                                             │
+│     username: { type: String, required: true, unique: true },                                        │
+│     email: { type: String, required: true, unique: true },                                           │
+│     password: { type: String, required: true },  // Hashed with bcrypt                               │
+│     role: { type: String, enum: ['user', 'admin'], default: 'user' },                                │
+│     stats: {                                                                                         │
+│         quizzesTaken: { type: Number, default: 0 },                                                  │
+│         averageScore: { type: Number, default: 0 },                                                  │
+│         totalXP: { type: Number, default: 0 },                                                       │
+│         currentStreak: { type: Number, default: 0 }                                                  │
+│     },                                                                                               │
+│     achievements: [String]                                                                           │
+│ });                                                                                                  │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+QUIZ SCHEMA (models/Quiz.js):
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ const quizSchema = new mongoose.Schema({                                                             │
+│     title: String,                                                                                   │
+│     description: String,                                                                             │
+│     category: { type: String, enum: ['dsa', 'os', 'dbms', 'cn', 'other'] },                          │
+│     difficulty: { type: String, enum: ['easy', 'medium', 'hard'] },                                  │
+│     questions: [{                                                                                    │
+│         questionText: String,                                                                        │
+│         options: [{ id: String, text: String, isCorrect: Boolean }],                                 │
+│         explanation: String                                                                          │
+│     }],                                                                                              │
+│     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }                                 │
+│ });                                                                                                  │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+PASSWORD HASHING:
+Before saving user, password is hashed using bcrypt:
+- userSchema.pre('save', async function(next) { this.password = await bcrypt.hash(this.password, 10); }
+
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+                                    6️⃣ AUTHENTICATION SYSTEM (JWT)
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+
+WHAT IS JWT?
+JSON Web Token - A compact, URL-safe token for authentication.
+
+STRUCTURE: header.payload.signature
+- Header: Algorithm type (HS256)
+- Payload: User data (userId, email, role)
+- Signature: Verification hash
+
+HOW IT WORKS IN BRAINSPARK:
+
+1. USER LOGS IN:
+   ┌─────────────────────────────────────────────────────────────────────────────────────────┐
+   │ // routes/auth.js                                                                       │
+   │ router.post('/login', async (req, res) => {                                             │
+   │     const { email, password } = req.body;                                               │
+   │     const user = await User.findOne({ email });                                         │
+   │     const isMatch = await bcrypt.compare(password, user.password);                      │
+   │     if (isMatch) {                                                                      │
+   │         const token = jwt.sign(                                                         │
+   │             { userId: user._id, role: user.role },                                      │
+   │             process.env.JWT_SECRET,                                                     │
+   │             { expiresIn: '7d' }                                                         │
+   │         );                                                                              │
+   │         res.json({ token, user });                                                      │
+   │     }                                                                                   │
+   │ });                                                                                     │
+   └─────────────────────────────────────────────────────────────────────────────────────────┘
+
+2. TOKEN STORED IN LOCALSTORAGE (Frontend):
+   localStorage.setItem('token', token);
+
+3. TOKEN SENT WITH EACH REQUEST (Axios Interceptor):
+   ┌─────────────────────────────────────────────────────────────────────────────────────────┐
+   │ // utils/api.js                                                                         │
+   │ api.interceptors.request.use(config => {                                                │
+   │     const token = localStorage.getItem('token');                                        │
+   │     if (token) {                                                                        │
+   │         config.headers.Authorization = `Bearer ${token}`;                               │
+   │     }                                                                                   │
+   │     return config;                                                                      │
+   │ });                                                                                     │
+   └─────────────────────────────────────────────────────────────────────────────────────────┘
+
+4. BACKEND VERIFIES TOKEN (Middleware):
+   ┌─────────────────────────────────────────────────────────────────────────────────────────┐
+   │ // middleware/auth.js                                                                   │
+   │ const protect = async (req, res, next) => {                                             │
+   │     const token = req.headers.authorization?.split(' ')[1];                             │
+   │     const decoded = jwt.verify(token, process.env.JWT_SECRET);                          │
+   │     req.user = await User.findById(decoded.userId);                                     │
+   │     next();                                                                             │
+   │ };                                                                                      │
+   └─────────────────────────────────────────────────────────────────────────────────────────┘
+
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+                                    7️⃣ REACT HOOKS - IN-DEPTH EXPLANATION
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+
+What are Hooks?
+- Functions that let you use React state and lifecycle features in functional components
+- Introduced in React 16.8 to replace class components
+- All hooks start with "use" prefix
+
+┌──────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                           useState                                                    │
+├──────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ PURPOSE: Add state to functional components                                                           │
+│                                                                                                       │
+│ SYNTAX: const [state, setState] = useState(initialValue);                                             │
+│                                                                                                       │
+│ EXAMPLE IN BRAINSPARK (QuizPage.jsx):                                                                 │
+│ ┌───────────────────────────────────────────────────────────────────────────────────────────────────┐│
+│ │ const [currentQuestion, setCurrentQuestion] = useState(0);                                        ││
+│ │ const [selectedAnswer, setSelectedAnswer] = useState(null);                                       ││
+│ │ const [score, setScore] = useState(0);                                                            ││
+│ │                                                                                                   ││
+│ │ // When user selects an answer:                                                                   ││
+│ │ const handleAnswerClick = (answer) => {                                                           ││
+│ │     setSelectedAnswer(answer);                                                                    ││
+│ │     if (answer.isCorrect) {                                                                       ││
+│ │         setScore(prev => prev + 1);  // Functional update for safe increment                      ││
+│ │     }                                                                                             ││
+│ │ };                                                                                                ││
+│ └───────────────────────────────────────────────────────────────────────────────────────────────────┘│
+│                                                                                                       │
+│ WHY FUNCTIONAL UPDATE? (prev => prev + 1)                                                             │
+│ - Ensures you're working with the latest state value                                                  │
+│ - Important when multiple state updates happen quickly                                                │
+└──────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                           useEffect                                                   │
+├──────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ PURPOSE: Handle side effects (API calls, subscriptions, DOM manipulation)                             │
+│                                                                                                       │
+│ SYNTAX: useEffect(() => { /* effect */ return () => { /* cleanup */ } }, [dependencies]);            │
+│                                                                                                       │
+│ EXAMPLE IN BRAINSPARK (AuthContext.jsx):                                                              │
+│ ┌───────────────────────────────────────────────────────────────────────────────────────────────────┐│
+│ │ useEffect(() => {                                                                                 ││
+│ │     const token = localStorage.getItem('token');                                                  ││
+│ │     if (token) {                                                                                  ││
+│ │         fetchUserFromToken(token);  // Fetch user on page load                                    ││
+│ │     } else {                                                                                      ││
+│ │         setLoading(false);                                                                        ││
+│ │     }                                                                                             ││
+│ │ }, []);  // Empty array = runs ONCE on mount                                                      ││
+│ └───────────────────────────────────────────────────────────────────────────────────────────────────┘│
+│                                                                                                       │
+│ DEPENDENCY ARRAY:                                                                                     │
+│ - []           → Runs once on mount (like componentDidMount)                                          │
+│ - [dep1, dep2] → Runs when dep1 or dep2 changes                                                       │
+│ - No array     → Runs on every render (usually wrong!)                                                │
+│                                                                                                       │
+│ CLEANUP FUNCTION (Return):                                                                            │
+│ - Runs before component unmounts or before re-running effect                                          │
+│ - Used for subscriptions, timers, event listeners                                                     │
+└──────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                           useMemo                                                     │
+├──────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ PURPOSE: Memoize (cache) expensive calculations                                                       │
+│                                                                                                       │
+│ SYNTAX: const memoizedValue = useMemo(() => expensiveComputation(deps), [deps]);                     │
+│                                                                                                       │
+│ EXAMPLE IN BRAINSPARK (DashboardPage.jsx):                                                            │
+│ ┌───────────────────────────────────────────────────────────────────────────────────────────────────┐│
+│ │ const filteredQuizzes = useMemo(() => {                                                           ││
+│ │     return quizzes.filter(quiz => {                                                               ││
+│ │         const matchesSearch = quiz.title.toLowerCase().includes(searchQuery.toLowerCase());       ││
+│ │         const matchesCategory = !selectedCategory || quiz.category === selectedCategory;          ││
+│ │         const matchesDifficulty = !selectedDifficulty || quiz.difficulty === selectedDifficulty;  ││
+│ │         return matchesSearch && matchesCategory && matchesDifficulty;                             ││
+│ │     });                                                                                           ││
+│ │ }, [quizzes, searchQuery, selectedCategory, selectedDifficulty]);                                 ││
+│ └───────────────────────────────────────────────────────────────────────────────────────────────────┘│
+│                                                                                                       │
+│ WHY USE useMemo HERE?                                                                                 │
+│ - Filtering hundreds of quizzes on every render is expensive                                          │
+│ - useMemo caches the result and only recalculates when dependencies change                            │
+│ - If user just clicks a button (unrelated state change), filter doesn't re-run                        │
+│                                                                                                       │
+│ WHEN TO USE useMemo:                                                                                  │
+│ ✅ Expensive calculations (filtering large arrays, complex math)                                      │
+│ ✅ Creating objects/arrays that shouldn't trigger re-renders                                          │
+│ ❌ Simple calculations (just use regular variables)                                                   │
+│ ❌ Everything (premature optimization is bad)                                                         │
+└──────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                           useCallback                                                 │
+├──────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ PURPOSE: Memoize callback functions to prevent unnecessary re-renders                                 │
+│                                                                                                       │
+│ SYNTAX: const memoizedCallback = useCallback(() => { /* fn body */ }, [deps]);                       │
+│                                                                                                       │
+│ EXAMPLE:                                                                                              │
+│ ┌───────────────────────────────────────────────────────────────────────────────────────────────────┐│
+│ │ const handleSubmit = useCallback((answers) => {                                                   ││
+│ │     submitQuiz(answers);                                                                          ││
+│ │ }, [submitQuiz]);                                                                                 ││
+│ └───────────────────────────────────────────────────────────────────────────────────────────────────┘│
+│                                                                                                       │
+│ DIFFERENCE FROM useMemo:                                                                              │
+│ - useMemo: memoizes a VALUE (result of function)                                                      │
+│ - useCallback: memoizes a FUNCTION itself                                                             │
+│                                                                                                       │
+│ useCallback(fn, deps) === useMemo(() => fn, deps)                                                     │
+│                                                                                                       │
+│ WHEN TO USE:                                                                                          │
+│ - When passing callbacks to optimized child components (React.memo)                                   │
+│ - When callback is a dependency in useEffect                                                          │
+└──────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                           useContext                                                  │
+├──────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ PURPOSE: Consume context values without prop drilling                                                 │
+│                                                                                                       │
+│ HOW IT WORKS IN BRAINSPARK:                                                                           │
+│                                                                                                       │
+│ 1. CREATE CONTEXT (AuthContext.jsx):                                                                  │
+│ ┌───────────────────────────────────────────────────────────────────────────────────────────────────┐│
+│ │ const AuthContext = createContext();                                                              ││
+│ │                                                                                                   ││
+│ │ export const AuthProvider = ({ children }) => {                                                   ││
+│ │     const [user, setUser] = useState(null);                                                       ││
+│ │     const [isAuthenticated, setIsAuthenticated] = useState(false);                                ││
+│ │                                                                                                   ││
+│ │     const login = async (email, password) => { /* login logic */ };                               ││
+│ │     const logout = () => { /* logout logic */ };                                                  ││
+│ │                                                                                                   ││
+│ │     return (                                                                                      ││
+│ │         <AuthContext.Provider value={{ user, isAuthenticated, login, logout }}>                  ││
+│ │             {children}                                                                            ││
+│ │         </AuthContext.Provider>                                                                   ││
+│ │     );                                                                                            ││
+│ │ };                                                                                                ││
+│ └───────────────────────────────────────────────────────────────────────────────────────────────────┘│
+│                                                                                                       │
+│ 2. WRAP APP (App.jsx):                                                                                │
+│ ┌───────────────────────────────────────────────────────────────────────────────────────────────────┐│
+│ │ <AuthProvider>                                                                                    ││
+│ │     <ThemeProvider>                                                                               ││
+│ │         <App />                                                                                   ││
+│ │     </ThemeProvider>                                                                              ││
+│ │ </AuthProvider>                                                                                   ││
+│ └───────────────────────────────────────────────────────────────────────────────────────────────────┘│
+│                                                                                                       │
+│ 3. CONSUME WITH useContext:                                                                           │
+│ ┌───────────────────────────────────────────────────────────────────────────────────────────────────┐│
+│ │ const { user, isAuthenticated, logout } = useContext(AuthContext);                                ││
+│ │ // Or using custom hook:                                                                          ││
+│ │ const { user, isAuthenticated, logout } = useAuth();                                              ││
+│ └───────────────────────────────────────────────────────────────────────────────────────────────────┘│
+│                                                                                                       │
+│ WHY NOT REDUX?                                                                                        │
+│ - Context API is simpler for small-medium apps                                                        │
+│ - No extra library needed                                                                             │
+│ - Redux is better for large apps with complex state                                                   │
+└──────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                           useRef                                                      │
+├──────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ PURPOSE: Persist values between renders WITHOUT triggering re-renders                                 │
+│                                                                                                       │
+│ COMMON USES:                                                                                          │
+│ 1. DOM ELEMENT REFERENCE:                                                                             │
+│ ┌───────────────────────────────────────────────────────────────────────────────────────────────────┐│
+│ │ const inputRef = useRef(null);                                                                    ││
+│ │ <input ref={inputRef} />                                                                          ││
+│ │ inputRef.current.focus();  // Focus the input                                                     ││
+│ └───────────────────────────────────────────────────────────────────────────────────────────────────┘│
+│                                                                                                       │
+│ 2. MUTABLE VALUE (Timer ID):                                                                          │
+│ ┌───────────────────────────────────────────────────────────────────────────────────────────────────┐│
+│ │ const timerRef = useRef(null);                                                                    ││
+│ │ timerRef.current = setTimeout(...);                                                               ││
+│ │ clearTimeout(timerRef.current);                                                                   ││
+│ └───────────────────────────────────────────────────────────────────────────────────────────────────┘│
+│                                                                                                       │
+│ KEY DIFFERENCE FROM useState:                                                                         │
+│ - Changing ref.current does NOT cause re-render                                                       │
+│ - useState change → re-render                                                                         │
+└──────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+                                    8️⃣ CONTEXT API - STATE MANAGEMENT
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+
+PROBLEM: PROP DRILLING
+Without Context, passing data through multiple levels is tedious:
+
+App → Dashboard → Header → UserProfile → Avatar (need user data everywhere!)
+
+SOLUTION: CONTEXT API
+Create a "global state" that any component can access directly.
+
+CONTEXTS IN BRAINSPARK:
+
+1. AuthContext (context/AuthContext.jsx)
+   - Stores: user, isAuthenticated, loading
+   - Provides: login, logout, register functions
+   - Used in: Header, Sidebar, Protected Routes
+
+2. ThemeContext (context/ThemeContext.jsx)
+   - Stores: theme ('light' or 'dark')
+   - Provides: toggleTheme function
+   - Persists: to localStorage
+
+FLOW:
+┌─────────────────────────────────────────────────────────────────────────────┐
+│     AuthProvider (wraps entire app)                                          │
+│         │                                                                    │
+│         ├── App.jsx (uses useAuth for routing)                               │
+│         │                                                                    │
+│         ├── Header.jsx (shows user name, logout button)                      │
+│         │                                                                    │
+│         └── ProfilePage.jsx (displays user stats)                            │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+                                    9️⃣ CUSTOM HOOKS
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+
+WHY CUSTOM HOOKS?
+- Reuse stateful logic across components
+- Keep components clean and focused
+- Encapsulate complex logic
+
+┌──────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                               useLocalStorage (hooks/useLocalStorage.js)                              │
+├──────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ const useLocalStorage = (key, initialValue) => {                                                      │
+│     const [storedValue, setStoredValue] = useState(() => {                                            │
+│         try {                                                                                         │
+│             const item = localStorage.getItem(key);                                                   │
+│             return item ? JSON.parse(item) : initialValue;                                            │
+│         } catch (error) {                                                                             │
+│             return initialValue;                                                                      │
+│         }                                                                                             │
+│     });                                                                                               │
+│                                                                                                       │
+│     const setValue = (value) => {                                                                     │
+│         setStoredValue(value);                                                                        │
+│         localStorage.setItem(key, JSON.stringify(value));                                             │
+│     };                                                                                                │
+│                                                                                                       │
+│     return [storedValue, setValue];                                                                   │
+│ };                                                                                                    │
+│                                                                                                       │
+│ USAGE:                                                                                                │
+│ const [theme, setTheme] = useLocalStorage('theme', 'dark');                                           │
+└──────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                    useQuiz (hooks/useQuiz.js)                                         │
+├──────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Encapsulates all quiz-related logic:                                                                  │
+│ - Current question index                                                                              │
+│ - Selected answers                                                                                    │
+│ - Score calculation                                                                                   │
+│ - Timer management                                                                                    │
+│ - API calls for submitting                                                                            │
+│                                                                                                       │
+│ USAGE:                                                                                                │
+│ const { currentQuestion, selectAnswer, nextQuestion, submitQuiz } = useQuiz(quizId);                  │
+└──────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+                                    🔟 ROUTING (React Router)
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+
+WHAT IS CLIENT-SIDE ROUTING?
+- Navigation happens in browser without page reload
+- Only JavaScript updates the view
+- Faster than traditional multi-page apps
+
+SETUP IN BRAINSPARK (App.jsx):
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';                           │
+│                                                                                                      │
+│ <BrowserRouter>                                                                                      │
+│     <Routes>                                                                                         │
+│         <Route path="/" element={<LandingPage />} />                                                 │
+│         <Route path="/login" element={<LoginPage />} />                                              │
+│         <Route path="/register" element={<RegisterPage />} />                                        │
+│         <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />    │
+│         <Route path="/quiz/:id" element={<ProtectedRoute><QuizPage /></ProtectedRoute>} />           │
+│         <Route path="/admin" element={<AdminRoute><AdminPage /></AdminRoute>} />                     │
+│         <Route path="*" element={<NotFoundPage />} />                                                │
+│     </Routes>                                                                                        │
+│ </BrowserRouter>                                                                                     │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+PROTECTED ROUTE PATTERN:
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ const ProtectedRoute = ({ children }) => {                                                           │
+│     const { isAuthenticated, loading } = useAuth();                                                  │
+│                                                                                                      │
+│     if (loading) return <LoadingSpinner />;                                                          │
+│     if (!isAuthenticated) return <Navigate to="/login" />;                                           │
+│                                                                                                      │
+│     return children;                                                                                 │
+│ };                                                                                                   │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+NAVIGATION HOOKS:
+- useNavigate() → programmatic navigation: navigate('/dashboard')
+- useParams() → get URL parameters: const { id } = useParams()
+- useLocation() → get current URL info
+
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+                                    1️⃣1️⃣ ANIMATIONS (Framer Motion)
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+
+WHY FRAMER MOTION?
+- Declarative animations (describe what, not how)
+- Built for React (motion components)
+- Gestures, layout animations, exit animations
+- AnimatePresence for enter/exit animations
+
+BASIC USAGE:
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ import { motion } from 'framer-motion';                                                              │
+│                                                                                                      │
+│ <motion.div                                                                                          │
+│     initial={{ opacity: 0, y: 20 }}       // Starting state                                          │
+│     animate={{ opacity: 1, y: 0 }}        // End state                                               │
+│     exit={{ opacity: 0, y: -20 }}         // Exit state (needs AnimatePresence)                      │
+│     transition={{ duration: 0.3 }}        // Animation timing                                        │
+│ >                                                                                                    │
+│     Content                                                                                          │
+│ </motion.div>                                                                                        │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+ANIMATEPRESENCE (for exit animations):
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ <AnimatePresence mode="wait">                                                                        │
+│     {showModal && (                                                                                  │
+│         <motion.div                                                                                  │
+│             key="modal"                                                                              │
+│             initial={{ opacity: 0 }}                                                                 │
+│             animate={{ opacity: 1 }}                                                                 │
+│             exit={{ opacity: 0 }}                                                                    │
+│         >                                                                                            │
+│             <Modal />                                                                                │
+│         </motion.div>                                                                                │
+│     )}                                                                                               │
+│ </AnimatePresence>                                                                                   │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+USED IN BRAINSPARK FOR:
+- Page transitions
+- Quiz card animations
+- Confetti celebration
+- Modal pop-ups
+- Loading states
+
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+                                    1️⃣2️⃣ API INTEGRATION (Axios)
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+
+WHY AXIOS OVER FETCH?
+- Automatic JSON parsing
+- Request/Response interceptors
+- Better error handling
+- Timeout support
+- Request cancellation
+
+SETUP IN BRAINSPARK (utils/api.js):
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ import axios from 'axios';                                                                           │
+│                                                                                                      │
+│ const api = axios.create({                                                                           │
+│     baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',                            │
+│     timeout: 10000                                                                                   │
+│ });                                                                                                  │
+│                                                                                                      │
+│ // REQUEST INTERCEPTOR - Add auth token to every request                                             │
+│ api.interceptors.request.use(config => {                                                             │
+│     const token = localStorage.getItem('token');                                                     │
+│     if (token) {                                                                                     │
+│         config.headers.Authorization = `Bearer ${token}`;                                            │
+│     }                                                                                                │
+│     return config;                                                                                   │
+│ });                                                                                                  │
+│                                                                                                      │
+│ // RESPONSE INTERCEPTOR - Handle 401 errors globally                                                 │
+│ api.interceptors.response.use(                                                                       │
+│     response => response,                                                                            │
+│     error => {                                                                                       │
+│         if (error.response?.status === 401) {                                                        │
+│             localStorage.removeItem('token');                                                        │
+│             window.location.href = '/login';  // Auto logout on token expiry                         │
+│         }                                                                                            │
+│         return Promise.reject(error);                                                                │
+│     }                                                                                                │
+│ );                                                                                                   │
+│                                                                                                      │
+│ export default api;                                                                                  │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+                                    1️⃣3️⃣ GAMIFICATION FEATURES
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+
+XP CALCULATION (utils/xpCalculator.js):
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ Base XP = Score * Difficulty Multiplier                                                              │
+│                                                                                                      │
+│ Difficulty Multipliers:                                                                              │
+│ - Easy: 1x                                                                                           │
+│ - Medium: 1.5x                                                                                       │
+│ - Hard: 2x                                                                                           │
+│                                                                                                      │
+│ Bonuses:                                                                                             │
+│ - Perfect Score: +50 XP                                                                              │
+│ - Streak Bonus: +10 XP per day                                                                       │
+│ - Speed Bonus: +20 XP if under time limit                                                            │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+STREAK SYSTEM:
+- Daily login tracked
+- Streak breaks if no quiz taken for 24 hours
+- Streak displayed on dashboard and leaderboard
+
+ACHIEVEMENTS:
+- Quiz Master: Complete 50 quizzes
+- Streak Champion: 30-day streak
+- Perfect Score: 100% on any quiz
+- XP Legend: Reach 10,000 XP
+
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+                                    1️⃣4️⃣ SECURITY CONSIDERATIONS
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+
+1. PASSWORD HASHING
+   - Never store plain text passwords
+   - bcrypt with salt rounds (10 recommended)
+
+2. JWT SECURITY
+   - Store in httpOnly cookie (more secure) or localStorage
+   - Set expiration (7 days in BrainSpark)
+   - Verify on every protected route
+
+3. INPUT VALIDATION
+   - Validate on both frontend and backend
+   - Sanitize user inputs to prevent XSS
+
+4. ENVIRONMENT VARIABLES
+   - Never commit .env files
+   - Use .env.example for reference
+
+5. CORS CONFIGURATION
+   - Only allow specific origins in production
+
+6. RATE LIMITING (To be implemented)
+   - Prevent brute force attacks
+
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+                                    1️⃣5️⃣ PERFORMANCE OPTIMIZATIONS
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+
+1. useMemo FOR EXPENSIVE CALCULATIONS
+   - Quiz filtering in DashboardPage
+   - Statistics computation
+
+2. React.lazy FOR CODE SPLITTING
+   - Load pages only when needed
+   - Faster initial load
+
+3. IMAGE OPTIMIZATION
+   - Use WebP format
+   - Lazy loading images
+
+4. MONGODB INDEXES
+   - Index on frequently queried fields
+   - Compound indexes for complex queries
+
+5. VITE BUILD OPTIMIZATION
+   - Tree shaking (removes unused code)
+   - Minification
+   - Chunk splitting
+
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+                                    1️⃣6️⃣ DEPLOYMENT GUIDE
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+
+BACKEND (Azure Web Services):
+1. Create Azure Web App
+2. Configure environment variables (MONGO_URI, JWT_SECRET)
+3. Deploy via GitHub Actions or Azure CLI
+4. URL: brainspark-api.azurewebsites.net
+
+FRONTEND (Vercel):
+1. Connect GitHub repository
+2. Set VITE_API_URL to backend URL
+3. Deploy automatically on push
+4. Custom domain: brainspark.dhruvgoyal.tech
+
+DATABASE (MongoDB Atlas):
+1. Create free cluster
+2. Whitelist IP addresses (or 0.0.0.0/0 for any)
+3. Create database user
+4. Get connection string for .env
+
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+                                    1️⃣7️⃣ COMMON VIVA QUESTIONS & ANSWERS
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+
+Q1: Why did you choose React over Angular/Vue?
+A: React is a library, not a framework, giving more flexibility. Its component-based 
+   architecture, virtual DOM for performance, and massive ecosystem (hooks, context) 
+   make it ideal for building interactive UIs. Plus, it's backed by Meta and has 
+   excellent community support.
+
+Q2: Explain the Virtual DOM.
+A: Virtual DOM is a lightweight JavaScript representation of the actual DOM. When state 
+   changes, React creates a new virtual DOM, compares it with the previous one (diffing), 
+   and only updates the changed parts in the real DOM. This is faster than manipulating 
+   the real DOM directly.
+
+Q3: What is the difference between state and props?
+A: Props are passed from parent to child and are read-only. State is managed within a 
+   component and can be changed. When state changes, the component re-renders.
+
+Q4: Why use JWT instead of sessions?
+A: JWT is stateless - the server doesn't need to store session data. This makes it 
+   more scalable for distributed systems. The token contains all needed info (payload) 
+   and is self-verifying (signature).
+
+Q5: Explain the useEffect cleanup function.
+A: The return function in useEffect runs before the component unmounts or before the 
+   effect runs again. It's used to clean up subscriptions, timers, or event listeners 
+   to prevent memory leaks.
+
+Q6: What is the purpose of MongoDB indexes?
+A: Indexes improve query performance by allowing MongoDB to find documents without 
+   scanning every document. Like a book index, it points to the location of data.
+
+Q7: How does authentication work in your app?
+A: 1) User logs in with credentials
+   2) Server verifies and creates JWT token
+   3) Token stored in localStorage
+   4) Token sent with every API request (Authorization header)
+   5) Server middleware verifies token
+   6) If valid, request proceeds; if not, 401 error
+
+Q8: What is CORS and why is it needed?
+A: Cross-Origin Resource Sharing. Browsers block requests to different domains for 
+   security. Since our frontend (Vercel) and backend (Azure) are on different domains, 
+   we need CORS to allow these cross-origin requests.
+
+Q9: Explain the useCallback hook.
+A: useCallback memoizes a function so it doesn't get recreated on every render. 
+   Useful when passing callbacks to child components that use React.memo, preventing 
+   unnecessary re-renders.
+
+Q10: What is the difference between useMemo and useCallback?
+A: useMemo memoizes a VALUE (the result of a function), while useCallback memoizes 
+   the FUNCTION itself. useCallback(fn, deps) is equivalent to useMemo(() => fn, deps).
+
+Q11: How do you handle errors in the application?
+A: - Frontend: Try-catch in async functions, error boundaries for component errors
+   - API: Axios interceptors catch 401 errors for auto-logout
+   - Backend: Express error handling middleware
+   - UI: Error states shown to users with helpful messages
+
+Q12: What would you improve in the project?
+A: - Add unit tests (Jest, React Testing Library)
+   - Implement rate limiting for API security
+   - Add real-time leaderboard with WebSockets
+   - Implement OAuth (Google/GitHub login)
+   - Add PWA support for offline access
+   - Implement caching with Redis
+
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+
+                                    📌 QUICK REVISION CHEATSHEET
+
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+
+useState     → Add state to functional components
+useEffect    → Side effects (API calls, subscriptions)
+useMemo      → Memoize expensive calculations
+useCallback  → Memoize callback functions
+useContext   → Consume context without prop drilling
+useRef       → Persist values without re-render / DOM references
+
+Context API  → Global state without prop drilling
+JWT          → Stateless authentication token
+bcrypt       → Password hashing
+Mongoose     → MongoDB ODM for schema validation
+Express      → Node.js web framework
+Axios        → HTTP client with interceptors
+Framer Motion → Declarative React animations
+
+Virtual DOM  → Lightweight DOM representation for efficient updates
+SPA          → Single Page Application - no page reloads
+REST API     → Representational State Transfer
+CORS         → Cross-Origin Resource Sharing
+
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+                                        🎓 GOOD LUCK FOR YOUR VIVA! 🎓
+════════════════════════════════════════════════════════════════════════════════════════════════════════

@@ -122,14 +122,14 @@ const storage = {
     },
 };
 
-// Specific app storage keys
+// Specific app storage keys — aligned with AuthContext + ThemeContext actual usage
 export const STORAGE_KEYS = {
-    TOKEN: 'token',
-    USER: 'user',
+    TOKEN: 'auth_token',
+    USER: 'user_data',
     THEME: 'theme',
-    FONT_SIZE: 'fontSize',
-    SOUND_ENABLED: 'soundEnabled',
-    REDUCED_MOTION: 'reducedMotion',
+    FONT_SIZE: 'font_size',
+    SOUND_ENABLED: 'sound_enabled',
+    REDUCED_MOTION: 'reduced_motion',
     QUIZ_STATE: (quizId) => `quiz_state_${quizId}`,
     QUIZ_CACHE: (quizId) => `quiz_cache_${quizId}`,
     ANALYTICS: 'analytics_data',

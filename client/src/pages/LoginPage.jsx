@@ -54,7 +54,7 @@ const LoginPage = () => {
         try {
             const result = await login(formData.email, formData.password);
             if (result.success) {
-                navigate('/dashboard');
+                navigate(result.redirectTo || '/dashboard');
             } else {
                 setErrors({ submit: result.error || 'Login failed' });
             }
@@ -160,11 +160,43 @@ const LoginPage = () => {
                                 Sign In
                             </Button>
 
-                            <div className="auth-footer">
-                                <p className="auth-footer-text">
-                                    Don't have an account?{' '}
-                                    <Link to="/register" className="auth-link">
-                                        Create Account
+                            <div style={{
+                                display: 'grid',
+                                gridTemplateColumns: '1fr 1fr',
+                                gap: '16px',
+                                marginTop: '16px'
+                            }}>
+                                <Link 
+                                    to="/forgot-password" 
+                                    style={{
+                                        textAlign: 'center',
+                                        color: 'var(--primary)',
+                                        textDecoration: 'none',
+                                        fontSize: '14px',
+                                        padding: '8px',
+                                        borderRadius: '4px',
+                                        transition: 'background 0.2s'
+                                    }}
+                                    onMouseEnter={(e) => e.target.style.background = 'rgba(102, 126, 234, 0.1)'}
+                                    onMouseLeave={(e) => e.target.style.background = 'transparent'}
+                                >
+                                    Forgot Password?
+                                </Link>
+                                <p style={{
+                                    margin: 0,
+                                    textAlign: 'center',
+                                    fontSize: '14px',
+                                    color: 'var(--text-secondary)'
+                                }}>
+                                    New here?{' '}
+                                    <Link 
+                                        to="/register" 
+                                        style={{
+                                            color: 'var(--primary)',
+                                            textDecoration: 'none'
+                                        }}
+                                    >
+                                        Sign Up
                                     </Link>
                                 </p>
                             </div>

@@ -2,35 +2,21 @@ import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
-import { Bell, User, Shield, Palette, Volume2, Accessibility } from 'lucide-react';
+import { Bell, User, Shield, Palette, Accessibility, CheckCircle } from 'lucide-react';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import './SettingsPage.css';
 
 const SettingsPage = () => {
     const { user } = useAuth();
-    const { theme, toggleTheme } = useTheme();
-    const [settings, setSettings] = useState({
-        emailNotifications: true,
-        pushNotifications: false,
-        soundEnabled: true,
-        reducedMotion: false,
-        fontSize: 'medium',
-        language: 'en'
-    });
+    const { theme, toggleTheme, fontSize, setFontSize, soundEnabled, setSoundEnabled, reducedMotion, setReducedMotion } = useTheme();
+    const [saved, setSaved] = useState(false);
+    const [localNotifications, setLocalNotifications] = useState({ email: true, push: false });
 
     // Scroll to top on page load
     useEffect(() => {
         window.scrollTo(0, 0);
     }, []);
-
-    const handleToggle = (key) => {
-        setSettings(prev => ({ ...prev, [key]: !prev[key] }));
-    };
-
-    const handleSelect = (key, value) => {
-        setSettings(prev => ({ ...prev, [key]: value }));
-    };
 
     return (
         <main className="settings-page">
@@ -106,8 +92,8 @@ const SettingsPage = () => {
                                         <p>Adjust text size for readability</p>
                                     </div>
                                     <select
-                                        value={settings.fontSize}
-                                        onChange={(e) => handleSelect('fontSize', e.target.value)}
+                                        value={fontSize}
+                                        onChange={(e) => setFontSize(e.target.value)}
                                         className="setting-select"
                                     >
                                         <option value="small">Small</option>
@@ -139,8 +125,8 @@ const SettingsPage = () => {
                                     <label className="toggle-switch">
                                         <input
                                             type="checkbox"
-                                            checked={settings.emailNotifications}
-                                            onChange={() => handleToggle('emailNotifications')}
+                                            checked={localNotifications.email}
+                                            onChange={() => setLocalNotifications(p => ({ ...p, email: !p.email }))}
                                         />
                                         <span className="toggle-slider"></span>
                                     </label>
@@ -153,8 +139,8 @@ const SettingsPage = () => {
                                     <label className="toggle-switch">
                                         <input
                                             type="checkbox"
-                                            checked={settings.pushNotifications}
-                                            onChange={() => handleToggle('pushNotifications')}
+                                            checked={localNotifications.push}
+                                            onChange={() => setLocalNotifications(p => ({ ...p, push: !p.push }))}
                                         />
                                         <span className="toggle-slider"></span>
                                     </label>
@@ -183,8 +169,8 @@ const SettingsPage = () => {
                                     <label className="toggle-switch">
                                         <input
                                             type="checkbox"
-                                            checked={settings.soundEnabled}
-                                            onChange={() => handleToggle('soundEnabled')}
+                                            checked={soundEnabled}
+                                            onChange={(e) => setSoundEnabled(e.target.checked)}
                                         />
                                         <span className="toggle-slider"></span>
                                     </label>
@@ -197,8 +183,8 @@ const SettingsPage = () => {
                                     <label className="toggle-switch">
                                         <input
                                             type="checkbox"
-                                            checked={settings.reducedMotion}
-                                            onChange={() => handleToggle('reducedMotion')}
+                                            checked={reducedMotion}
+                                            onChange={(e) => setReducedMotion(e.target.checked)}
                                         />
                                         <span className="toggle-slider"></span>
                                     </label>
@@ -233,8 +219,13 @@ const SettingsPage = () => {
                     transition={{ duration: 0.5, delay: 0.6 }}
                     className="settings-footer"
                 >
-                    <Button variant="primary">Save Changes</Button>
-                    <Button variant="ghost">Reset to Defaults</Button>
+                    {saved && (
+                        <span style={{ color: 'var(--success)', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.875rem' }}>
+                            <CheckCircle size={16} /> Preferences saved automatically
+                        </span>
+                    )}
+                    <Button variant="primary" onClick={() => { setFontSize(fontSize); setSaved(true); setTimeout(() => setSaved(false), 2000); }}>Save Changes</Button>
+                    <Button variant="ghost" onClick={() => { setFontSize('medium'); setSoundEnabled(true); setReducedMotion(false); }}>Reset to Defaults</Button>
                 </motion.div>
             </div>
         </main>

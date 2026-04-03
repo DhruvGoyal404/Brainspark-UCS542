@@ -18,187 +18,8 @@ import {
 } from 'lucide-react';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
+import useBookmarks from '../hooks/useBookmarks';
 import './BookmarksPage.css';
-
-// Hardcoded bookmarked questions data
-const hardcodedBookmarks = [
-    {
-        id: 'dsa-basics_1',
-        quizId: 'dsa-basics',
-        quizTitle: 'DSA Basics',
-        category: 'Data Structures & Algorithms',
-        questionId: 1,
-        questionText: 'What is the time complexity of accessing an element in an array by index?',
-        options: [
-            { id: 'A', text: 'O(1)', isCorrect: true },
-            { id: 'B', text: 'O(n)', isCorrect: false },
-            { id: 'C', text: 'O(log n)', isCorrect: false },
-            { id: 'D', text: 'O(n²)', isCorrect: false }
-        ],
-        explanation: 'Array access by index is O(1) because arrays store elements in contiguous memory locations, allowing direct calculation of memory address.',
-        bookmarkedAt: Date.now() - 86400000 * 2
-    },
-    {
-        id: 'dsa-basics_2',
-        quizId: 'dsa-basics',
-        quizTitle: 'DSA Basics',
-        category: 'Data Structures & Algorithms',
-        questionId: 2,
-        questionText: 'Which data structure uses LIFO (Last In First Out) principle?',
-        options: [
-            { id: 'A', text: 'Queue', isCorrect: false },
-            { id: 'B', text: 'Stack', isCorrect: true },
-            { id: 'C', text: 'Tree', isCorrect: false },
-            { id: 'D', text: 'Graph', isCorrect: false }
-        ],
-        explanation: 'Stack follows LIFO principle - the last element added is the first one to be removed. Think of a stack of plates!',
-        bookmarkedAt: Date.now() - 86400000
-    },
-    {
-        id: 'dsa-basics_3',
-        quizId: 'dsa-basics',
-        quizTitle: 'DSA Basics',
-        category: 'Data Structures & Algorithms',
-        questionId: 3,
-        questionText: 'What is the worst-case time complexity of Quick Sort?',
-        options: [
-            { id: 'A', text: 'O(n log n)', isCorrect: false },
-            { id: 'B', text: 'O(n)', isCorrect: false },
-            { id: 'C', text: 'O(n²)', isCorrect: true },
-            { id: 'D', text: 'O(log n)', isCorrect: false }
-        ],
-        explanation: 'Quick Sort has O(n²) worst case when the pivot selection is poor (already sorted array with first/last element as pivot).',
-        bookmarkedAt: Date.now() - 3600000
-    },
-    {
-        id: 'operating-systems_1',
-        quizId: 'operating-systems',
-        quizTitle: 'Operating Systems',
-        category: 'Operating Systems',
-        questionId: 1,
-        questionText: 'What is a process in an operating system?',
-        options: [
-            { id: 'A', text: 'A program in execution', isCorrect: true },
-            { id: 'B', text: 'A stored program', isCorrect: false },
-            { id: 'C', text: 'A system call', isCorrect: false },
-            { id: 'D', text: 'A hardware component', isCorrect: false }
-        ],
-        explanation: 'A process is an instance of a program that is being executed. It includes the program code, current activity, and allocated resources.',
-        bookmarkedAt: Date.now() - 86400000 * 3
-    },
-    {
-        id: 'operating-systems_2',
-        quizId: 'operating-systems',
-        quizTitle: 'Operating Systems',
-        category: 'Operating Systems',
-        questionId: 2,
-        questionText: 'Which scheduling algorithm may cause starvation?',
-        options: [
-            { id: 'A', text: 'Round Robin', isCorrect: false },
-            { id: 'B', text: 'First Come First Serve', isCorrect: false },
-            { id: 'C', text: 'Shortest Job First', isCorrect: true },
-            { id: 'D', text: 'FIFO', isCorrect: false }
-        ],
-        explanation: 'SJF can cause starvation because longer processes may wait indefinitely if shorter processes keep arriving.',
-        bookmarkedAt: Date.now() - 86400000 * 2
-    },
-    {
-        id: 'dbms-fundamentals_1',
-        quizId: 'dbms-fundamentals',
-        quizTitle: 'DBMS Fundamentals',
-        category: 'Database Management',
-        questionId: 1,
-        questionText: 'What does ACID stand for in database transactions?',
-        options: [
-            { id: 'A', text: 'Atomic, Consistent, Isolated, Durable', isCorrect: true },
-            { id: 'B', text: 'Automatic, Complete, Independent, Dynamic', isCorrect: false },
-            { id: 'C', text: 'Active, Continuous, Immediate, Direct', isCorrect: false },
-            { id: 'D', text: 'Atomic, Complete, Immediate, Dynamic', isCorrect: false }
-        ],
-        explanation: 'ACID properties ensure reliable database transactions: Atomicity (all or nothing), Consistency (valid state), Isolation (concurrent safety), Durability (permanent).',
-        bookmarkedAt: Date.now() - 86400000 * 5
-    },
-    {
-        id: 'dbms-fundamentals_2',
-        quizId: 'dbms-fundamentals',
-        quizTitle: 'DBMS Fundamentals',
-        category: 'Database Management',
-        questionId: 2,
-        questionText: 'What is normalization in DBMS?',
-        options: [
-            { id: 'A', text: 'Adding redundant data', isCorrect: false },
-            { id: 'B', text: 'Organizing data to reduce redundancy', isCorrect: true },
-            { id: 'C', text: 'Creating backup of data', isCorrect: false },
-            { id: 'D', text: 'Encrypting data', isCorrect: false }
-        ],
-        explanation: 'Normalization is the process of organizing data in a database to reduce redundancy and improve data integrity through a series of normal forms.',
-        bookmarkedAt: Date.now() - 86400000 * 4
-    },
-    {
-        id: 'web-development_1',
-        quizId: 'web-development',
-        quizTitle: 'Web Development',
-        category: 'Web Development',
-        questionId: 1,
-        questionText: 'What does CSS stand for?',
-        options: [
-            { id: 'A', text: 'Computer Style Sheets', isCorrect: false },
-            { id: 'B', text: 'Cascading Style Sheets', isCorrect: true },
-            { id: 'C', text: 'Creative Style Sheets', isCorrect: false },
-            { id: 'D', text: 'Colorful Style Sheets', isCorrect: false }
-        ],
-        explanation: 'CSS stands for Cascading Style Sheets. It describes how HTML elements should be displayed on screen.',
-        bookmarkedAt: Date.now() - 86400000 * 6
-    },
-    {
-        id: 'web-development_2',
-        quizId: 'web-development',
-        quizTitle: 'Web Development',
-        category: 'Web Development',
-        questionId: 2,
-        questionText: 'Which HTTP method is used to update a resource?',
-        options: [
-            { id: 'A', text: 'GET', isCorrect: false },
-            { id: 'B', text: 'POST', isCorrect: false },
-            { id: 'C', text: 'PUT', isCorrect: true },
-            { id: 'D', text: 'DELETE', isCorrect: false }
-        ],
-        explanation: 'PUT method is used to update an existing resource. POST is for creating, GET for reading, DELETE for removing.',
-        bookmarkedAt: Date.now() - 86400000
-    },
-    {
-        id: 'oops_1',
-        quizId: 'oops-concepts',
-        quizTitle: 'OOPs Concepts',
-        category: 'Object Oriented Programming',
-        questionId: 1,
-        questionText: 'Which OOP concept is used to hide implementation details?',
-        options: [
-            { id: 'A', text: 'Inheritance', isCorrect: false },
-            { id: 'B', text: 'Polymorphism', isCorrect: false },
-            { id: 'C', text: 'Encapsulation', isCorrect: true },
-            { id: 'D', text: 'Abstraction', isCorrect: false }
-        ],
-        explanation: 'Encapsulation bundles data and methods together, hiding internal implementation details and exposing only necessary interfaces.',
-        bookmarkedAt: Date.now() - 86400000 * 7
-    },
-    {
-        id: 'networks_1',
-        quizId: 'computer-networks',
-        quizTitle: 'Computer Networks',
-        category: 'Computer Networks',
-        questionId: 1,
-        questionText: 'Which layer of OSI model is responsible for routing?',
-        options: [
-            { id: 'A', text: 'Data Link Layer', isCorrect: false },
-            { id: 'B', text: 'Network Layer', isCorrect: true },
-            { id: 'C', text: 'Transport Layer', isCorrect: false },
-            { id: 'D', text: 'Session Layer', isCorrect: false }
-        ],
-        explanation: 'The Network Layer (Layer 3) handles routing, forwarding packets between different networks using IP addresses.',
-        bookmarkedAt: Date.now() - 86400000 * 8
-    }
-];
 
 // Category icons mapping
 const categoryIcons = {
@@ -210,15 +31,27 @@ const categoryIcons = {
     'Computer Networks': Globe
 };
 
-// Get unique categories
-const categories = [...new Set(hardcodedBookmarks.map(b => b.category))];
-
 const BookmarksPage = () => {
-    const [bookmarks, setBookmarks] = useState(hardcodedBookmarks);
+    const { bookmarks: apiBookmarks, loading, removeBookmark: removeBookmarkById, clearAllBookmarks: clearAllApi } = useBookmarks();
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('all');
     const [expandedCards, setExpandedCards] = useState({});
     const [showFilters, setShowFilters] = useState(false);
+
+    // Normalize bookmarks from API to display format
+    const bookmarks = useMemo(() => apiBookmarks.map(b => ({
+        id: b._id || `${b.quizId}_${b.questionIndex}`,
+        quizId: b.quizId,
+        quizTitle: b.quizTitle || b.quizId,
+        category: b.quizTitle || b.quizId, // fallback grouping
+        questionId: b.questionIndex,
+        questionText: b.questionText,
+        options: b.options || [],
+        explanation: b.explanation || '',
+        bookmarkedAt: new Date(b.createdAt).getTime() || Date.now()
+    })), [apiBookmarks]);
+
+    const categories = useMemo(() => [...new Set(bookmarks.map(b => b.category))], [bookmarks]);
 
     // Filter bookmarks based on search and category
     const filteredBookmarks = useMemo(() => {
@@ -253,13 +86,13 @@ const BookmarksPage = () => {
         }));
     };
 
-    const removeBookmark = (id) => {
-        setBookmarks(prev => prev.filter(b => b.id !== id));
+    const removeBookmark = (bookmark) => {
+        removeBookmarkById(bookmark.quizId, bookmark.questionId);
     };
 
-    const clearAllBookmarks = () => {
+    const clearAllBookmarks = async () => {
         if (window.confirm('Are you sure you want to remove all bookmarks?')) {
-            setBookmarks([]);
+            await clearAllApi();
         }
     };
 
@@ -394,7 +227,11 @@ const BookmarksPage = () => {
                 ) : null}
 
                 {/* Bookmarks List */}
-                {filteredBookmarks.length === 0 ? (
+                {loading ? (
+                    <div style={{ display: 'flex', justifyContent: 'center', padding: '60px 0' }}>
+                        <div className="spinner spinner-lg"></div>
+                    </div>
+                ) : filteredBookmarks.length === 0 ? (
                     <motion.div 
                         className="empty-state"
                         initial={{ opacity: 0, scale: 0.9 }}
@@ -443,7 +280,7 @@ const BookmarksPage = () => {
                                                             </span>
                                                             <button 
                                                                 className="remove-btn"
-                                                                onClick={() => removeBookmark(bookmark.id)}
+                                                                onClick={() => removeBookmark(bookmark)}
                                                                 title="Remove bookmark"
                                                             >
                                                                 <Trash2 size={16} />

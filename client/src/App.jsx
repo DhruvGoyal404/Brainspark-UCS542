@@ -1,10 +1,13 @@
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import Header from './components/common/Header';
 import LandingPage from './pages/LandingPage';
 import RegisterPage from './pages/RegisterPage';
 import LoginPage from './pages/LoginPage';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
 import DashboardPage from './pages/DashboardPage';
 import QuizPage from './pages/QuizPage';
 import ResultsPage from './pages/ResultsPage';
@@ -41,9 +44,26 @@ const ProtectedRoute = ({ children }) => {
   return isAuthenticated ? children : <Navigate to="/login" />;
 };
 
+// Admin Route Component - only admins can access
+const AdminRoute = ({ children }) => {
+  const { isAuthenticated, user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
+        <div className="spinner spinner-lg"></div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) return <Navigate to="/login" />;
+  if (user?.role !== 'admin') return <Navigate to="/dashboard" />;
+  return children;
+};
+
 // Public Route Component - redirects authenticated users to dashboard or admin
 const PublicRoute = ({ children }) => {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, user, loading } = useAuth();
 
   if (loading) {
     return (
@@ -59,17 +79,9 @@ const PublicRoute = ({ children }) => {
   }
 
   if (isAuthenticated) {
-    // Check user role to redirect accordingly
-    const userDataString = localStorage.getItem('user_data');
-    if (userDataString) {
-      try {
-        const userData = JSON.parse(userDataString);
-        if (userData.role === 'admin') {
-          return <Navigate to="/admin" />;
-        }
-      } catch (error) {
-        console.error('Error parsing user data:', error);
-      }
+    // Use auth context user.role instead of reading localStorage directly
+    if (user?.role === 'admin') {
+      return <Navigate to="/admin" />;
     }
     return <Navigate to="/dashboard" />;
   }
@@ -101,6 +113,22 @@ const Layout = ({ children }) => {
   );
 };
 
+// Auth Error Handler - listens for 401 errors and navigates to login
+const AuthErrorHandler = ({ children }) => {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const handleAuthError = () => {
+      navigate('/login', { replace: true });
+    };
+
+    window.addEventListener('auth-error-401', handleAuthError);
+    return () => window.removeEventListener('auth-error-401', handleAuthError);
+  }, [navigate]);
+
+  return children;
+};
+
 function AppRoutes() {
   return (
     <Routes>
@@ -108,6 +136,8 @@ function AppRoutes() {
       <Route path="/about" element={<AboutPage />} />
       <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
       <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
+      <Route path="/forgot-password" element={<PublicRoute><ForgotPasswordPage /></PublicRoute>} />
+      <Route path="/reset-password/:token" element={<PublicRoute><ResetPasswordPage /></PublicRoute>} />
       <Route
         path="/dashboard"
         element={
@@ -175,9 +205,9 @@ function AppRoutes() {
       <Route
         path="/admin"
         element={
-          <ProtectedRoute>
+          <AdminRoute>
             <AdminPage />
-          </ProtectedRoute>
+          </AdminRoute>
         }
       />
       <Route path="*" element={<NotFoundPage />} />
@@ -191,9 +221,11 @@ function App() {
       <ThemeProvider>
         <AuthProvider>
           <Router>
-            <Layout>
-              <AppRoutes />
-            </Layout>
+            <AuthErrorHandler>
+              <Layout>
+                <AppRoutes />
+              </Layout>
+            </AuthErrorHandler>
           </Router>
         </AuthProvider>
       </ThemeProvider>

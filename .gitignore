@@ -1,13 +1,20 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+dist-ssr/
+build/
+
+# Environment files and secrets
 .env
-node_modules
-seeds/
-*.txt
-*.pdf
 .env.development
-.env
+.env.production
 .env.prod
+*.local
+
 # Logs
-logs
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
@@ -15,18 +22,20 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
-
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
-.idea
+.idea/
 .DS_Store
 *.suo
 *.ntvs*
 *.njsproj
+*.md
+!README.md
 *.sln
 *.sw?
+
+# Optional large local docs/artifacts
+*.pdf
+
+# Keep deployment and automation scripts in repo (including .ps1)

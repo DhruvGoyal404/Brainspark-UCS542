@@ -1,0 +1,2417 @@
+╔══════════════════════════════════════════════════════════════════════════════════════════════════════╗
+║                            🎨 BRAINSPARK - FRONTEND VIVA GUIDE                                        ║
+║                                   DETAILED UI/UX DOCUMENTATION                                        ║
+╚══════════════════════════════════════════════════════════════════════════════════════════════════════╝
+
+Project: BrainSpark - Interactive Quiz Platform
+Developer: Dhruv Goyal
+Live URL: https://brainspark.dhruvgoyal.tech
+Frontend Deployment: Vercel
+Tech Stack: React 19 + Vite + Framer Motion + Chart.js
+
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+                                    📁 PART 1: PROJECT STRUCTURE
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+
+client/
+├── public/                      # Static files served as-is
+│   ├── fonts/                   # Custom web fonts (Inter, Plus Jakarta Sans)
+│   ├── sounds/                  # Audio files for sound effects
+│   ├── robots.txt               # SEO - tells search engines what to crawl
+│   └── sitemap.xml              # SEO - list of all pages for search engines
+│
+├── src/
+│   ├── main.jsx                 # React entry point - renders <App /> to DOM
+│   ├── App.jsx                  # Root component - routing, providers, layout
+│   ├── index.css                # Global CSS reset and base styles
+│   ├── App.css                  # App-specific styles
+│   │
+│   ├── components/              # Reusable UI building blocks
+│   │   ├── admin/               # Admin dashboard components
+│   │   │   ├── QuestionBank.jsx     # View/filter all questions
+│   │   │   ├── QuizCreator.jsx      # Create new quizzes
+│   │   │   └── UserManagement.jsx   # Manage users
+│   │   │
+│   │   ├── analytics/           # Data visualization components
+│   │   │   ├── AccuracyTrend.jsx    # Line chart of accuracy over time
+│   │   │   ├── CategoryBreakdown.jsx # Pie chart by subject
+│   │   │   ├── PerformanceChart.jsx  # Bar chart performance
+│   │   │   └── StatsCard.jsx        # Stat display card
+│   │   │
+│   │   ├── common/              # Shared layout components
+│   │   │   ├── Header.jsx           # Top navigation bar
+│   │   │   ├── Footer.jsx           # Bottom footer
+│   │   │   ├── Sidebar.jsx          # Side navigation (mobile)
+│   │   │   ├── ErrorBoundary.jsx    # Catch JS errors gracefully
+│   │   │   └── LogoutModal.jsx      # Logout confirmation
+│   │   │
+│   │   ├── gamification/        # Game-like engagement features
+│   │   │   ├── AchievementBadge.jsx  # Badge display
+│   │   │   ├── Confetti.jsx         # Celebration animation
+│   │   │   ├── ScoreCelebration.jsx  # Score reveal animation
+│   │   │   ├── StreakCalendar.jsx   # Daily streak tracker
+│   │   │   └── XPProgressBar.jsx    # XP level progress
+│   │   │
+│   │   ├── leaderboard/         # Ranking components
+│   │   │   ├── LeaderboardTable.jsx  # Rankings table
+│   │   │   └── FilterControls.jsx    # Filter by time/category
+│   │   │
+│   │   ├── quiz/                # Quiz-specific components
+│   │   │   ├── QuizModeModal.jsx    # Timed vs Practice mode selection
+│   │   │   ├── QuizCard.jsx         # Quiz preview card
+│   │   │   ├── OptionButton.jsx     # Answer option button
+│   │   │   └── ProgressBar.jsx      # Quiz progress indicator
+│   │   │
+│   │   └── ui/                  # Base UI primitives
+│   │       ├── Button.jsx           # Reusable button
+│   │       ├── Card.jsx             # Card container
+│   │       ├── Input.jsx            # Form input
+│   │       ├── Select.jsx           # Dropdown select
+│   │       ├── Modal.jsx            # Modal dialog
+│   │       └── ConfirmationModal.jsx # Confirm action modal
+│   │
+│   ├── context/                 # React Context for global state
+│   │   ├── AuthContext.jsx          # User authentication state
+│   │   └── ThemeContext.jsx         # Dark/Light theme state
+│   │
+│   ├── hooks/                   # Custom React hooks
+│   │   ├── useLocalStorage.js       # Persist state in localStorage
+│   │   ├── useQuiz.js               # Quiz logic hook
+│   │   ├── useBookmarks.js          # Bookmarked questions
+│   │   └── useSound.js              # Sound effects hook
+│   │
+│   ├── pages/                   # Route-level page components
+│   │   ├── LandingPage.jsx          # Homepage (/)
+│   │   ├── LoginPage.jsx            # Login (/login)
+│   │   ├── RegisterPage.jsx         # Register (/register)
+│   │   ├── DashboardPage.jsx        # User dashboard (/dashboard)
+│   │   ├── QuizPage.jsx             # Take quiz (/quiz/:id)
+│   │   ├── ResultsPage.jsx          # Quiz results (/quiz/:id/results)
+│   │   ├── BookmarksPage.jsx        # Saved questions (/bookmarks)
+│   │   ├── LeaderboardPage.jsx      # Rankings (/leaderboard)
+│   │   ├── AnalyticsPage.jsx        # Stats (/analytics)
+│   │   ├── ProfilePage.jsx          # User profile (/profile)
+│   │   ├── SettingsPage.jsx         # Settings (/settings)
+│   │   ├── AdminPage.jsx            # Admin panel (/admin)
+│   │   ├── AboutPage.jsx            # About (/about)
+│   │   └── NotFoundPage.jsx         # 404 page
+│   │
+│   ├── styles/                  # Global style files
+│   │   ├── global.css               # CSS variables, resets
+│   │   ├── animations.css           # Keyframe animations
+│   │   ├── typography.css           # Font styles
+│   │   └── utilities.css            # Utility classes
+│   │
+│   └── utils/                   # Utility functions
+│       ├── api.js                   # Axios instance + interceptors
+│       ├── storage.js               # localStorage helpers
+│       ├── xpCalculator.js          # XP calculation logic
+│       ├── adaptiveDifficulty.js    # Adjust difficulty
+│       ├── confetti.js              # Confetti animation
+│       ├── sound.js                 # Sound manager
+│       └── shareCard.js             # Social sharing
+│
+├── .env.development             # Dev environment variables
+├── .env.production              # Prod environment variables
+├── index.html                   # HTML entry point
+├── package.json                 # Dependencies & scripts
+├── vite.config.js               # Vite configuration
+└── vercel.json                  # Vercel deployment config
+
+
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+                                    📁 PART 2: COMPONENT ARCHITECTURE
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+
+COMPONENT DESIGN PHILOSOPHY:
+─────────────────────────────
+1. ATOMIC DESIGN PATTERN
+   - Atoms: Button, Input, Card (basic building blocks)
+   - Molecules: QuizCard, StatsCard (combinations)
+   - Organisms: Header, LeaderboardTable (complex UI sections)
+   - Templates: Page layouts
+   - Pages: Full routes (DashboardPage, QuizPage)
+
+2. SINGLE RESPONSIBILITY
+   Each component does ONE thing well:
+   - Button.jsx → renders a button with variants
+   - QuizCard.jsx → displays quiz preview
+   - Header.jsx → top navigation only
+
+3. PROPS VS STATE
+   ┌────────────────────────────────────────────────────────────────────────────┐
+   │ PROPS (External)                   │ STATE (Internal)                      │
+   ├────────────────────────────────────┼───────────────────────────────────────┤
+   │ - Passed from parent               │ - Managed within component            │
+   │ - Read-only (immutable)            │ - Can be changed with setState        │
+   │ - Used for configuration           │ - Used for interactivity              │
+   │ Example: <Button variant="primary">│ Example: const [open, setOpen] = ...  │
+   └────────────────────────────────────┴───────────────────────────────────────┘
+
+4. COMPOSITION OVER INHERITANCE
+   React doesn't use class inheritance. Instead, we compose:
+   
+   <Card>
+       <CardHeader>Title</CardHeader>
+       <CardBody>Content</CardBody>
+       <CardFooter><Button>Action</Button></CardFooter>
+   </Card>
+
+
+EXAMPLE COMPONENT BREAKDOWN - Button.jsx:
+─────────────────────────────────────────
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│ // components/ui/Button.jsx                                                          │
+│                                                                                      │
+│ const Button = ({                                                                    │
+│     children,           // Button text/content                                       │
+│     variant = 'primary',// 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger' │
+│     size = 'md',        // 'sm' | 'md' | 'lg'                                        │
+│     fullWidth = false,  // Takes full container width                                │
+│     disabled = false,   // Disabled state                                            │
+│     loading = false,    // Show loading spinner                                      │
+│     icon,               // Icon element to show                                      │
+│     onClick,            // Click handler                                             │
+│     type = 'button',    // 'button' | 'submit' | 'reset'                             │
+│     className = '',     // Additional CSS classes                                    │
+│     ...props            // Rest props (aria-*, data-*, etc.)                         │
+│ }) => {                                                                              │
+│     return (                                                                         │
+│         <button                                                                      │
+│             type={type}                                                              │
+│             className={`                                                             │
+│                 btn                                                                  │
+│                 btn-${variant}                                                       │
+│                 btn-${size}                                                          │
+│                 ${fullWidth ? 'btn-full' : ''}                                       │
+│                 ${loading ? 'btn-loading' : ''}                                      │
+│                 ${className}                                                         │
+│             `}                                                                       │
+│             disabled={disabled || loading}                                           │
+│             onClick={onClick}                                                        │
+│             {...props}                                                               │
+│         >                                                                            │
+│             {loading && <span className="spinner" />}                                │
+│             {icon && <span className="btn-icon">{icon}</span>}                       │
+│             {children}                                                               │
+│         </button>                                                                    │
+│     );                                                                               │
+│ };                                                                                   │
+│                                                                                      │
+│ export default Button;                                                               │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+
+USAGE:
+<Button variant="primary" size="lg" icon={<Play />} onClick={startQuiz}>
+    Start Quiz
+</Button>
+
+<Button variant="danger" loading={isDeleting}>
+    Delete Account
+</Button>
+
+
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+                                    📁 PART 3: STATE MANAGEMENT
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+
+THREE TYPES OF STATE IN BRAINSPARK:
+────────────────────────────────────
+
+1. LOCAL STATE (useState)
+   - Component-specific data
+   - Example: form input values, modal open/close
+   
+   const [searchQuery, setSearchQuery] = useState('');
+   const [selectedAnswer, setSelectedAnswer] = useState(null);
+
+2. GLOBAL STATE (Context API)
+   - Shared across many components
+   - Example: user data, theme preference
+   
+   ┌─────────────────────────────────────────────────────────────────────────────┐
+   │ // context/AuthContext.jsx                                                  │
+   │                                                                             │
+   │ const AuthContext = createContext(null);                                    │
+   │                                                                             │
+   │ export const AuthProvider = ({ children }) => {                             │
+   │     const [user, setUser] = useState(null);                                 │
+   │     const [isAuthenticated, setIsAuthenticated] = useState(false);          │
+   │     const [loading, setLoading] = useState(true);                           │
+   │                                                                             │
+   │     // Check for existing token on mount                                    │
+   │     useEffect(() => {                                                       │
+   │         const token = localStorage.getItem('token');                        │
+   │         if (token) {                                                        │
+   │             fetchUser(token);                                               │
+   │         } else {                                                            │
+   │             setLoading(false);                                              │
+   │         }                                                                   │
+   │     }, []);                                                                 │
+   │                                                                             │
+   │     const login = async (email, password) => {                              │
+   │         const response = await api.post('/auth/login', { email, password });│
+   │         localStorage.setItem('token', response.data.token);                 │
+   │         setUser(response.data.user);                                        │
+   │         setIsAuthenticated(true);                                           │
+   │     };                                                                      │
+   │                                                                             │
+   │     const logout = () => {                                                  │
+   │         localStorage.removeItem('token');                                   │
+   │         setUser(null);                                                      │
+   │         setIsAuthenticated(false);                                          │
+   │     };                                                                      │
+   │                                                                             │
+   │     return (                                                                │
+   │         <AuthContext.Provider value={{                                      │
+   │             user, isAuthenticated, loading, login, logout                   │
+   │         }}>                                                                 │
+   │             {children}                                                      │
+   │         </AuthContext.Provider>                                             │
+   │     );                                                                      │
+   │ };                                                                          │
+   │                                                                             │
+   │ // Custom hook for easy usage                                               │
+   │ export const useAuth = () => useContext(AuthContext);                       │
+   └─────────────────────────────────────────────────────────────────────────────┘
+
+3. SERVER STATE (API Data)
+   - Data from backend
+   - Fetched with useEffect + useState
+   - Example: quizzes list, leaderboard data
+   
+   ┌─────────────────────────────────────────────────────────────────────────────┐
+   │ const [quizzes, setQuizzes] = useState([]);                                 │
+   │ const [loading, setLoading] = useState(true);                               │
+   │ const [error, setError] = useState(null);                                   │
+   │                                                                             │
+   │ useEffect(() => {                                                           │
+   │     const fetchQuizzes = async () => {                                      │
+   │         try {                                                               │
+   │             setLoading(true);                                               │
+   │             const response = await api.get('/quiz');                        │
+   │             setQuizzes(response.data.data);                                 │
+   │         } catch (err) {                                                     │
+   │             setError(err.message);                                          │
+   │         } finally {                                                         │
+   │             setLoading(false);                                              │
+   │         }                                                                   │
+   │     };                                                                      │
+   │     fetchQuizzes();                                                         │
+   │ }, []);                                                                     │
+   └─────────────────────────────────────────────────────────────────────────────┘
+
+
+WHY CONTEXT API AND NOT REDUX?
+──────────────────────────────
+┌────────────────────────────────────────────────────────────────────────────────────┐
+│ Context API                           │ Redux                                      │
+├───────────────────────────────────────┼────────────────────────────────────────────┤
+│ ✅ Built into React                   │ ❌ External library                        │
+│ ✅ Simple for small-medium apps       │ ✅ Better for large apps                   │
+│ ✅ Less boilerplate                   │ ❌ Actions, reducers, store setup          │
+│ ✅ Easy to understand                 │ ✅ DevTools, time-travel debugging         │
+│ ❌ Can cause re-renders               │ ✅ Optimized for performance               │
+└───────────────────────────────────────┴────────────────────────────────────────────┘
+
+For BrainSpark's scale, Context API is perfect!
+
+
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+                                    📁 PART 4: ROUTING SYSTEM
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+
+REACT ROUTER v7 IMPLEMENTATION:
+───────────────────────────────
+
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│ // App.jsx                                                                          │
+│                                                                                     │
+│ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';         │
+│                                                                                     │
+│ function App() {                                                                    │
+│     return (                                                                        │
+│         <BrowserRouter>                                                             │
+│             <AuthProvider>                                                          │
+│                 <ThemeProvider>                                                     │
+│                     <Layout>                                                        │
+│                         <Routes>                                                    │
+│                             {/* Public Routes */}                                   │
+│                             <Route path="/" element={<LandingPage />} />            │
+│                             <Route path="/login" element={<LoginPage />} />         │
+│                             <Route path="/register" element={<RegisterPage />} />   │
+│                             <Route path="/about" element={<AboutPage />} />         │
+│                                                                                     │
+│                             {/* Protected Routes */}                                │
+│                             <Route path="/dashboard" element={                      │
+│                                 <ProtectedRoute><DashboardPage /></ProtectedRoute>  │
+│                             } />                                                    │
+│                             <Route path="/quiz/:id" element={                       │
+│                                 <ProtectedRoute><QuizPage /></ProtectedRoute>       │
+│                             } />                                                    │
+│                             <Route path="/quiz/:id/results" element={               │
+│                                 <ProtectedRoute><ResultsPage /></ProtectedRoute>    │
+│                             } />                                                    │
+│                             <Route path="/bookmarks" element={                      │
+│                                 <ProtectedRoute><BookmarksPage /></ProtectedRoute>  │
+│                             } />                                                    │
+│                             <Route path="/leaderboard" element={                    │
+│                                 <ProtectedRoute><LeaderboardPage /></ProtectedRoute>│
+│                             } />                                                    │
+│                             <Route path="/analytics" element={                      │
+│                                 <ProtectedRoute><AnalyticsPage /></ProtectedRoute>  │
+│                             } />                                                    │
+│                             <Route path="/profile" element={                        │
+│                                 <ProtectedRoute><ProfilePage /></ProtectedRoute>    │
+│                             } />                                                    │
+│                             <Route path="/admin" element={                          │
+│                                 <ProtectedRoute><AdminPage /></ProtectedRoute>      │
+│                             } />                                                    │
+│                                                                                     │
+│                             {/* 404 Catch-all */}                                   │
+│                             <Route path="*" element={<NotFoundPage />} />           │
+│                         </Routes>                                                   │
+│                     </Layout>                                                       │
+│                 </ThemeProvider>                                                    │
+│             </AuthProvider>                                                         │
+│         </BrowserRouter>                                                            │
+│     );                                                                              │
+│ }                                                                                   │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+
+
+PROTECTED ROUTE COMPONENT:
+──────────────────────────
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│ const ProtectedRoute = ({ children }) => {                                          │
+│     const { isAuthenticated, loading } = useAuth();                                 │
+│                                                                                     │
+│     // Show loading while checking auth                                             │
+│     if (loading) {                                                                  │
+│         return (                                                                    │
+│             <div className="loading-screen">                                        │
+│                 <div className="spinner spinner-lg"></div>                          │
+│             </div>                                                                  │
+│         );                                                                          │
+│     }                                                                               │
+│                                                                                     │
+│     // Redirect to login if not authenticated                                       │
+│     if (!isAuthenticated) {                                                         │
+│         return <Navigate to="/login" replace />;                                    │
+│     }                                                                               │
+│                                                                                     │
+│     // Render protected content                                                     │
+│     return children;                                                                │
+│ };                                                                                  │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+
+
+NAVIGATION HOOKS:
+─────────────────
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│ // useNavigate - Programmatic navigation                                            │
+│ const navigate = useNavigate();                                                     │
+│ navigate('/dashboard');                  // Go to dashboard                         │
+│ navigate(-1);                            // Go back                                 │
+│ navigate('/quiz/123', { state: { mode: 'timed' } }); // Pass state                  │
+│                                                                                     │
+│ // useParams - Get URL parameters                                                   │
+│ // URL: /quiz/dsa-basics                                                            │
+│ const { id } = useParams();              // id = 'dsa-basics'                       │
+│                                                                                     │
+│ // useLocation - Get current location info                                          │
+│ const location = useLocation();                                                     │
+│ location.pathname  // '/quiz/123'                                                   │
+│ location.state     // { mode: 'timed' }                                             │
+│ location.search    // '?category=dsa'                                               │
+│                                                                                     │
+│ // useSearchParams - Query parameters                                               │
+│ const [searchParams, setSearchParams] = useSearchParams();                          │
+│ searchParams.get('category');            // 'dsa'                                   │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+
+
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+                                    📁 PART 5: REACT HOOKS IN DETAIL
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+
+CORE HOOKS USED IN BRAINSPARK:
+──────────────────────────────
+
+1️⃣ useState - Managing Local State
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Purpose: Store and update component-level data
+
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│ // Syntax                                                                           │
+│ const [state, setState] = useState(initialValue);                                   │
+│                                                                                     │
+│ // Examples in BrainSpark:                                                          │
+│                                                                                     │
+│ // Simple value                                                                     │
+│ const [currentQuestion, setCurrentQuestion] = useState(0);                          │
+│                                                                                     │
+│ // Boolean                                                                          │
+│ const [isModalOpen, setIsModalOpen] = useState(false);                              │
+│                                                                                     │
+│ // Object                                                                           │
+│ const [formData, setFormData] = useState({                                          │
+│     email: '',                                                                      │
+│     password: '',                                                                   │
+│     rememberMe: false                                                               │
+│ });                                                                                 │
+│                                                                                     │
+│ // Array                                                                            │
+│ const [selectedAnswers, setSelectedAnswers] = useState([]);                         │
+│                                                                                     │
+│ // Updating object state (must spread previous state)                               │
+│ setFormData(prev => ({ ...prev, email: 'new@email.com' }));                         │
+│                                                                                     │
+│ // Updating array state                                                             │
+│ setSelectedAnswers(prev => [...prev, newAnswer]);                                   │
+│                                                                                     │
+│ // Lazy initialization (expensive computation)                                      │
+│ const [data, setData] = useState(() => expensiveComputation());                     │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+
+VIVA QUESTION: "Why do we spread previous state when updating objects?"
+ANSWER: "useState doesn't merge objects automatically like this.setState in class 
+components. If we don't spread, we lose all other properties. Spreading creates a 
+new object reference, which triggers a re-render."
+
+
+2️⃣ useEffect - Side Effects & Lifecycle
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Purpose: Handle side effects - API calls, subscriptions, DOM manipulation
+
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│ // CASE 1: Run on every render (no dependency array)                                │
+│ useEffect(() => {                                                                   │
+│     console.log('Runs after every render');                                         │
+│ });                                                                                 │
+│                                                                                     │
+│ // CASE 2: Run only once on mount (empty dependency array)                          │
+│ useEffect(() => {                                                                   │
+│     fetchQuizzes();   // API call on component mount                                │
+│ }, []);                                                                             │
+│                                                                                     │
+│ // CASE 3: Run when specific dependency changes                                     │
+│ useEffect(() => {                                                                   │
+│     fetchQuizById(quizId);                                                          │
+│ }, [quizId]);         // Re-runs when quizId changes                                │
+│                                                                                     │
+│ // CASE 4: Cleanup function (for subscriptions, timers)                             │
+│ useEffect(() => {                                                                   │
+│     const timer = setInterval(() => {                                               │
+│         setTimeLeft(prev => prev - 1);                                              │
+│     }, 1000);                                                                       │
+│                                                                                     │
+│     return () => {                                                                  │
+│         clearInterval(timer);  // Cleanup on unmount                                │
+│     };                                                                              │
+│ }, []);                                                                             │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+
+REAL EXAMPLE - Timer in QuizPage:
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│ useEffect(() => {                                                                   │
+│     // Only run timer in timed mode                                                 │
+│     if (mode !== 'timed') return;                                                   │
+│                                                                                     │
+│     const timer = setInterval(() => {                                               │
+│         setTimeLeft(prev => {                                                       │
+│             if (prev <= 1) {                                                        │
+│                 handleTimeUp();          // Auto-submit when time runs out          │
+│                 return 30;                // Reset for next question                │
+│             }                                                                       │
+│             return prev - 1;                                                        │
+│         });                                                                         │
+│     }, 1000);                                                                       │
+│                                                                                     │
+│     return () => clearInterval(timer);   // Cleanup                                 │
+│ }, [mode, currentQuestion]);             // Reset timer on question change          │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+
+VIVA QUESTION: "What happens if you don't provide cleanup?"
+ANSWER: "Memory leaks! The interval keeps running even after component unmounts, 
+causing errors and wasted resources. Cleanup function runs before unmount and 
+before every re-run of the effect."
+
+
+3️⃣ useContext - Consuming Context
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Purpose: Access global state without prop drilling
+
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│ // Creating Context                                                                 │
+│ const AuthContext = createContext(null);                                            │
+│                                                                                     │
+│ // Provider Component                                                               │
+│ export const AuthProvider = ({ children }) => {                                     │
+│     const [user, setUser] = useState(null);                                         │
+│     return (                                                                        │
+│         <AuthContext.Provider value={{ user, setUser }}>                            │
+│             {children}                                                              │
+│         </AuthContext.Provider>                                                     │
+│     );                                                                              │
+│ };                                                                                  │
+│                                                                                     │
+│ // Custom hook for consumption                                                      │
+│ export const useAuth = () => {                                                      │
+│     const context = useContext(AuthContext);                                        │
+│     if (!context) {                                                                 │
+│         throw new Error('useAuth must be used within AuthProvider');                │
+│     }                                                                               │
+│     return context;                                                                 │
+│ };                                                                                  │
+│                                                                                     │
+│ // Using in any component                                                           │
+│ const ProfilePage = () => {                                                         │
+│     const { user, logout } = useAuth();                                             │
+│     return <h1>Welcome, {user.name}</h1>;                                           │
+│ };                                                                                  │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+
+PROP DRILLING PROBLEM (without Context):
+App → Layout → Header → ProfileDropdown → user
+App → Layout → Sidebar → UserCard → user
+App → DashboardPage → WelcomeCard → user
+
+WITH CONTEXT:
+Any component → useAuth() → user ✅
+
+
+4️⃣ useRef - Mutable References
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Purpose: Store mutable values that don't trigger re-renders, or access DOM elements
+
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│ // DOM Reference                                                                    │
+│ const inputRef = useRef(null);                                                      │
+│                                                                                     │
+│ useEffect(() => {                                                                   │
+│     inputRef.current.focus();  // Focus input on mount                              │
+│ }, []);                                                                             │
+│                                                                                     │
+│ return <input ref={inputRef} />;                                                    │
+│                                                                                     │
+│ // Mutable value that persists across renders                                       │
+│ const intervalRef = useRef(null);                                                   │
+│                                                                                     │
+│ const startTimer = () => {                                                          │
+│     intervalRef.current = setInterval(() => {                                       │
+│         // ...                                                                      │
+│     }, 1000);                                                                       │
+│ };                                                                                  │
+│                                                                                     │
+│ const stopTimer = () => {                                                           │
+│     clearInterval(intervalRef.current);                                             │
+│ };                                                                                  │
+│                                                                                     │
+│ // Previous value tracking                                                          │
+│ const prevValueRef = useRef();                                                      │
+│ useEffect(() => {                                                                   │
+│     prevValueRef.current = currentValue;                                            │
+│ });                                                                                 │
+│ const prevValue = prevValueRef.current;                                             │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+
+VIVA QUESTION: "Difference between useRef and useState?"
+ANSWER: "useRef changes don't trigger re-renders, useState changes do. useRef gives 
+a mutable .current property that persists across renders. Use useRef for DOM access 
+or values you need to persist but don't need to display."
+
+
+5️⃣ useMemo - Memoize Expensive Computations
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Purpose: Cache computed values to avoid recalculating on every render
+
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│ // Without useMemo - recalculates every render!                                     │
+│ const filteredQuestions = questions.filter(q =>                                     │
+│     q.subject.includes(searchQuery) ||                                              │
+│     q.text.includes(searchQuery)                                                    │
+│ );                                                                                  │
+│                                                                                     │
+│ // With useMemo - only recalculates when dependencies change                        │
+│ const filteredQuestions = useMemo(() => {                                           │
+│     return questions.filter(q =>                                                    │
+│         q.subject.includes(searchQuery) ||                                          │
+│         q.text.includes(searchQuery)                                                │
+│     );                                                                              │
+│ }, [questions, searchQuery]);                                                       │
+│                                                                                     │
+│ // Real example in BookmarksPage                                                    │
+│ const filteredBookmarks = useMemo(() => {                                           │
+│     return bookmarks.filter(q => {                                                  │
+│         const matchesSearch = q.question.toLowerCase()                              │
+│             .includes(searchQuery.toLowerCase());                                   │
+│         const matchesSubject = selectedSubject === 'All' ||                         │
+│             q.subject === selectedSubject;                                          │
+│         return matchesSearch && matchesSubject;                                     │
+│     });                                                                             │
+│ }, [bookmarks, searchQuery, selectedSubject]);                                      │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+
+
+6️⃣ useCallback - Memoize Functions
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Purpose: Cache function references to prevent unnecessary re-renders of child components
+
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│ // Problem: New function created every render, child always re-renders             │
+│ const handleClick = () => {                                                         │
+│     setCount(count + 1);                                                            │
+│ };                                                                                  │
+│                                                                                     │
+│ // Solution: Memoized function, only changes when dependencies change               │
+│ const handleClick = useCallback(() => {                                             │
+│     setCount(prev => prev + 1);                                                     │
+│ }, []);  // Empty = never changes                                                   │
+│                                                                                     │
+│ // With dependencies                                                                │
+│ const handleSubmit = useCallback(() => {                                            │
+│     submitQuiz(quizId, answers);                                                    │
+│ }, [quizId, answers]);                                                              │
+│                                                                                     │
+│ // Useful when passing callbacks to optimized child components                      │
+│ <MemoizedButton onClick={handleClick}>Click</MemoizedButton>                        │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+
+VIVA QUESTION: "When should you use useMemo vs useCallback?"
+ANSWER: "useMemo memoizes the RESULT of a function call (computed value). 
+useCallback memoizes the FUNCTION ITSELF (function reference). Use useMemo for 
+expensive calculations, useCallback for functions passed to optimized children."
+
+
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+                                    📁 PART 6: CUSTOM HOOKS
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+
+CUSTOM HOOKS IN BRAINSPARK:
+───────────────────────────
+
+1️⃣ useLocalStorage - Persist State
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│ // hooks/useLocalStorage.js                                                         │
+│                                                                                     │
+│ import { useState, useEffect } from 'react';                                        │
+│                                                                                     │
+│ const useLocalStorage = (key, initialValue) => {                                    │
+│     // Get initial value from localStorage or use default                           │
+│     const [storedValue, setStoredValue] = useState(() => {                          │
+│         try {                                                                       │
+│             const item = localStorage.getItem(key);                                 │
+│             return item ? JSON.parse(item) : initialValue;                          │
+│         } catch (error) {                                                           │
+│             console.error(error);                                                   │
+│             return initialValue;                                                    │
+│         }                                                                           │
+│     });                                                                             │
+│                                                                                     │
+│     // Update localStorage when value changes                                       │
+│     useEffect(() => {                                                               │
+│         try {                                                                       │
+│             localStorage.setItem(key, JSON.stringify(storedValue));                 │
+│         } catch (error) {                                                           │
+│             console.error(error);                                                   │
+│         }                                                                           │
+│     }, [key, storedValue]);                                                         │
+│                                                                                     │
+│     return [storedValue, setStoredValue];                                           │
+│ };                                                                                  │
+│                                                                                     │
+│ export default useLocalStorage;                                                     │
+│                                                                                     │
+│ // USAGE:                                                                           │
+│ const [theme, setTheme] = useLocalStorage('theme', 'dark');                         │
+│ const [soundEnabled, setSoundEnabled] = useLocalStorage('sound', true);             │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+
+
+2️⃣ useBookmarks - Bookmark Questions
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│ // hooks/useBookmarks.js                                                            │
+│                                                                                     │
+│ import useLocalStorage from './useLocalStorage';                                    │
+│                                                                                     │
+│ const useBookmarks = () => {                                                        │
+│     const [bookmarks, setBookmarks] = useLocalStorage('bookmarkedQuestions', []);   │
+│                                                                                     │
+│     const addBookmark = (question) => {                                             │
+│         setBookmarks(prev => {                                                      │
+│             if (prev.find(q => q.id === question.id)) return prev;                  │
+│             return [...prev, { ...question, bookmarkedAt: new Date().toISOString() }];│
+│         });                                                                         │
+│     };                                                                              │
+│                                                                                     │
+│     const removeBookmark = (questionId) => {                                        │
+│         setBookmarks(prev => prev.filter(q => q.id !== questionId));                │
+│     };                                                                              │
+│                                                                                     │
+│     const isBookmarked = (questionId) => {                                          │
+│         return bookmarks.some(q => q.id === questionId);                            │
+│     };                                                                              │
+│                                                                                     │
+│     const toggleBookmark = (question) => {                                          │
+│         if (isBookmarked(question.id)) {                                            │
+│             removeBookmark(question.id);                                            │
+│         } else {                                                                    │
+│             addBookmark(question);                                                  │
+│         }                                                                           │
+│     };                                                                              │
+│                                                                                     │
+│     return { bookmarks, addBookmark, removeBookmark, isBookmarked, toggleBookmark };│
+│ };                                                                                  │
+│                                                                                     │
+│ export default useBookmarks;                                                        │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+
+
+3️⃣ useSound - Sound Effects
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│ // hooks/useSound.js                                                                │
+│                                                                                     │
+│ import { useCallback } from 'react';                                                │
+│ import useLocalStorage from './useLocalStorage';                                    │
+│                                                                                     │
+│ const sounds = {                                                                    │
+│     correct: '/sounds/correct.mp3',                                                 │
+│     wrong: '/sounds/wrong.mp3',                                                     │
+│     click: '/sounds/click.mp3',                                                     │
+│     levelUp: '/sounds/level-up.mp3',                                                │
+│     achievement: '/sounds/achievement.mp3'                                          │
+│ };                                                                                  │
+│                                                                                     │
+│ const useSound = () => {                                                            │
+│     const [soundEnabled] = useLocalStorage('soundEnabled', true);                   │
+│                                                                                     │
+│     const playSound = useCallback((soundName) => {                                  │
+│         if (!soundEnabled) return;                                                  │
+│                                                                                     │
+│         const audio = new Audio(sounds[soundName]);                                 │
+│         audio.volume = 0.5;                                                         │
+│         audio.play().catch(err => console.log('Sound error:', err));                │
+│     }, [soundEnabled]);                                                             │
+│                                                                                     │
+│     return { playSound };                                                           │
+│ };                                                                                  │
+│                                                                                     │
+│ export default useSound;                                                            │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+
+
+4️⃣ useQuiz - Quiz Logic
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│ // hooks/useQuiz.js                                                                 │
+│                                                                                     │
+│ const useQuiz = (quizId) => {                                                       │
+│     const [quiz, setQuiz] = useState(null);                                         │
+│     const [currentQuestion, setCurrentQuestion] = useState(0);                      │
+│     const [answers, setAnswers] = useState([]);                                     │
+│     const [loading, setLoading] = useState(true);                                   │
+│     const [error, setError] = useState(null);                                       │
+│                                                                                     │
+│     // Fetch quiz on mount                                                          │
+│     useEffect(() => {                                                               │
+│         const fetchQuiz = async () => {                                             │
+│             try {                                                                   │
+│                 const response = await api.get(`/quiz/${quizId}`);                  │
+│                 setQuiz(response.data.data);                                        │
+│             } catch (err) {                                                         │
+│                 setError(err.message);                                              │
+│             } finally {                                                             │
+│                 setLoading(false);                                                  │
+│             }                                                                       │
+│         };                                                                          │
+│         fetchQuiz();                                                                │
+│     }, [quizId]);                                                                   │
+│                                                                                     │
+│     const selectAnswer = (optionIndex) => {                                         │
+│         setAnswers(prev => {                                                        │
+│             const newAnswers = [...prev];                                           │
+│             newAnswers[currentQuestion] = optionIndex;                              │
+│             return newAnswers;                                                      │
+│         });                                                                         │
+│     };                                                                              │
+│                                                                                     │
+│     const nextQuestion = () => {                                                    │
+│         if (currentQuestion < quiz.questions.length - 1) {                          │
+│             setCurrentQuestion(prev => prev + 1);                                   │
+│         }                                                                           │
+│     };                                                                              │
+│                                                                                     │
+│     const prevQuestion = () => {                                                    │
+│         if (currentQuestion > 0) {                                                  │
+│             setCurrentQuestion(prev => prev - 1);                                   │
+│         }                                                                           │
+│     };                                                                              │
+│                                                                                     │
+│     const calculateScore = () => {                                                  │
+│         return answers.reduce((score, answer, index) => {                           │
+│             return score + (answer === quiz.questions[index].correctAnswer ? 1 : 0);│
+│         }, 0);                                                                      │
+│     };                                                                              │
+│                                                                                     │
+│     return {                                                                        │
+│         quiz, loading, error,                                                       │
+│         currentQuestion, answers,                                                   │
+│         selectAnswer, nextQuestion, prevQuestion, calculateScore                    │
+│     };                                                                              │
+│ };                                                                                  │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+
+VIVA QUESTION: "Why create custom hooks?"
+ANSWER: "Custom hooks extract reusable logic that can be shared across components. 
+They start with 'use' prefix and can use other hooks. Benefits: DRY code, separation 
+of concerns, easier testing, cleaner components."
+
+
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+                                    📁 PART 7: ANIMATIONS WITH FRAMER MOTION
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+
+WHAT IS FRAMER MOTION?
+──────────────────────
+Framer Motion is a production-ready motion library for React. It provides:
+- Declarative animations with simple props
+- Gesture support (drag, hover, tap)
+- Layout animations
+- AnimatePresence for exit animations
+- Spring and keyframe animations
+
+CORE CONCEPTS:
+──────────────
+
+1️⃣ motion Components
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│ import { motion } from 'framer-motion';                                             │
+│                                                                                     │
+│ // motion.div, motion.span, motion.button, motion.ul, etc.                          │
+│ // Any HTML element can become animated by prefixing with motion.                   │
+│                                                                                     │
+│ <motion.div                                                                         │
+│     initial={{ opacity: 0 }}        // Starting state                               │
+│     animate={{ opacity: 1 }}        // End state                                    │
+│     transition={{ duration: 0.5 }}  // How to animate                               │
+│ >                                                                                   │
+│     Hello World                                                                     │
+│ </motion.div>                                                                       │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+
+
+2️⃣ Animation Properties
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│ <motion.div                                                                         │
+│     // INITIAL - where animation starts                                             │
+│     initial={{ opacity: 0, y: -20, scale: 0.9 }}                                    │
+│                                                                                     │
+│     // ANIMATE - where animation ends                                               │
+│     animate={{ opacity: 1, y: 0, scale: 1 }}                                        │
+│                                                                                     │
+│     // EXIT - animation when component unmounts (needs AnimatePresence)             │
+│     exit={{ opacity: 0, y: 20 }}                                                    │
+│                                                                                     │
+│     // TRANSITION - controls timing                                                 │
+│     transition={{                                                                   │
+│         duration: 0.4,                    // seconds                                │
+│         delay: 0.1,                       // wait before starting                   │
+│         ease: "easeOut",                  // easing function                        │
+│         type: "spring",                   // spring physics                         │
+│         stiffness: 300,                   // spring tension                         │
+│         damping: 20                       // spring friction                        │
+│     }}                                                                              │
+│                                                                                     │
+│     // HOVER animation                                                              │
+│     whileHover={{ scale: 1.05, boxShadow: "0 10px 30px rgba(0,0,0,0.2)" }}          │
+│                                                                                     │
+│     // TAP/CLICK animation                                                          │
+│     whileTap={{ scale: 0.95 }}                                                      │
+│ />                                                                                  │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+
+
+3️⃣ AnimatePresence - Exit Animations
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│ import { AnimatePresence, motion } from 'framer-motion';                            │
+│                                                                                     │
+│ // AnimatePresence wraps elements that may be conditionally rendered                │
+│ // It allows exit animations before component unmounts                              │
+│                                                                                     │
+│ <AnimatePresence mode="wait">                                                       │
+│     {isModalOpen && (                                                               │
+│         <motion.div                                                                 │
+│             key="modal"                   // Key is REQUIRED for AnimatePresence    │
+│             initial={{ opacity: 0 }}                                                │
+│             animate={{ opacity: 1 }}                                                │
+│             exit={{ opacity: 0 }}         // Plays when component unmounts          │
+│         >                                                                           │
+│             <Modal />                                                               │
+│         </motion.div>                                                               │
+│     )}                                                                              │
+│ </AnimatePresence>                                                                  │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+
+
+4️⃣ Variants - Reusable Animation States
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│ // Define variants object                                                           │
+│ const cardVariants = {                                                              │
+│     hidden: {                                                                       │
+│         opacity: 0,                                                                 │
+│         y: 20                                                                       │
+│     },                                                                              │
+│     visible: {                                                                      │
+│         opacity: 1,                                                                 │
+│         y: 0,                                                                       │
+│         transition: { duration: 0.4 }                                               │
+│     },                                                                              │
+│     hover: {                                                                        │
+│         scale: 1.03,                                                                │
+│         boxShadow: "0 8px 30px rgba(0,0,0,0.12)"                                    │
+│     }                                                                               │
+│ };                                                                                  │
+│                                                                                     │
+│ // Use variants                                                                     │
+│ <motion.div                                                                         │
+│     variants={cardVariants}                                                         │
+│     initial="hidden"                                                                │
+│     animate="visible"                                                               │
+│     whileHover="hover"                                                              │
+│ >                                                                                   │
+│     Card content                                                                    │
+│ </motion.div>                                                                       │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+
+
+5️⃣ Staggered Children - List Animations
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│ // Parent variant with staggerChildren                                              │
+│ const containerVariants = {                                                         │
+│     hidden: { opacity: 0 },                                                         │
+│     visible: {                                                                      │
+│         opacity: 1,                                                                 │
+│         transition: {                                                               │
+│             staggerChildren: 0.1,     // Delay between each child                   │
+│             delayChildren: 0.2        // Initial delay before first child           │
+│         }                                                                           │
+│     }                                                                               │
+│ };                                                                                  │
+│                                                                                     │
+│ // Child variant                                                                    │
+│ const itemVariants = {                                                              │
+│     hidden: { opacity: 0, y: 20 },                                                  │
+│     visible: { opacity: 1, y: 0 }                                                   │
+│ };                                                                                  │
+│                                                                                     │
+│ // Usage - children automatically inherit animation state                           │
+│ <motion.ul variants={containerVariants} initial="hidden" animate="visible">         │
+│     {items.map(item => (                                                            │
+│         <motion.li key={item.id} variants={itemVariants}>                           │
+│             {item.name}                                                             │
+│         </motion.li>                                                                │
+│     ))}                                                                             │
+│ </motion.ul>                                                                        │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+
+
+REAL EXAMPLE - QuizModeModal Animation:
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│ <AnimatePresence>                                                                   │
+│     {isOpen && (                                                                    │
+│         <>                                                                          │
+│             {/* Backdrop fade in/out */}                                            │
+│             <motion.div                                                             │
+│                 className="quiz-mode-overlay"                                       │
+│                 initial={{ opacity: 0 }}                                            │
+│                 animate={{ opacity: 1 }}                                            │
+│                 exit={{ opacity: 0 }}                                               │
+│             >                                                                       │
+│                 {/* Modal scale + slide */}                                         │
+│                 <motion.div                                                         │
+│                     className="quiz-mode-modal"                                     │
+│                     initial={{ scale: 0.9, y: 20, opacity: 0 }}                     │
+│                     animate={{ scale: 1, y: 0, opacity: 1 }}                        │
+│                     exit={{ scale: 0.9, y: 20, opacity: 0 }}                        │
+│                     transition={{ type: "spring", damping: 25 }}                    │
+│                 >                                                                   │
+│                     Modal content...                                                │
+│                 </motion.div>                                                       │
+│             </motion.div>                                                           │
+│         </>                                                                         │
+│     )}                                                                              │
+│ </AnimatePresence>                                                                  │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+
+VIVA QUESTION: "Why use Framer Motion instead of CSS animations?"
+ANSWER: "CSS animations work, but Framer Motion provides: exit animations (CSS can't 
+animate unmounting), gesture handling, spring physics for natural motion, easier 
+orchestration of complex sequences, and cleaner declarative syntax with React."
+
+
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+                                    📁 PART 8: PORTALS (ReactDOM.createPortal)
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+
+WHAT IS A PORTAL?
+─────────────────
+A Portal lets you render children into a DOM node that exists OUTSIDE the parent 
+component's DOM hierarchy, while still maintaining React's component tree structure.
+
+WHY USE PORTALS?
+────────────────
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│ PROBLEM: Modal inside a component with overflow: hidden or z-index issues          │
+│                                                                                     │
+│ <div style={{ overflow: 'hidden', position: 'relative' }}>                          │
+│     <SomeComponent />                                                               │
+│     <Modal />  ← Modal gets clipped or stuck behind other elements!                │
+│ </div>                                                                              │
+│                                                                                     │
+│ SOLUTION: Portal renders Modal to document.body                                     │
+│                                                                                     │
+│ DOM Tree:                                                                           │
+│ <body>                                                                              │
+│     <div id="root">                                                                 │
+│         <App>                                                                       │
+│             <Page>                                                                  │
+│                 <SomeComponent />                                                   │
+│                 {/* Modal is NOT here in DOM */}                                    │
+│             </Page>                                                                 │
+│         </App>                                                                      │
+│     </div>                                                                          │
+│     <div class="modal-overlay">  ← Modal renders here via Portal!                  │
+│         <div class="modal">...</div>                                                │
+│     </div>                                                                          │
+│ </body>                                                                             │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+
+
+PORTAL IMPLEMENTATION:
+──────────────────────
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│ import { createPortal } from 'react-dom';                                           │
+│                                                                                     │
+│ const Modal = ({ isOpen, onClose, children }) => {                                  │
+│     if (!isOpen) return null;                                                       │
+│                                                                                     │
+│     // createPortal(what to render, where to render it)                             │
+│     return createPortal(                                                            │
+│         <div className="modal-overlay" onClick={onClose}>                           │
+│             <div className="modal" onClick={e => e.stopPropagation()}>              │
+│                 {children}                                                          │
+│             </div>                                                                  │
+│         </div>,                                                                     │
+│         document.body  // Render to body, not parent component                      │
+│     );                                                                              │
+│ };                                                                                  │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+
+
+REAL EXAMPLE - QuizModeModal with Portal:
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│ // components/quiz/QuizModeModal.jsx                                                │
+│                                                                                     │
+│ import { createPortal } from 'react-dom';                                           │
+│ import { AnimatePresence, motion } from 'framer-motion';                            │
+│                                                                                     │
+│ const QuizModeModal = ({ isOpen, onClose, onSelectMode, quizTitle }) => {           │
+│     if (!isOpen) return null;                                                       │
+│                                                                                     │
+│     const modalContent = (                                                          │
+│         <AnimatePresence>                                                           │
+│             {isOpen && (                                                            │
+│                 <motion.div                                                         │
+│                     className="quiz-mode-overlay"                                   │
+│                     initial={{ opacity: 0 }}                                        │
+│                     animate={{ opacity: 1 }}                                        │
+│                     exit={{ opacity: 0 }}                                           │
+│                     onClick={onClose}                                               │
+│                 >                                                                   │
+│                     <motion.div                                                     │
+│                         className="quiz-mode-modal"                                 │
+│                         initial={{ scale: 0.9, y: 20 }}                             │
+│                         animate={{ scale: 1, y: 0 }}                                │
+│                         exit={{ scale: 0.9, y: 20 }}                                │
+│                         onClick={e => e.stopPropagation()}                          │
+│                     >                                                               │
+│                         {/* Modal content */}                                       │
+│                     </motion.div>                                                   │
+│                 </motion.div>                                                       │
+│             )}                                                                      │
+│         </AnimatePresence>                                                          │
+│     );                                                                              │
+│                                                                                     │
+│     // Render to document.body via Portal                                           │
+│     return createPortal(modalContent, document.body);                               │
+│ };                                                                                  │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+
+
+CSS FOR PORTAL MODAL:
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│ /* Overlay covers entire viewport */                                                │
+│ .quiz-mode-overlay {                                                                │
+│     position: fixed;                                                                │
+│     top: 0;                                                                         │
+│     left: 0;                                                                        │
+│     right: 0;                                                                       │
+│     bottom: 0;                                                                      │
+│     background: rgba(0, 0, 0, 0.7);                                                 │
+│     display: flex;                         /* Flexbox centering */                  │
+│     align-items: center;                                                            │
+│     justify-content: center;                                                        │
+│     z-index: 99999;                        /* Above everything */                   │
+│     backdrop-filter: blur(4px);                                                     │
+│ }                                                                                   │
+│                                                                                     │
+│ /* Modal box centered via flexbox parent */                                         │
+│ .quiz-mode-modal {                                                                  │
+│     background: var(--card-bg);                                                     │
+│     border-radius: 20px;                                                            │
+│     padding: 2rem;                                                                  │
+│     max-width: 500px;                                                               │
+│     width: 90%;                                                                     │
+│     max-height: 90vh;                                                               │
+│     overflow-y: auto;                                                               │
+│ }                                                                                   │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+
+VIVA QUESTION: "Do portal children still have access to parent's context?"
+ANSWER: "Yes! Even though the modal renders to document.body in the DOM, it's still 
+part of the React component tree. It can access Context, Redux store, and all 
+React features as if it were rendered in place."
+
+
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+                                    📁 PART 9: CSS ARCHITECTURE
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+
+CSS STRATEGY IN BRAINSPARK:
+───────────────────────────
+
+1️⃣ CSS VARIABLES (Custom Properties)
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│ /* styles/global.css */                                                             │
+│                                                                                     │
+│ :root {                                                                             │
+│     /* Colors - Light Theme */                                                      │
+│     --primary: #6366f1;                                                             │
+│     --primary-dark: #4f46e5;                                                        │
+│     --secondary: #ec4899;                                                           │
+│     --accent: #10b981;                                                              │
+│                                                                                     │
+│     --bg-primary: #ffffff;                                                          │
+│     --bg-secondary: #f8fafc;                                                        │
+│     --text-primary: #1e293b;                                                        │
+│     --text-secondary: #64748b;                                                      │
+│                                                                                     │
+│     --card-bg: #ffffff;                                                             │
+│     --card-border: #e2e8f0;                                                         │
+│                                                                                     │
+│     /* Spacing */                                                                   │
+│     --space-xs: 0.25rem;                                                            │
+│     --space-sm: 0.5rem;                                                             │
+│     --space-md: 1rem;                                                               │
+│     --space-lg: 1.5rem;                                                             │
+│     --space-xl: 2rem;                                                               │
+│                                                                                     │
+│     /* Border Radius */                                                             │
+│     --radius-sm: 0.375rem;                                                          │
+│     --radius-md: 0.5rem;                                                            │
+│     --radius-lg: 1rem;                                                              │
+│     --radius-full: 9999px;                                                          │
+│                                                                                     │
+│     /* Shadows */                                                                   │
+│     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);                                      │
+│     --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);                                  │
+│     --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);                                │
+│                                                                                     │
+│     /* Transitions */                                                               │
+│     --transition-fast: 150ms ease;                                                  │
+│     --transition-base: 200ms ease;                                                  │
+│     --transition-slow: 300ms ease;                                                  │
+│ }                                                                                   │
+│                                                                                     │
+│ /* Dark Theme Override */                                                           │
+│ [data-theme="dark"] {                                                               │
+│     --bg-primary: #0f172a;                                                          │
+│     --bg-secondary: #1e293b;                                                        │
+│     --text-primary: #f1f5f9;                                                        │
+│     --text-secondary: #94a3b8;                                                      │
+│     --card-bg: #1e293b;                                                             │
+│     --card-border: #334155;                                                         │
+│ }                                                                                   │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+
+
+2️⃣ COMPONENT-SCOPED CSS
+Each component has its own CSS file:
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│ // QuizCard.jsx                                                                     │
+│ import './QuizCard.css';                                                            │
+│                                                                                     │
+│ const QuizCard = ({ quiz }) => (                                                    │
+│     <div className="quiz-card">                                                     │
+│         <div className="quiz-card__header">                                         │
+│             <span className="quiz-card__category">{quiz.category}</span>            │
+│             <span className="quiz-card__difficulty">{quiz.difficulty}</span>        │
+│         </div>                                                                      │
+│         <h3 className="quiz-card__title">{quiz.title}</h3>                          │
+│         <p className="quiz-card__description">{quiz.description}</p>                │
+│     </div>                                                                          │
+│ );                                                                                  │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+
+
+3️⃣ BEM NAMING CONVENTION
+Block__Element--Modifier
+
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│ .quiz-card { }                    /* Block */                                       │
+│ .quiz-card__header { }            /* Element */                                     │
+│ .quiz-card__title { }             /* Element */                                     │
+│ .quiz-card--featured { }          /* Modifier */                                    │
+│ .quiz-card--completed { }         /* Modifier */                                    │
+│ .quiz-card__button--primary { }   /* Element + Modifier */                          │
+│                                                                                     │
+│ /* Example usage */                                                                 │
+│ <div className={`quiz-card ${featured ? 'quiz-card--featured' : ''}`}>              │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+
+
+4️⃣ RESPONSIVE DESIGN (Mobile-First)
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│ /* Mobile-first base styles */                                                      │
+│ .quiz-grid {                                                                        │
+│     display: grid;                                                                  │
+│     grid-template-columns: 1fr;                                                     │
+│     gap: 1rem;                                                                      │
+│ }                                                                                   │
+│                                                                                     │
+│ /* Tablet and up */                                                                 │
+│ @media (min-width: 768px) {                                                         │
+│     .quiz-grid {                                                                    │
+│         grid-template-columns: repeat(2, 1fr);                                      │
+│         gap: 1.5rem;                                                                │
+│     }                                                                               │
+│ }                                                                                   │
+│                                                                                     │
+│ /* Desktop and up */                                                                │
+│ @media (min-width: 1024px) {                                                        │
+│     .quiz-grid {                                                                    │
+│         grid-template-columns: repeat(3, 1fr);                                      │
+│         gap: 2rem;                                                                  │
+│     }                                                                               │
+│ }                                                                                   │
+│                                                                                     │
+│ /* Large desktop */                                                                 │
+│ @media (min-width: 1280px) {                                                        │
+│     .quiz-grid {                                                                    │
+│         grid-template-columns: repeat(4, 1fr);                                      │
+│     }                                                                               │
+│ }                                                                                   │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+
+
+5️⃣ FLEXBOX vs GRID - When to Use
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│                                                                                     │
+│ FLEXBOX (1-Dimensional)                  GRID (2-Dimensional)                       │
+│ ─────────────────────────                ───────────────────────                    │
+│ ✓ Navigation bars                        ✓ Page layouts                             │
+│ ✓ Centering content                      ✓ Card grids                               │
+│ ✓ Space between items                    ✓ Dashboard layouts                        │
+│ ✓ Aligning items                         ✓ Complex forms                            │
+│ ✓ Row OR column layouts                  ✓ Both rows AND columns                    │
+│                                                                                     │
+│ /* Flexbox example - Header */                                                      │
+│ .header {                                                                           │
+│     display: flex;                                                                  │
+│     justify-content: space-between;                                                 │
+│     align-items: center;                                                            │
+│ }                                                                                   │
+│                                                                                     │
+│ /* Grid example - Quiz cards */                                                     │
+│ .quiz-grid {                                                                        │
+│     display: grid;                                                                  │
+│     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));                   │
+│     gap: 1.5rem;                                                                    │
+│ }                                                                                   │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+
+
+6️⃣ CSS ANIMATIONS (Keyframes)
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│ /* styles/animations.css */                                                         │
+│                                                                                     │
+│ @keyframes fadeIn {                                                                 │
+│     from { opacity: 0; }                                                            │
+│     to { opacity: 1; }                                                              │
+│ }                                                                                   │
+│                                                                                     │
+│ @keyframes slideUp {                                                                │
+│     from {                                                                          │
+│         opacity: 0;                                                                 │
+│         transform: translateY(20px);                                                │
+│     }                                                                               │
+│     to {                                                                            │
+│         opacity: 1;                                                                 │
+│         transform: translateY(0);                                                   │
+│     }                                                                               │
+│ }                                                                                   │
+│                                                                                     │
+│ @keyframes pulse {                                                                  │
+│     0%, 100% { transform: scale(1); }                                               │
+│     50% { transform: scale(1.05); }                                                 │
+│ }                                                                                   │
+│                                                                                     │
+│ @keyframes spin {                                                                   │
+│     from { transform: rotate(0deg); }                                               │
+│     to { transform: rotate(360deg); }                                               │
+│ }                                                                                   │
+│                                                                                     │
+│ /* Usage */                                                                         │
+│ .card {                                                                             │
+│     animation: slideUp 0.4s ease-out;                                               │
+│ }                                                                                   │
+│                                                                                     │
+│ .spinner {                                                                          │
+│     animation: spin 1s linear infinite;                                             │
+│ }                                                                                   │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+
+VIVA QUESTION: "Why use CSS variables instead of hardcoded values?"
+ANSWER: "CSS variables allow: 1) Single source of truth for colors/spacing, 
+2) Easy theme switching by changing variable values, 3) Runtime changes via JS, 
+4) Better maintainability - change once, applies everywhere."
+
+
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+                                    📁 PART 10: API INTEGRATION
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+
+AXIOS SETUP & CONFIGURATION:
+────────────────────────────
+
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│ // utils/api.js                                                                     │
+│                                                                                     │
+│ import axios from 'axios';                                                          │
+│                                                                                     │
+│ // Create axios instance with base configuration                                    │
+│ const api = axios.create({                                                          │
+│     baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',           │
+│     timeout: 10000,                        // 10 second timeout                     │
+│     headers: {                                                                      │
+│         'Content-Type': 'application/json'                                          │
+│     }                                                                               │
+│ });                                                                                 │
+│                                                                                     │
+│ // REQUEST INTERCEPTOR - runs before every request                                  │
+│ api.interceptors.request.use(                                                       │
+│     (config) => {                                                                   │
+│         // Attach token to every request                                            │
+│         const token = localStorage.getItem('token');                                │
+│         if (token) {                                                                │
+│             config.headers.Authorization = `Bearer ${token}`;                       │
+│         }                                                                           │
+│         return config;                                                              │
+│     },                                                                              │
+│     (error) => {                                                                    │
+│         return Promise.reject(error);                                               │
+│     }                                                                               │
+│ );                                                                                  │
+│                                                                                     │
+│ // RESPONSE INTERCEPTOR - runs after every response                                 │
+│ api.interceptors.response.use(                                                      │
+│     (response) => {                                                                 │
+│         // Success - just return response                                           │
+│         return response;                                                            │
+│     },                                                                              │
+│     (error) => {                                                                    │
+│         // Handle 401 Unauthorized - token expired/invalid                          │
+│         if (error.response?.status === 401) {                                       │
+│             localStorage.removeItem('token');                                       │
+│             window.location.href = '/login';                                        │
+│         }                                                                           │
+│                                                                                     │
+│         // Handle 404 Not Found                                                     │
+│         if (error.response?.status === 404) {                                       │
+│             console.error('Resource not found');                                    │
+│         }                                                                           │
+│                                                                                     │
+│         // Handle 500 Server Error                                                  │
+│         if (error.response?.status >= 500) {                                        │
+│             console.error('Server error');                                          │
+│         }                                                                           │
+│                                                                                     │
+│         return Promise.reject(error);                                               │
+│     }                                                                               │
+│ );                                                                                  │
+│                                                                                     │
+│ export default api;                                                                 │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+
+
+API CALL PATTERNS:
+──────────────────
+
+1️⃣ GET Request (Fetch Data)
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│ const [quizzes, setQuizzes] = useState([]);                                         │
+│ const [loading, setLoading] = useState(true);                                       │
+│ const [error, setError] = useState(null);                                           │
+│                                                                                     │
+│ useEffect(() => {                                                                   │
+│     const fetchQuizzes = async () => {                                              │
+│         try {                                                                       │
+│             setLoading(true);                                                       │
+│             const response = await api.get('/quiz');                                │
+│             setQuizzes(response.data.data);                                         │
+│         } catch (err) {                                                             │
+│             setError(err.response?.data?.message || 'Failed to fetch quizzes');     │
+│         } finally {                                                                 │
+│             setLoading(false);                                                      │
+│         }                                                                           │
+│     };                                                                              │
+│                                                                                     │
+│     fetchQuizzes();                                                                 │
+│ }, []);                                                                             │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+
+
+2️⃣ POST Request (Create Data)
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│ const handleLogin = async (e) => {                                                  │
+│     e.preventDefault();                                                             │
+│     setLoading(true);                                                               │
+│     setError(null);                                                                 │
+│                                                                                     │
+│     try {                                                                           │
+│         const response = await api.post('/auth/login', {                            │
+│             email: formData.email,                                                  │
+│             password: formData.password                                             │
+│         });                                                                         │
+│                                                                                     │
+│         // Store token                                                              │
+│         localStorage.setItem('token', response.data.token);                         │
+│                                                                                     │
+│         // Update auth context                                                      │
+│         login(response.data.user);                                                  │
+│                                                                                     │
+│         // Navigate to dashboard                                                    │
+│         navigate('/dashboard');                                                     │
+│     } catch (err) {                                                                 │
+│         setError(err.response?.data?.message || 'Login failed');                    │
+│     } finally {                                                                     │
+│         setLoading(false);                                                          │
+│     }                                                                               │
+│ };                                                                                  │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+
+
+3️⃣ PUT/PATCH Request (Update Data)
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│ const updateProfile = async (profileData) => {                                      │
+│     try {                                                                           │
+│         const response = await api.put('/user/profile', profileData);               │
+│         setUser(response.data.user);                                                │
+│         showToast('Profile updated successfully!', 'success');                      │
+│     } catch (err) {                                                                 │
+│         showToast('Failed to update profile', 'error');                             │
+│     }                                                                               │
+│ };                                                                                  │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+
+
+4️⃣ DELETE Request
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│ const deleteQuiz = async (quizId) => {                                              │
+│     try {                                                                           │
+│         await api.delete(`/quiz/${quizId}`);                                        │
+│         setQuizzes(prev => prev.filter(q => q._id !== quizId));                     │
+│         showToast('Quiz deleted', 'success');                                       │
+│     } catch (err) {                                                                 │
+│         showToast('Failed to delete quiz', 'error');                                │
+│     }                                                                               │
+│ };                                                                                  │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+
+
+ENVIRONMENT VARIABLES:
+──────────────────────
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│ // .env.development                                                                 │
+│ VITE_API_URL=http://localhost:5000/api                                              │
+│                                                                                     │
+│ // .env.production                                                                  │
+│ VITE_API_URL=https://brainspark-api.onrender.com/api                                │
+│                                                                                     │
+│ // Access in code                                                                   │
+│ const apiUrl = import.meta.env.VITE_API_URL;                                        │
+│                                                                                     │
+│ // Note: In Vite, env variables must be prefixed with VITE_                         │
+│ // In Create React App, they're prefixed with REACT_APP_                            │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+
+VIVA QUESTION: "What is an Axios interceptor?"
+ANSWER: "Interceptors are functions that run before/after every HTTP request/response. 
+Request interceptors: attach auth tokens, log requests. Response interceptors: handle 
+errors globally, refresh tokens, format data. Avoids repetitive code in every API call."
+
+
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+                                    📁 PART 11: ERROR BOUNDARIES
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+
+WHAT IS AN ERROR BOUNDARY?
+──────────────────────────
+Error Boundaries are React components that catch JavaScript errors in child components,
+log errors, and display a fallback UI instead of crashing the whole app.
+
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│ // components/common/ErrorBoundary.jsx                                              │
+│                                                                                     │
+│ import React from 'react';                                                          │
+│ import './ErrorBoundary.css';                                                       │
+│                                                                                     │
+│ class ErrorBoundary extends React.Component {                                       │
+│     constructor(props) {                                                            │
+│         super(props);                                                               │
+│         this.state = { hasError: false, error: null, errorInfo: null };             │
+│     }                                                                               │
+│                                                                                     │
+│     // Called when an error is thrown in a descendant                               │
+│     static getDerivedStateFromError(error) {                                        │
+│         // Update state to show fallback UI                                         │
+│         return { hasError: true };                                                  │
+│     }                                                                               │
+│                                                                                     │
+│     // Called after error is caught - good for logging                              │
+│     componentDidCatch(error, errorInfo) {                                           │
+│         this.setState({ error, errorInfo });                                        │
+│                                                                                     │
+│         // Log to error reporting service                                           │
+│         console.error('Error caught by boundary:', error, errorInfo);               │
+│         // Could send to Sentry, LogRocket, etc.                                    │
+│     }                                                                               │
+│                                                                                     │
+│     handleReset = () => {                                                           │
+│         this.setState({ hasError: false, error: null, errorInfo: null });           │
+│     };                                                                              │
+│                                                                                     │
+│     render() {                                                                      │
+│         if (this.state.hasError) {                                                  │
+│             return (                                                                │
+│                 <div className="error-boundary">                                    │
+│                     <div className="error-boundary__icon">💥</div>                  │
+│                     <h2>Oops! Something went wrong</h2>                             │
+│                     <p>We're sorry for the inconvenience.</p>                       │
+│                     <button onClick={this.handleReset}>                             │
+│                         Try Again                                                   │
+│                     </button>                                                       │
+│                     {process.env.NODE_ENV === 'development' && (                    │
+│                         <details className="error-boundary__details">              │
+│                             <summary>Error Details</summary>                        │
+│                             <pre>{this.state.error?.toString()}</pre>               │
+│                             <pre>{this.state.errorInfo?.componentStack}</pre>       │
+│                         </details>                                                  │
+│                     )}                                                              │
+│                 </div>                                                              │
+│             );                                                                      │
+│         }                                                                           │
+│                                                                                     │
+│         return this.props.children;                                                 │
+│     }                                                                               │
+│ }                                                                                   │
+│                                                                                     │
+│ export default ErrorBoundary;                                                       │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+
+
+USAGE IN APP:
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│ // App.jsx                                                                          │
+│                                                                                     │
+│ <BrowserRouter>                                                                     │
+│     <ErrorBoundary>                                                                 │
+│         <AuthProvider>                                                              │
+│             <ThemeProvider>                                                         │
+│                 <Routes>                                                            │
+│                     {/* Routes */}                                                  │
+│                 </Routes>                                                           │
+│             </ThemeProvider>                                                        │
+│         </AuthProvider>                                                             │
+│     </ErrorBoundary>                                                                │
+│ </BrowserRouter>                                                                    │
+│                                                                                     │
+│ // Or wrap specific components                                                      │
+│ <ErrorBoundary>                                                                     │
+│     <QuizPage />   {/* Only QuizPage errors show fallback */}                       │
+│ </ErrorBoundary>                                                                    │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+
+VIVA QUESTION: "Why must Error Boundaries be class components?"
+ANSWER: "Error boundaries require lifecycle methods (componentDidCatch and 
+getDerivedStateFromError) that only exist in class components. There's no hook 
+equivalent yet. However, you can wrap it in a functional component for reuse."
+
+
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+                                    📁 PART 12: FORMS & VALIDATION
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+
+FORM HANDLING PATTERNS:
+───────────────────────
+
+1️⃣ CONTROLLED COMPONENTS (Used in BrainSpark)
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│ const LoginPage = () => {                                                           │
+│     const [formData, setFormData] = useState({                                      │
+│         email: '',                                                                  │
+│         password: '',                                                               │
+│         rememberMe: false                                                           │
+│     });                                                                             │
+│     const [errors, setErrors] = useState({});                                       │
+│     const [isSubmitting, setIsSubmitting] = useState(false);                        │
+│                                                                                     │
+│     // Handle input changes                                                         │
+│     const handleChange = (e) => {                                                   │
+│         const { name, value, type, checked } = e.target;                            │
+│         setFormData(prev => ({                                                      │
+│             ...prev,                                                                │
+│             [name]: type === 'checkbox' ? checked : value                           │
+│         }));                                                                        │
+│                                                                                     │
+│         // Clear error when user starts typing                                      │
+│         if (errors[name]) {                                                         │
+│             setErrors(prev => ({ ...prev, [name]: '' }));                           │
+│         }                                                                           │
+│     };                                                                              │
+│                                                                                     │
+│     // Validate form                                                                │
+│     const validateForm = () => {                                                    │
+│         const newErrors = {};                                                       │
+│                                                                                     │
+│         if (!formData.email) {                                                      │
+│             newErrors.email = 'Email is required';                                  │
+│         } else if (!/\S+@\S+\.\S+/.test(formData.email)) {                          │
+│             newErrors.email = 'Email is invalid';                                   │
+│         }                                                                           │
+│                                                                                     │
+│         if (!formData.password) {                                                   │
+│             newErrors.password = 'Password is required';                            │
+│         } else if (formData.password.length < 6) {                                  │
+│             newErrors.password = 'Password must be at least 6 characters';          │
+│         }                                                                           │
+│                                                                                     │
+│         setErrors(newErrors);                                                       │
+│         return Object.keys(newErrors).length === 0;                                 │
+│     };                                                                              │
+│                                                                                     │
+│     // Handle submit                                                                │
+│     const handleSubmit = async (e) => {                                             │
+│         e.preventDefault();                                                         │
+│                                                                                     │
+│         if (!validateForm()) return;                                                │
+│                                                                                     │
+│         setIsSubmitting(true);                                                      │
+│         try {                                                                       │
+│             await login(formData.email, formData.password);                         │
+│             navigate('/dashboard');                                                 │
+│         } catch (error) {                                                           │
+│             setErrors({ submit: error.message });                                   │
+│         } finally {                                                                 │
+│             setIsSubmitting(false);                                                 │
+│         }                                                                           │
+│     };                                                                              │
+│                                                                                     │
+│     return (                                                                        │
+│         <form onSubmit={handleSubmit}>                                              │
+│             <div className="form-group">                                            │
+│                 <label htmlFor="email">Email</label>                                │
+│                 <input                                                              │
+│                     type="email"                                                    │
+│                     id="email"                                                      │
+│                     name="email"                                                    │
+│                     value={formData.email}                                          │
+│                     onChange={handleChange}                                         │
+│                     className={errors.email ? 'input-error' : ''}                   │
+│                 />                                                                  │
+│                 {errors.email && <span className="error">{errors.email}</span>}     │
+│             </div>                                                                  │
+│                                                                                     │
+│             <div className="form-group">                                            │
+│                 <label htmlFor="password">Password</label>                          │
+│                 <input                                                              │
+│                     type="password"                                                 │
+│                     id="password"                                                   │
+│                     name="password"                                                 │
+│                     value={formData.password}                                       │
+│                     onChange={handleChange}                                         │
+│                 />                                                                  │
+│                 {errors.password && <span className="error">{errors.password}</span>}│
+│             </div>                                                                  │
+│                                                                                     │
+│             {errors.submit && <div className="error-banner">{errors.submit}</div>}  │
+│                                                                                     │
+│             <button type="submit" disabled={isSubmitting}>                          │
+│                 {isSubmitting ? 'Logging in...' : 'Login'}                          │
+│             </button>                                                               │
+│         </form>                                                                     │
+│     );                                                                              │
+│ };                                                                                  │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+
+
+2️⃣ CONTROLLED vs UNCONTROLLED COMPONENTS
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│ // CONTROLLED - React controls the input                                            │
+│ const [value, setValue] = useState('');                                             │
+│ <input value={value} onChange={e => setValue(e.target.value)} />                    │
+│                                                                                     │
+│ // UNCONTROLLED - DOM controls the input (uses ref)                                 │
+│ const inputRef = useRef();                                                          │
+│ <input ref={inputRef} defaultValue="initial" />                                     │
+│ // Access value: inputRef.current.value                                             │
+│                                                                                     │
+│ // When to use which?                                                               │
+│ // Controlled: Real-time validation, formatting, conditional disable               │
+│ // Uncontrolled: Simple forms, file inputs, integrating with non-React code        │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+
+
+3️⃣ FORM VALIDATION REGEX PATTERNS
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│ const validationPatterns = {                                                        │
+│     email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,                                             │
+│     password: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/,                      │
+│     // At least 8 chars, 1 uppercase, 1 lowercase, 1 number                         │
+│     phone: /^\+?[\d\s-]{10,}$/,                                                     │
+│     username: /^[a-zA-Z0-9_]{3,20}$/                                                │
+│ };                                                                                  │
+│                                                                                     │
+│ const isValidEmail = (email) => validationPatterns.email.test(email);               │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+
+VIVA QUESTION: "Why prefer controlled components?"
+ANSWER: "Controlled components give React full control over form state. Benefits: 
+1) Single source of truth (state), 2) Instant validation as user types, 
+3) Conditional logic based on input, 4) Easy to manipulate programmatically."
+
+
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+                                    📁 PART 13: DATA VISUALIZATION (CHART.JS)
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+
+CHART.JS WITH REACT:
+────────────────────
+
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│ // Install                                                                          │
+│ npm install chart.js react-chartjs-2                                                │
+│                                                                                     │
+│ // components/analytics/PerformanceChart.jsx                                        │
+│                                                                                     │
+│ import { Bar } from 'react-chartjs-2';                                              │
+│ import {                                                                            │
+│     Chart as ChartJS,                                                               │
+│     CategoryScale,                                                                  │
+│     LinearScale,                                                                    │
+│     BarElement,                                                                     │
+│     Title,                                                                          │
+│     Tooltip,                                                                        │
+│     Legend                                                                          │
+│ } from 'chart.js';                                                                  │
+│                                                                                     │
+│ // Register components (must be done once)                                          │
+│ ChartJS.register(                                                                   │
+│     CategoryScale,                                                                  │
+│     LinearScale,                                                                    │
+│     BarElement,                                                                     │
+│     Title,                                                                          │
+│     Tooltip,                                                                        │
+│     Legend                                                                          │
+│ );                                                                                  │
+│                                                                                     │
+│ const PerformanceChart = ({ quizResults }) => {                                     │
+│     // Prepare data for chart                                                       │
+│     const data = {                                                                  │
+│         labels: quizResults.map(r => r.quizName),                                   │
+│         datasets: [                                                                 │
+│             {                                                                       │
+│                 label: 'Score (%)',                                                 │
+│                 data: quizResults.map(r => r.score),                                │
+│                 backgroundColor: 'rgba(99, 102, 241, 0.5)',                         │
+│                 borderColor: 'rgb(99, 102, 241)',                                   │
+│                 borderWidth: 1,                                                     │
+│                 borderRadius: 8                                                     │
+│             }                                                                       │
+│         ]                                                                           │
+│     };                                                                              │
+│                                                                                     │
+│     const options = {                                                               │
+│         responsive: true,                                                           │
+│         maintainAspectRatio: false,                                                 │
+│         plugins: {                                                                  │
+│             legend: {                                                               │
+│                 position: 'top'                                                     │
+│             },                                                                      │
+│             title: {                                                                │
+│                 display: true,                                                      │
+│                 text: 'Quiz Performance'                                            │
+│             }                                                                       │
+│         },                                                                          │
+│         scales: {                                                                   │
+│             y: {                                                                    │
+│                 beginAtZero: true,                                                  │
+│                 max: 100                                                            │
+│             }                                                                       │
+│         }                                                                           │
+│     };                                                                              │
+│                                                                                     │
+│     return (                                                                        │
+│         <div style={{ height: '300px' }}>                                           │
+│             <Bar data={data} options={options} />                                   │
+│         </div>                                                                      │
+│     );                                                                              │
+│ };                                                                                  │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+
+
+CHART TYPES IN BRAINSPARK:
+──────────────────────────
+1. Bar Chart - Quiz scores comparison
+2. Line Chart - Accuracy trend over time  
+3. Doughnut Chart - Category breakdown
+4. Pie Chart - Correct vs Incorrect answers
+
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│ // Pie/Doughnut Chart                                                               │
+│ import { Doughnut } from 'react-chartjs-2';                                         │
+│                                                                                     │
+│ const CategoryBreakdown = ({ categoryData }) => {                                   │
+│     const data = {                                                                  │
+│         labels: categoryData.map(c => c.category),                                  │
+│         datasets: [{                                                                │
+│             data: categoryData.map(c => c.count),                                   │
+│             backgroundColor: [                                                      │
+│                 '#6366f1',  // Indigo                                               │
+│                 '#ec4899',  // Pink                                                 │
+│                 '#10b981',  // Green                                                │
+│                 '#f59e0b',  // Amber                                                │
+│                 '#3b82f6'   // Blue                                                 │
+│             ],                                                                      │
+│             borderWidth: 0                                                          │
+│         }]                                                                          │
+│     };                                                                              │
+│                                                                                     │
+│     return <Doughnut data={data} options={{ cutout: '60%' }} />;                    │
+│ };                                                                                  │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+
+
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│ // Line Chart - Accuracy Trend                                                      │
+│ import { Line } from 'react-chartjs-2';                                             │
+│                                                                                     │
+│ const AccuracyTrend = ({ history }) => {                                            │
+│     const data = {                                                                  │
+│         labels: history.map(h => h.date),                                           │
+│         datasets: [{                                                                │
+│             label: 'Accuracy %',                                                    │
+│             data: history.map(h => h.accuracy),                                     │
+│             fill: true,                                                             │
+│             backgroundColor: 'rgba(99, 102, 241, 0.1)',                             │
+│             borderColor: 'rgb(99, 102, 241)',                                       │
+│             tension: 0.4  // Smooth curve                                           │
+│         }]                                                                          │
+│     };                                                                              │
+│                                                                                     │
+│     return <Line data={data} />;                                                    │
+│ };                                                                                  │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+
+VIVA QUESTION: "Why register Chart.js components?"
+ANSWER: "Chart.js v3+ uses tree-shaking. We only register components we need to 
+reduce bundle size. If you don't register, chart won't render. Alternative: 
+'chart.js/auto' imports everything but increases bundle size."
+
+
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+                                    📁 PART 14: VITE BUILD SYSTEM
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+
+WHAT IS VITE?
+─────────────
+Vite (French for "fast") is a modern build tool for frontend development:
+- Ultra-fast dev server with Hot Module Replacement (HMR)
+- Native ES modules for instant updates
+- Rollup-based production builds
+- Out-of-box TypeScript, JSX, CSS support
+
+WHY VITE OVER CREATE-REACT-APP (CRA)?
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│                                                                                     │
+│ Create React App                        Vite                                        │
+│ ──────────────────                      ────                                        │
+│ ❌ Slow cold start (bundles everything) ✅ Instant start (no bundling in dev)      │
+│ ❌ Slow HMR (full rebuild)              ✅ Fast HMR (module-level)                  │
+│ ❌ Webpack (complex config)             ✅ Simple vite.config.js                    │
+│ ❌ Large node_modules                   ✅ Smaller dependencies                    │
+│ ❌ Outdated (deprecated)                ✅ Actively maintained                     │
+│                                                                                     │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+
+
+VITE CONFIGURATION:
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│ // vite.config.js                                                                   │
+│                                                                                     │
+│ import { defineConfig } from 'vite';                                                │
+│ import react from '@vitejs/plugin-react';                                           │
+│                                                                                     │
+│ export default defineConfig({                                                       │
+│     plugins: [react()],                                                             │
+│                                                                                     │
+│     // Dev server configuration                                                     │
+│     server: {                                                                       │
+│         port: 3000,                    // Dev server port                           │
+│         open: true,                    // Auto-open browser                         │
+│         proxy: {                       // API proxy for dev                         │
+│             '/api': {                                                               │
+│                 target: 'http://localhost:5000',                                    │
+│                 changeOrigin: true                                                  │
+│             }                                                                       │
+│         }                                                                           │
+│     },                                                                              │
+│                                                                                     │
+│     // Build configuration                                                          │
+│     build: {                                                                        │
+│         outDir: 'dist',                // Output directory                          │
+│         sourcemap: true,               // Generate source maps                      │
+│         minify: 'terser',              // Minification                              │
+│         rollupOptions: {                                                            │
+│             output: {                                                               │
+│                 manualChunks: {        // Code splitting                            │
+│                     vendor: ['react', 'react-dom'],                                 │
+│                     router: ['react-router-dom'],                                   │
+│                     charts: ['chart.js', 'react-chartjs-2']                         │
+│                 }                                                                   │
+│             }                                                                       │
+│         }                                                                           │
+│     },                                                                              │
+│                                                                                     │
+│     // Path aliases                                                                 │
+│     resolve: {                                                                      │
+│         alias: {                                                                    │
+│             '@': '/src',                                                            │
+│             '@components': '/src/components',                                       │
+│             '@pages': '/src/pages',                                                 │
+│             '@hooks': '/src/hooks'                                                  │
+│         }                                                                           │
+│     }                                                                               │
+│ });                                                                                 │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+
+
+NPM SCRIPTS:
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│ // package.json                                                                     │
+│ {                                                                                   │
+│     "scripts": {                                                                    │
+│         "dev": "vite",              // Start dev server                             │
+│         "build": "vite build",      // Production build                             │
+│         "preview": "vite preview",  // Preview production build                     │
+│         "lint": "eslint src"        // Run ESLint                                   │
+│     }                                                                               │
+│ }                                                                                   │
+│                                                                                     │
+│ // Commands                                                                         │
+│ npm run dev      → http://localhost:3000                                            │
+│ npm run build    → Creates optimized /dist folder                                   │
+│ npm run preview  → Serves /dist locally for testing                                 │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+
+VIVA QUESTION: "How does Vite's dev server work differently?"
+ANSWER: "Traditional bundlers bundle everything before serving. Vite serves files 
+as native ES modules - browser requests modules, Vite transforms on-demand. Only 
+the changed module is replaced via HMR, not the entire bundle. Production builds 
+use Rollup for optimized bundling."
+
+
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+                                    📁 PART 15: PERFORMANCE OPTIMIZATION
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+
+REACT PERFORMANCE TECHNIQUES:
+─────────────────────────────
+
+1️⃣ React.memo - Prevent Unnecessary Re-renders
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│ // Without memo - re-renders on every parent render                                 │
+│ const QuizCard = ({ quiz }) => {                                                    │
+│     return <div>{quiz.title}</div>;                                                 │
+│ };                                                                                  │
+│                                                                                     │
+│ // With memo - only re-renders when props change                                    │
+│ const QuizCard = React.memo(({ quiz }) => {                                         │
+│     return <div>{quiz.title}</div>;                                                 │
+│ });                                                                                 │
+│                                                                                     │
+│ // Custom comparison function                                                       │
+│ const QuizCard = React.memo(                                                        │
+│     ({ quiz }) => <div>{quiz.title}</div>,                                          │
+│     (prevProps, nextProps) => prevProps.quiz.id === nextProps.quiz.id               │
+│ );                                                                                  │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+
+
+2️⃣ useMemo - Memoize Expensive Calculations
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│ // Expensive filtering - runs every render without useMemo                          │
+│ const filteredQuizzes = useMemo(() => {                                             │
+│     return quizzes                                                                  │
+│         .filter(q => q.category === selectedCategory)                               │
+│         .sort((a, b) => b.score - a.score)                                          │
+│         .slice(0, 10);                                                              │
+│ }, [quizzes, selectedCategory]);  // Only recalculate when these change             │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+
+
+3️⃣ useCallback - Memoize Callbacks
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│ // Without useCallback - new function every render                                  │
+│ const handleClick = (id) => selectQuiz(id);                                         │
+│                                                                                     │
+│ // With useCallback - stable reference                                              │
+│ const handleClick = useCallback((id) => {                                           │
+│     selectQuiz(id);                                                                 │
+│ }, [selectQuiz]);                                                                   │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+
+
+4️⃣ Lazy Loading - Code Splitting
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│ import { lazy, Suspense } from 'react';                                             │
+│                                                                                     │
+│ // Dynamic import - separate chunk                                                  │
+│ const AnalyticsPage = lazy(() => import('./pages/AnalyticsPage'));                  │
+│ const AdminPage = lazy(() => import('./pages/AdminPage'));                          │
+│                                                                                     │
+│ // Usage with Suspense                                                              │
+│ <Suspense fallback={<div className="loading">Loading...</div>}>                     │
+│     <Routes>                                                                        │
+│         <Route path="/analytics" element={<AnalyticsPage />} />                     │
+│         <Route path="/admin" element={<AdminPage />} />                             │
+│     </Routes>                                                                       │
+│ </Suspense>                                                                         │
+│                                                                                     │
+│ // Result: Separate JS chunks loaded on-demand                                      │
+│ // analytics.chunk.js, admin.chunk.js                                               │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+
+
+5️⃣ Image Optimization
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│ // Lazy loading images                                                              │
+│ <img src={image} loading="lazy" alt="Quiz" />                                       │
+│                                                                                     │
+│ // Responsive images                                                                │
+│ <img                                                                                │
+│     srcSet="image-480.webp 480w, image-800.webp 800w"                               │
+│     sizes="(max-width: 600px) 480px, 800px"                                         │
+│     src="image-800.webp"                                                            │
+│     alt="Quiz"                                                                      │
+│ />                                                                                  │
+│                                                                                     │
+│ // Use WebP format for better compression                                           │
+│ // Compress images before using (TinyPNG, Squoosh)                                  │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+
+
+6️⃣ Virtual Lists for Large Data
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│ // For large lists (1000+ items), use virtualization                                │
+│ // Only renders visible items                                                       │
+│                                                                                     │
+│ import { FixedSizeList } from 'react-window';                                       │
+│                                                                                     │
+│ const VirtualizedList = ({ items }) => (                                            │
+│     <FixedSizeList                                                                  │
+│         height={400}                                                                │
+│         itemCount={items.length}                                                    │
+│         itemSize={50}                                                               │
+│         width="100%"                                                                │
+│     >                                                                               │
+│         {({ index, style }) => (                                                    │
+│             <div style={style}>{items[index].name}</div>                            │
+│         )}                                                                          │
+│     </FixedSizeList>                                                                │
+│ );                                                                                  │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+
+VIVA QUESTION: "When should you use React.memo?"
+ANSWER: "Use React.memo when: 1) Component renders often with same props, 
+2) Re-rendering is expensive, 3) Component is pure (same props = same output). 
+Avoid for: simple components (overhead not worth it), frequently changing props."
+
+
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+                                    📁 PART 16: DEPLOYMENT (VERCEL)
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+
+VERCEL DEPLOYMENT CONFIGURATION:
+────────────────────────────────
+
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│ // vercel.json                                                                      │
+│ {                                                                                   │
+│     "rewrites": [                                                                   │
+│         { "source": "/(.*)", "destination": "/index.html" }                         │
+│     ],                                                                              │
+│     "headers": [                                                                    │
+│         {                                                                           │
+│             "source": "/(.*)",                                                      │
+│             "headers": [                                                            │
+│                 { "key": "X-Frame-Options", "value": "DENY" },                      │
+│                 { "key": "X-Content-Type-Options", "value": "nosniff" },            │
+│                 { "key": "Referrer-Policy", "value": "strict-origin" }              │
+│             ]                                                                       │
+│         }                                                                           │
+│     ]                                                                               │
+│ }                                                                                   │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+
+WHY REWRITES FOR SPA?
+─────────────────────
+Single Page Apps (SPAs) handle routing client-side with React Router.
+When user directly visits /dashboard, server must return index.html,
+then React Router takes over. Without rewrites, you get 404 errors.
+
+
+DEPLOYMENT STEPS:
+─────────────────
+1. Push code to GitHub
+2. Connect repo to Vercel
+3. Configure build settings:
+   - Build Command: npm run build
+   - Output Directory: dist
+   - Install Command: npm install
+4. Add environment variables in Vercel dashboard
+5. Deploy! Vercel auto-deploys on every push
+
+
+SEO FILES:
+──────────
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│ // public/robots.txt                                                                │
+│ User-agent: *                                                                       │
+│ Allow: /                                                                            │
+│ Sitemap: https://brainspark.dhruvgoyal.tech/sitemap.xml                             │
+│                                                                                     │
+│ // public/sitemap.xml                                                               │
+│ <?xml version="1.0" encoding="UTF-8"?>                                              │
+│ <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">                        │
+│     <url>                                                                           │
+│         <loc>https://brainspark.dhruvgoyal.tech/</loc>                              │
+│         <priority>1.0</priority>                                                    │
+│     </url>                                                                          │
+│     <url>                                                                           │
+│         <loc>https://brainspark.dhruvgoyal.tech/about</loc>                         │
+│         <priority>0.8</priority>                                                    │
+│     </url>                                                                          │
+│ </urlset>                                                                           │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+
+VIVA QUESTION: "Why use Vercel for React deployment?"
+ANSWER: "Vercel offers: 1) Zero-config deployment for React/Vite, 2) Automatic HTTPS, 
+3) Global CDN for fast loading, 4) Preview deployments for PRs, 5) Easy environment 
+variables, 6) Serverless functions support, 7) Free tier for personal projects."
+
+
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+                                    📁 PART 17: VIVA Q&A - FRONTEND FOCUS
+════════════════════════════════════════════════════════════════════════════════════════════════════════
+
+REACT FUNDAMENTALS:
+───────────────────
+
+Q1: What is React?
+A: React is a JavaScript library for building user interfaces. It uses a component-based 
+   architecture, Virtual DOM for efficient updates, and declarative syntax (JSX).
+
+Q2: What is JSX?
+A: JSX (JavaScript XML) is a syntax extension that lets us write HTML-like code in 
+   JavaScript. It gets compiled to React.createElement() calls by Babel.
+
+Q3: What is the Virtual DOM?
+A: Virtual DOM is a lightweight copy of the real DOM in memory. React compares changes 
+   between Virtual DOMs (diffing) and updates only changed parts of real DOM (reconciliation).
+
+Q4: Difference between props and state?
+A: Props are read-only data passed from parent to child. State is mutable data managed 
+   within a component. Props flow down, state is local.
+
+Q5: What is lifting state up?
+A: When multiple components need shared state, we move it to their closest common ancestor 
+   and pass down via props. This keeps state synchronized.
+
+
+HOOKS QUESTIONS:
+────────────────
+
+Q6: What are React Hooks?
+A: Hooks are functions that let you use React features (state, lifecycle) in functional 
+   components. Introduced in React 16.8 to replace class component patterns.
+
+Q7: Rules of Hooks?
+A: 1) Only call hooks at the top level (not in loops, conditions, nested functions)
+   2) Only call hooks from React functions (components or custom hooks)
+   3) Hooks must be called in the same order every render
+
+Q8: What is the dependency array in useEffect?
+A: It controls when the effect runs:
+   - No array: runs after every render
+   - Empty []: runs once on mount
+   - [dep1, dep2]: runs when dependencies change
+
+Q9: When does useEffect cleanup run?
+A: Cleanup runs: 1) Before the component unmounts, 2) Before every re-execution of 
+   the effect (when dependencies change). Used for cleaning up subscriptions, timers.
+
+Q10: useMemo vs useCallback?
+A: useMemo memoizes a computed VALUE. useCallback memoizes a FUNCTION reference.
+    useMemo: const result = useMemo(() => expensiveCalc(), [deps])
+    useCallback: const fn = useCallback(() => doSomething(), [deps])
+
+
+ROUTING QUESTIONS:
+──────────────────
+
+Q11: What is client-side routing?
+A: Navigation happens in the browser without full page reloads. JavaScript intercepts 
+   link clicks, updates URL, and renders appropriate component.
+
+Q12: What is useNavigate?
+A: A hook from React Router that returns a function for programmatic navigation.
+   const navigate = useNavigate(); navigate('/dashboard');
+
+Q13: What is useParams?
+A: A hook that returns an object of URL parameters from dynamic routes.
+   Route: /quiz/:id → useParams() returns { id: "value" }
+
+Q14: Protected Route pattern?
+A: A wrapper component that checks authentication before rendering children.
+   If not authenticated, redirects to login page.
+
+
+STATE MANAGEMENT:
+─────────────────
+
+Q15: What is prop drilling?
+A: Passing props through multiple levels of components that don't need the data, 
+   just to reach a deeply nested component. Solution: Context API or state libraries.
+
+Q16: When to use Context vs Redux?
+A: Context: Simple to medium apps, infrequent updates, no need for middleware.
+   Redux: Large apps, frequent updates, need for devtools, time-travel debugging.
+
+Q17: What causes unnecessary re-renders?
+A: 1) Parent re-renders (even if child props unchanged)
+   2) New object/array references on each render
+   3) Context value changes
+   Solution: React.memo, useMemo, useCallback
+
+
+PERFORMANCE:
+────────────
+
+Q18: What is code splitting?
+A: Dividing code into smaller chunks that load on-demand. Reduces initial bundle size.
+   Implemented with React.lazy() and dynamic imports.
+
+Q19: What is tree shaking?
+A: Build optimization that removes unused code from the final bundle. Works with ES 
+   modules (import/export). Reduces bundle size.
+
+Q20: How to optimize list rendering?
+A: 1) Use unique 'key' prop (not index)
+   2) Virtualization for large lists (react-window)
+   3) Memoize list items
+   4) useMemo for filtering/sorting
+
+
+CSS/STYLING:
+────────────
+
+Q21: What is BEM naming?
+A: Block__Element--Modifier. A naming convention for CSS classes that improves 
+   readability and prevents conflicts. Example: .card__title--highlighted
+
+Q22: Mobile-first design?
+A: Write base CSS for mobile, then add media queries for larger screens.
+   Opposite of desktop-first (base = desktop, media queries for smaller).
+
+Q23: CSS Variables vs SASS variables?
+A: CSS Variables: Runtime, changeable via JS, cascade normally, browser native
+   SASS Variables: Compile-time, replaced with values, need preprocessor
+
+
+BUILD TOOLS:
+────────────
+
+Q24: Why Vite over CRA?
+A: Vite offers: faster dev server (native ES modules), faster HMR, simpler config,
+   smaller dependencies, actively maintained (CRA is deprecated).
+
+Q25: What is HMR?
+A: Hot Module Replacement - updates modules in browser without full page reload.
+   Preserves application state during development.
+
+
+TESTING (Bonus):
+────────────────
+
+Q26: Types of React testing?
+A: 1) Unit tests (individual functions/components)
+   2) Integration tests (component interactions)
+   3) End-to-end tests (full user flows)
+   Tools: Jest, React Testing Library, Cypress
+
+Q27: What is React Testing Library?
+A: A library for testing React components that encourages testing from user's 
+   perspective (what they see/interact with) rather than implementation details.
+
+
+COMMON MISTAKES:
+────────────────
+
+Q28: Why not use array index as key?
+A: Index changes when items are reordered/deleted, causing incorrect component 
+   updates, state bugs, and performance issues. Use unique IDs instead.
+
+Q29: Why avoid inline object/function props?
+A: Creates new reference every render, causing child re-renders even with React.memo.
+   Solution: Define outside component or use useMemo/useCallback.
+
+Q30: Why is my useEffect running infinitely?
+A: Probably missing dependency array, or updating a dependency inside the effect.
+   Solution: Add proper dependencies, use functional updates (prev => prev + 1).
+
+
+═══════════════════════════════════════════════════════════════════════════════════════════════════════
+                                         END OF GUIDE
+═══════════════════════════════════════════════════════════════════════════════════════════════════════
+
+                                    🎓 GOOD LUCK WITH YOUR VIVA! 🎓
+
+                         Document Created: Frontend Viva Guide - BrainSpark
+                         Developer: Dhruv Goyal
+                         Total Parts: 17
+                         Topics Covered: React, Hooks, Routing, State, CSS, 
+                                        Animations, Portals, API, Charts, 
+                                        Build Tools, Performance, Deployment
+
+

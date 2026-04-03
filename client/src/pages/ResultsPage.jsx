@@ -1,19 +1,35 @@
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Trophy, Target, TrendingUp, RotateCcw, Home, Share2 } from 'lucide-react';
+import { Trophy, Target, TrendingUp, RotateCcw, Home, Share2, Download } from 'lucide-react';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import { Share } from 'lucide-react';
+import { generateShareCard } from '../utils/shareCard';
+import { useAuth } from '../context/AuthContext';
 import './ResultsPage.css';
 
 const ResultsPage = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const { id } = useParams();
+    const { user } = useAuth();
     const [showConfetti, setShowConfetti] = useState(false);
+    const [shareCardUrl, setShareCardUrl] = useState(null);
+    const [generatingCard, setGeneratingCard] = useState(false);
 
-    const { score = 0, answers = [], totalQuestions = 0, quizTitle = 'Quiz' } = location.state || {};
+    const {
+        score = 0,
+        answers = [],
+        totalQuestions = 0,
+        quizTitle = 'Quiz',
+        xpEarned = 0,
+        xpBreakdown = null,
+        newLevel = null,
+        currentStreak = 0,
+        newAchievements = [],
+        dailyGoal = null
+    } = location.state || {};
 
     const correctAnswers = answers.filter(a => a.isCorrect).length;
     const percentage = Math.round(score);
@@ -34,21 +50,54 @@ const ResultsPage = () => {
     }, [location.state, navigate, percentage]);
 
     const handleShare = async () => {
+        // Build shareable URL with result data
+        const currentUrl = `${window.location.origin}/results/${id}`;
         const shareData = {
             title: 'BrainSpark Quiz Results',
             text: `I scored ${score}% on ${quizTitle}! 🎉`,
-            url: window.location.href
+            url: currentUrl
         };
 
         try {
             if (navigator.share) {
                 await navigator.share(shareData);
             } else {
-                await navigator.clipboard.writeText(window.location.href);
+                await navigator.clipboard.writeText(currentUrl);
                 alert('Link copied to clipboard!');
             }
         } catch (error) {
             console.error('Error sharing:', error);
+        }
+    };
+
+    const handleGenerateShareCard = async () => {
+        setGeneratingCard(true);
+        try {
+            const canvas = await generateShareCard({
+                score: percentage,
+                quizTitle,
+                username: user?.username || 'User',
+                level: newLevel || 1,
+                accuracy: percentage,
+                streak: currentStreak || 0
+            });
+            
+            // Convert canvas to URL for download
+            const url = canvas.toDataURL('image/png');
+            setShareCardUrl(url);
+            
+            // Auto-download the image
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `brainspark-result-${id}.png`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } catch (error) {
+            console.error('Error generating share card:', error);
+            alert('Failed to generate share card. Please try again.');
+        } finally {
+            setGeneratingCard(false);
         }
     };
 
@@ -193,7 +242,7 @@ const ResultsPage = () => {
                             <Trophy size={24} />
                         </div>
                         <div className="stat-details">
-                            <div className="stat-value">+{percentage * 2} XP</div>
+                            <div className="stat-value">+{xpEarned} XP</div>
                             <div className="stat-label">Points Earned</div>
                         </div>
                     </Card>
@@ -227,14 +276,73 @@ const ResultsPage = () => {
                     <Button variant="outline" onClick={handleShare} icon={<Share size={20} />}>
                         Share Results
                     </Button>
+
+                    <Button 
+                        variant="outline" 
+                        onClick={handleGenerateShareCard}
+                        icon={<Download size={20} />}
+                        disabled={generatingCard}
+                    >
+                        {generatingCard ? 'Generating...' : 'Download Card'}
+                    </Button>
                 </motion.div>
+
+                {/* New Achievements */}
+                {newAchievements.length > 0 && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 0.7 }}
+                    >
+                        <Card className="tip-card" style={{ borderColor: 'var(--warning)', borderWidth: '2px' }}>
+                            <h3 className="tip-title">🏆 Achievements Unlocked!</h3>
+                            {newAchievements.map(id => (
+                                <p key={id} className="tip-text" style={{ marginBottom: '4px' }}>✨ <strong>{id.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}</strong></p>
+                            ))}
+                        </Card>
+                    </motion.div>
+                )}
+
+                {/* Daily Goal */}
+                {dailyGoal?.completed && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 0.75 }}
+                    >
+                        <Card className="tip-card" style={{ borderColor: 'var(--success)', borderWidth: '2px' }}>
+                            <h3 className="tip-title">🎯 Daily Goal Complete!</h3>
+                            <p className="tip-text">You've completed your daily goal of {dailyGoal.targetQuizzes} quizzes. Come back tomorrow to keep your streak!</p>
+                        </Card>
+                    </motion.div>
+                )}
+
+                {/* XP Breakdown */}
+                {xpBreakdown && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 0.8 }}
+                    >
+                        <Card className="tip-card">
+                            <h3 className="tip-title">⚡ XP Breakdown</h3>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', fontSize: '0.9rem' }}>
+                                <span style={{ color: 'var(--text-secondary)' }}>Base Score</span><span>+{xpBreakdown.baseXP} XP</span>
+                                {xpBreakdown.difficultyBonus > 0 && <><span style={{ color: 'var(--text-secondary)' }}>Difficulty Bonus</span><span>+{xpBreakdown.difficultyBonus} XP</span></>}
+                                {xpBreakdown.streakBonus > 0 && <><span style={{ color: 'var(--text-secondary)' }}>Streak Bonus</span><span>+{xpBreakdown.streakBonus} XP</span></>}
+                                {xpBreakdown.perfectBonus > 0 && <><span style={{ color: 'var(--text-secondary)' }}>Perfect Score!</span><span>+{xpBreakdown.perfectBonus} XP</span></>}
+                                <span style={{ fontWeight: 700 }}>Total</span><span style={{ fontWeight: 700, color: 'var(--primary)' }}>+{xpBreakdown.totalXP} XP</span>
+                            </div>
+                        </Card>
+                    </motion.div>
+                )}
 
                 {/* Performance Tip */}
                 {!isPerfect && (
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        transition={{ duration: 0.5, delay: 0.8 }}
+                        transition={{ duration: 0.5, delay: 0.85 }}
                     >
                         <Card className="tip-card">
                             <h3 className="tip-title">💡 Pro Tip</h3>

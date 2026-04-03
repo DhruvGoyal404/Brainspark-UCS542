@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Users, Search, Shield, Grid, List } from 'lucide-react';
+import { Users, Search, Shield, Grid, List, Crown, Trash2 } from 'lucide-react';
 import Card from '../ui/Card';
 import Avatar from '../ui/Avatar';
 import Input from '../ui/Input';
@@ -11,6 +11,7 @@ const UserManagement = () => {
     const [users, setUsers] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [viewMode, setViewMode] = useState('list'); // 'list' or 'card'
+    const [updating, setUpdating] = useState(null);
 
     useEffect(() => {
         fetchUsers();
@@ -37,6 +38,28 @@ const UserManagement = () => {
             user.email?.toLowerCase().includes(searchTerm.toLowerCase());
         return matchesSearch;
     });
+
+    const handleToggleRole = async (userId, currentRole) => {
+        const newRole = currentRole === 'admin' ? 'user' : 'admin';
+        setUpdating(userId);
+
+        try {
+            await api.put(`/admin/users/${userId}/role`, { role: newRole });
+
+            // Update local state
+            setUsers(prev => prev.map(u =>
+                u._id === userId ? { ...u, role: newRole } : u
+            ));
+
+            // Show success feedback
+            console.log(`User role updated to ${newRole}`);
+        } catch (error) {
+            console.error('Failed to update user role:', error);
+            alert('Failed to update user role. Please try again.');
+        } finally {
+            setUpdating(null);
+        }
+    };
 
     return (
         <div className="user-management">
@@ -103,6 +126,19 @@ const UserManagement = () => {
                                     <span className="stat-label">Streak</span>
                                     <span className="stat-value">{user.stats?.currentStreak || 0}🔥</span>
                                 </div>
+                            </div>
+
+                            <div className="user-actions">
+                                <Button
+                                    variant={user.role === 'admin' ? 'primary' : 'outline'}
+                                    size="sm"
+                                    icon={<Crown size={16} />}
+                                    onClick={() => handleToggleRole(user._id, user.role)}
+                                    disabled={updating === user._id}
+                                    title={user.role === 'admin' ? 'Demote to User' : 'Promote to Admin'}
+                                >
+                                    {updating === user._id ? 'Updating...' : user.role === 'admin' ? 'Admin' : 'Promote'}
+                                </Button>
                             </div>
                         </Card>
                     ))}

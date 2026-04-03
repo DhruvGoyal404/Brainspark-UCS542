@@ -42,6 +42,11 @@ const quizResultSchema = new mongoose.Schema({
     xpEarned: {
         type: Number,
         default: 0
+    },
+    mode: {
+        type: String,
+        enum: ['timed', 'practice'],
+        default: 'timed'
     }
 }, {
     timestamps: true

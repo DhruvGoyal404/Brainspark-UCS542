@@ -50,14 +50,9 @@ export const AuthProvider = ({ children }) => {
             setUser(user);
             setToken(token);
 
-            // REDIRECT BASED ON ROLE
-            if (user.role === 'admin') {
-                window.location.href = '/admin'; // Force navigate to admin
-            } else {
-                window.location.href = '/dashboard';
-            }
-
-            return { success: true };
+            // Return the redirect path — the calling component will navigate()
+            const redirectTo = user.role === 'admin' ? '/admin' : '/dashboard';
+            return { success: true, redirectTo };
         } catch (error) {
             return {
                 success: false,

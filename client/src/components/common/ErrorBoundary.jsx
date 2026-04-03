@@ -26,7 +26,10 @@ class ErrorBoundary extends React.Component {
     };
 
     handleGoHome = () => {
-        window.location.href = '/';
+        this.handleReset();
+        // Clear any error state and navigate home using history API
+        window.history.pushState(null, '', '/');
+        window.location.reload();
     };
 
     render() {
