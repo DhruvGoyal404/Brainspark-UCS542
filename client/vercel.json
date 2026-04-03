@@ -9,6 +9,9 @@
             }
         }
     ],
+    "env": {
+        "VITE_API_URL": "https://brainspark-api-dev.ap-south-1.elasticbeanstalk.com/api"
+    },
     "rewrites": [
         {
             "source": "/assets/(.*)",
