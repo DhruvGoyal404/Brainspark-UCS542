@@ -32,12 +32,7 @@ jobs:
           cd client
           vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
 
-      - name: Build frontend artifacts
+      - name: Deploy frontend to production
         run: |
           cd client
-          vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
-
-      - name: Deploy prebuilt artifacts
-        run: |
-          cd client
-          vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+          vercel deploy --prod --yes --token=${{ secrets.VERCEL_TOKEN }}
