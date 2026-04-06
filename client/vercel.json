@@ -10,7 +10,7 @@
         }
     ],
     "env": {
-        "VITE_API_URL": "http://brainspark-api-dev.eba-mygdrmmp.ap-south-1.elasticbeanstalk.com/api"
+        "VITE_API_URL": "https://brainspark-api-dev.eba-mygdrmmp.ap-south-1.elasticbeanstalk.com/api"
     },
     "rewrites": [
         {

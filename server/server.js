@@ -102,6 +102,11 @@ app.get('/health', (req, res) => {
     res.json({ status: 'OK', message: 'BrainSpark API is running!' });
 });
 
+// Root route for ELB health check
+app.get('/', (req, res) => {
+    res.status(200).json({ status: 'OK', message: 'BrainSpark API is healthy!' });
+});
+
 // ─── Global Error Handler ─────────────────────────────────────
 app.use((err, req, res, next) => {
     const statusCode = err.statusCode || 500;
