@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import api from '../utils/api';
 import { motion } from 'framer-motion';
 import { User, Mail, Shield, Settings as SettingsIcon, Edit2, Camera, Calendar } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -11,12 +12,19 @@ const AdminProfilePage = () => {
     const { user, updateUser } = useAuth();
     const { theme, fontSize, soundEnabled, reducedMotion, setFontSize, setSoundEnabled, setReducedMotion } = useTheme();
     const [isEditing, setIsEditing] = useState(false);
+    const [analyticsData, setAnalyticsData] = useState(null);
+
+    useEffect(() => {
+        api.get('/admin/analytics')
+            .then(res => setAnalyticsData(res.data.data))
+            .catch(() => {});
+    }, []);
 
     const stats = [
-        { label: 'Total Users', value: '1,234', icon: '👥' },
-        { label: 'Active Quizzes', value: '89', icon: '📝' },
-        { label: 'Total Questions', value: '2,456', icon: '❓' },
-        { label: 'Admin Since', value: new Date(user?.createdAt || Date.now()).toLocaleDateString(), icon: '📅' }
+        { label: 'Total Users',    value: analyticsData ? analyticsData.totalUsers.toLocaleString()   : '—', icon: '👥' },
+        { label: 'Active Quizzes', value: analyticsData ? analyticsData.totalQuizzes.toLocaleString() : '—', icon: '📝' },
+        { label: 'Total Results',  value: analyticsData ? analyticsData.totalResults.toLocaleString() : '—', icon: '❓' },
+        { label: 'Admin Since',    value: new Date(user?.createdAt || Date.now()).toLocaleDateString(), icon: '📅' }
     ];
 
     return (

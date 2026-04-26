@@ -1,94 +1,93 @@
 /**
  * Quiz Recommendation Engine
- * Analyzes user performance and suggests quizzes to improve
+ * Uses MongoDB aggregation pipelines to analyse user performance and suggest quizzes.
  */
+const mongoose = require('mongoose');
 const Quiz = require('../models/Quiz');
 const QuizResult = require('../models/QuizResult');
 
 /**
- * Get quiz recommendations for a user
- * Algorithm: Find weak categories, suggest harder quizzes
- * @param {ObjectId} userId - User ID
+ * Get quiz recommendations for a user.
+ * Algorithm: aggregate per-category performance, identify weak categories,
+ * then surface harder quizzes in those categories to maximise XP gain.
+ *
+ * @param {string | ObjectId} userId
  */
 const getRecommendations = async (userId) => {
     try {
-        // Get all user quiz attempts
-        const results = await QuizResult.find({ user: userId })
-            .populate('quiz', 'category difficulty');
+        // ── Aggregation pipeline: per-category performance ─────────────────
+        // Uses $lookup to join quiz category, $group to aggregate scores,
+        // and $sort to put the weakest categories first (avg score ascending).
+        const categoryAgg = await QuizResult.aggregate([
+            { $match: { user: new mongoose.Types.ObjectId(userId) } },
+            {
+                $lookup: {
+                    from: 'quizzes',
+                    localField: 'quiz',
+                    foreignField: '_id',
+                    as: 'quizData'
+                }
+            },
+            { $unwind: { path: '$quizData', preserveNullAndEmptyArrays: true } },
+            {
+                $group: {
+                    _id: { $ifNull: ['$quizData.category', 'other'] },
+                    avgScore:  { $avg: '$percentage' },
+                    attempts:  { $sum: 1 },
+                    totalXP:   { $sum: '$xpEarned' },
+                    scores:    { $push: '$percentage' }
+                }
+            },
+            // Weakest categories first — the sort happens inside MongoDB
+            { $sort: { avgScore: 1 } }
+        ]);
 
-        if (results.length === 0) {
-            // New user: recommend easy quizzes from all categories
-            const easyQuizzes = await Quiz.find({
-                isActive: true,
-                difficulty: 'easy'
-            })
+        if (categoryAgg.length === 0) {
+            // New user: recommend easy quizzes, sorted by newest
+            const easyQuizzes = await Quiz.find({ isActive: true, difficulty: 'easy' })
                 .select('-questions')
-                .limit(5)
-                .sort({ createdAt: -1 });
+                .sort({ createdAt: -1 })
+                .limit(5);
 
             return {
                 reason: 'Getting started!',
                 quizzes: easyQuizzes,
+                categoryPerformance: [],
                 type: 'beginner'
             };
         }
 
-        // Analyze category performance
-        const categoryStats = {};
-        results.forEach(result => {
-            const cat = result.quiz?.category || 'other';
-            if (!categoryStats[cat]) {
-                categoryStats[cat] = { scores: [], attempts: 0 };
-            }
-            categoryStats[cat].scores.push(result.percentage);
-            categoryStats[cat].attempts += 1;
-        });
+        // Build the category performance array for the frontend
+        const categoryPerformance = categoryAgg.map(cat => ({
+            category: cat._id,
+            avgScore: Math.round(cat.avgScore),
+            attempts: cat.attempts,
+            totalXP: cat.totalXP,
+            improvement: cat.avgScore < 70 ? 'needs improvement' : 'good'
+        }));
 
-        // Calculate averages per category
-        const categoryPerformance = Object.entries(categoryStats).map(([cat, data]) => {
-            const avg = data.scores.reduce((a, b) => a + b, 0) / data.scores.length;
-            return {
-                category: cat,
-                avgScore: Math.round(avg),
-                attempts: data.attempts,
-                improvement: avg < 70 ? 'needs improvement' : 'good'
-            };
-        });
+        // Top-2 weakest categories (already sorted by avgScore asc in the pipeline)
+        const weakCategories = categoryAgg.slice(0, 2).map(c => c._id);
 
-        // Find weakest categories (lowest avg score)
-        const weakCategories = categoryStats.entries
-            .sort((a, b) => {
-                const avgA = a[1].scores.reduce((x, y) => x + y) / a[1].scores.length;
-                const avgB = b[1].scores.reduce((x, y) => x + y) / b[1].scores.length;
-                return avgA - avgB;
-            })
-            .slice(0, 2)
-            .map(([cat]) => cat);
-
-        // Recommend harder quizzes in weak categories to increase XP gain
+        // Recommend a hard quiz for each weak category (to maximise XP)
         const recommendations = await Promise.all(
             weakCategories.map(cat =>
-                Quiz.findOne({
-                    isActive: true,
-                    category: cat,
-                    difficulty: 'hard'
-                })
+                Quiz.findOne({ isActive: true, category: cat, difficulty: 'hard' })
                     .select('-questions')
             )
         );
 
-        // If not enough hard quizzes, add medium difficulty
-        const filteredRecs = recommendations.filter(q => q);
-        if (filteredRecs.length < 2) {
+        const filteredRecs = recommendations.filter(Boolean);
+
+        // Fallback: if no hard quiz exists for a weak category, try medium
+        if (filteredRecs.length < 2 && weakCategories[0]) {
             const mediumQuiz = await Quiz.findOne({
                 isActive: true,
                 category: weakCategories[0],
                 difficulty: 'medium'
-            })
-                .select('-questions')
-                .limit(1);
+            }).select('-questions');
 
-            if (mediumQuiz && !filteredRecs.find(q => q._id === mediumQuiz._id)) {
+            if (mediumQuiz && !filteredRecs.find(q => q._id.equals(mediumQuiz._id))) {
                 filteredRecs.push(mediumQuiz);
             }
         }
@@ -104,11 +103,10 @@ const getRecommendations = async (userId) => {
         return {
             reason: 'Explore more quizzes',
             quizzes: [],
+            categoryPerformance: [],
             type: 'error'
         };
     }
 };
 
-module.exports = {
-    getRecommendations
-};
+module.exports = { getRecommendations };

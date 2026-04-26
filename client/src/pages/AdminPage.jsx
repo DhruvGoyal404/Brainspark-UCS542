@@ -1,31 +1,30 @@
 import { useState } from 'react';
-import { Plus, BookOpen, Users, FileText } from 'lucide-react';
+import { Plus, BookOpen, Users, FileText, Sparkles } from 'lucide-react';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import QuizCreator from '../components/admin/QuizCreator';
 import QuestionBank from '../components/admin/QuestionBank';
 import UserManagement from '../components/admin/UserManagement';
+import QuestionGenerator from '../components/admin/QuestionGenerator';
 import './AdminPage.css';
 
 const AdminPage = () => {
     const [activeTab, setActiveTab] = useState('quizzes');
 
     const tabs = [
-        { id: 'quizzes', label: 'Quiz Creator', icon: Plus },
-        { id: 'questions', label: 'Question Bank', icon: FileText },
-        { id: 'users', label: 'User Management', icon: Users },
+        { id: 'quizzes',   label: 'Quiz Creator',   icon: Plus      },
+        { id: 'ai-gen',    label: 'AI Generator',    icon: Sparkles  },
+        { id: 'questions', label: 'Question Bank',   icon: FileText  },
+        { id: 'users',     label: 'User Management', icon: Users     },
     ];
 
     const renderContent = () => {
         switch (activeTab) {
-            case 'quizzes':
-                return <QuizCreator />;
-            case 'questions':
-                return <QuestionBank />;
-            case 'users':
-                return <UserManagement />;
-            default:
-                return null;
+            case 'quizzes':   return <QuizCreator />;
+            case 'ai-gen':    return <QuestionGenerator />;
+            case 'questions': return <QuestionBank />;
+            case 'users':     return <UserManagement />;
+            default:          return null;
         }
     };
 

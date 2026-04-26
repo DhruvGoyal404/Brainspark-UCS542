@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams, Navigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Trophy, Target, TrendingUp, RotateCcw, Home, Share2, Download } from 'lucide-react';
 import Card from '../components/ui/Card';
@@ -18,6 +18,9 @@ const ResultsPage = () => {
     const [shareCardUrl, setShareCardUrl] = useState(null);
     const [generatingCard, setGeneratingCard] = useState(false);
 
+    // All hooks must be called before any early return (React rules of hooks)
+    const state = location.state;
+
     const {
         score = 0,
         answers = [],
@@ -29,7 +32,7 @@ const ResultsPage = () => {
         currentStreak = 0,
         newAchievements = [],
         dailyGoal = null
-    } = location.state || {};
+    } = state || {};
 
     const correctAnswers = answers.filter(a => a.isCorrect).length;
     const percentage = Math.round(score);
@@ -37,17 +40,18 @@ const ResultsPage = () => {
     const isPass = percentage >= 70;
 
     useEffect(() => {
-        if (!location.state) {
-            navigate('/dashboard');
-            return;
-        }
-
-        // Show confetti for scores >= 80%
+        if (!state) return;
         if (percentage >= 80) {
             setShowConfetti(true);
             createConfetti();
         }
-    }, [location.state, navigate, percentage]);
+    }, [state, percentage]);
+
+    // Early return AFTER all hooks — prevents a flash render with default values
+    // before useEffect fires a navigate('/dashboard').
+    if (!state) {
+        return <Navigate to="/dashboard" replace />;
+    }
 
     const handleShare = async () => {
         // Build shareable URL with result data

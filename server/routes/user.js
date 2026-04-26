@@ -6,7 +6,13 @@ const Bookmark = require('../models/Bookmark');
 const { protect } = require('../middleware/auth');
 const { ACHIEVEMENTS } = require('../utils/xpCalculator');
 const { getRecommendations } = require('../utils/recommendations');
-const { addBookmarkValidation, preferencesValidation, paginationValidation } = require('../middleware/validate');
+const { cacheGet, cacheSet } = require('../utils/redisClient');
+const {
+    addBookmarkValidation,
+    preferencesValidation,
+    paginationValidation,
+    updateProfileValidation
+} = require('../middleware/validate');
 
 // ─────────────────────────────────────────────────────
 // PROFILE
@@ -14,47 +20,87 @@ const { addBookmarkValidation, preferencesValidation, paginationValidation } = r
 
 // @route   GET /api/user/profile
 // @access  Private
-router.get('/profile', protect, async (req, res) => {
+router.get('/profile', protect, async (req, res, next) => {
     try {
         const user = await User.findById(req.user.id).select('-password');
         res.json({ success: true, data: user });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        next(error);
     }
 });
 
 // @route   PUT /api/user/profile
+// @desc    Update username / email with format validation and uniqueness check.
+//          Uses findByIdAndUpdate with $set for a single atomic write.
 // @access  Private
-router.put('/profile', protect, async (req, res) => {
+router.put('/profile', protect, updateProfileValidation, async (req, res, next) => {
     try {
         const { username, email } = req.body;
-        const user = await User.findById(req.user.id);
-        if (username) user.username = username;
-        if (email) user.email = email;
-        await user.save();
-        const updated = await User.findById(req.user.id).select('-password');
+
+        if (!username && !email) {
+            const err = new Error('Provide at least one field to update');
+            err.statusCode = 400;
+            return next(err);
+        }
+
+        // Uniqueness checks — exclude the current user from the lookup
+        if (username) {
+            const taken = await User.findOne({ username, _id: { $ne: req.user.id } });
+            if (taken) {
+                const err = new Error('Username already taken');
+                err.statusCode = 409;
+                return next(err);
+            }
+        }
+
+        if (email) {
+            const taken = await User.findOne({ email, _id: { $ne: req.user.id } });
+            if (taken) {
+                const err = new Error('Email already in use by another account');
+                err.statusCode = 409;
+                return next(err);
+            }
+        }
+
+        const updates = {};
+        if (username) updates.username = username;
+        if (email) updates.email = email;
+
+        // findByIdAndUpdate with $set — avoids loading + re-saving the whole document
+        const updated = await User.findByIdAndUpdate(
+            req.user.id,
+            { $set: updates },
+            { new: true, runValidators: true }
+        ).select('-password');
+
         res.json({ success: true, data: updated });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        next(error);
     }
 });
 
 // @route   PUT /api/user/preferences
 // @access  Private
-router.put('/preferences', protect, preferencesValidation, async (req, res) => {
+router.put('/preferences', protect, preferencesValidation, async (req, res, next) => {
     try {
         const { theme, fontSize, soundEnabled, reducedMotion } = req.body;
-        const user = await User.findById(req.user.id);
 
-        if (theme !== undefined) user.preferences.theme = theme;
-        if (fontSize !== undefined) user.preferences.fontSize = fontSize;
-        if (soundEnabled !== undefined) user.preferences.soundEnabled = soundEnabled;
-        if (reducedMotion !== undefined) user.preferences.reducedMotion = reducedMotion;
+        // Build $set map for only the fields that were sent
+        const prefUpdates = {};
+        if (theme         !== undefined) prefUpdates['preferences.theme']         = theme;
+        if (fontSize      !== undefined) prefUpdates['preferences.fontSize']      = fontSize;
+        if (soundEnabled  !== undefined) prefUpdates['preferences.soundEnabled']  = soundEnabled;
+        if (reducedMotion !== undefined) prefUpdates['preferences.reducedMotion'] = reducedMotion;
 
-        await user.save();
-        res.json({ success: true, data: user.preferences });
+        const updated = await User.findByIdAndUpdate(
+            req.user.id,
+            { $set: prefUpdates },
+            { new: true, runValidators: true }
+        ).select('preferences');
+
+        res.json({ success: true, data: updated.preferences });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        next(error);
     }
 });
 
@@ -63,15 +109,18 @@ router.put('/preferences', protect, preferencesValidation, async (req, res) => {
 // ─────────────────────────────────────────────────────
 
 // @route   GET /api/user/stats
-// @desc    Full stats including category breakdown via aggregation
+// @desc    Full stats including category breakdown via aggregation pipeline
 // @access  Private
-router.get('/stats', protect, async (req, res) => {
+router.get('/stats', protect, async (req, res, next) => {
     try {
         const user = await User.findById(req.user.id);
-        const results = await QuizResult.find({ user: req.user.id })
-            .populate('quiz', 'title category difficulty');
 
-        // Category breakdown using aggregation
+        // Load recent results sorted newest-first — uses (user, createdAt) index
+        const results = await QuizResult.find({ user: req.user.id })
+            .populate('quiz', 'title category difficulty')
+            .sort({ createdAt: -1 });
+
+        // Aggregation pipeline: per-category breakdown with $lookup + $group + $addFields + $project
         const categoryStats = await QuizResult.aggregate([
             { $match: { user: user._id } },
             {
@@ -85,25 +134,43 @@ router.get('/stats', protect, async (req, res) => {
             { $unwind: '$quizData' },
             {
                 $group: {
-                    _id: '$quizData.category',
+                    _id:      '$quizData.category',
                     avgScore: { $avg: '$percentage' },
-                    count: { $sum: 1 },
-                    totalXP: { $sum: '$xpEarned' }
+                    count:    { $sum: 1 },
+                    totalXP:  { $sum: '$xpEarned' }
+                }
+            },
+            {
+                // $addFields + $switch + $case: derive a letter grade from the numeric average.
+                // $addFields appends computed fields without removing existing ones (unlike $project).
+                $addFields: {
+                    grade: {
+                        $switch: {
+                            branches: [
+                                { case: { $gte: ['$avgScore', 90] }, then: 'A+' },
+                                { case: { $gte: ['$avgScore', 80] }, then: 'A'  },
+                                { case: { $gte: ['$avgScore', 70] }, then: 'B'  },
+                                { case: { $gte: ['$avgScore', 60] }, then: 'C'  }
+                            ],
+                            default: 'D'
+                        }
+                    }
                 }
             },
             {
                 $project: {
                     category: '$_id',
                     avgScore: { $round: ['$avgScore', 1] },
-                    count: 1,
-                    totalXP: 1,
-                    _id: 0
+                    count:    1,
+                    totalXP:  1,
+                    grade:    1,
+                    _id:      0
                 }
             }
         ]);
 
         // Daily goal with auto-reset
-        const todayStr = new Date().toDateString();
+        const todayStr     = new Date().toDateString();
         const lastResetStr = user.dailyGoal?.lastResetDate
             ? new Date(user.dailyGoal.lastResetDate).toDateString()
             : null;
@@ -111,23 +178,23 @@ router.get('/stats', protect, async (req, res) => {
         let todayCount = user.dailyGoal?.todayCount || 0;
         if (lastResetStr !== todayStr) todayCount = 0;
 
-        // Recent results for trend (up to 30)
+        // Recent results trend (up to 30)
         const recentResults = results.slice(0, 30).map(r => ({
-            quizId: r.quizId,
+            quizId:    r.quizId,
             quizTitle: r.quiz?.title || r.quizId,
-            category: r.quiz?.category || 'other',
-            difficulty: r.quiz?.difficulty || 'medium',
-            percentage: r.percentage,
-            xpEarned: r.xpEarned,
+            category:  r.quiz?.category || 'other',
+            difficulty:r.quiz?.difficulty || 'medium',
+            percentage:r.percentage,
+            xpEarned:  r.xpEarned,
             timeSpent: r.timeSpent,
             createdAt: r.createdAt
         }));
 
-        // Map achievements with full metadata
+        // Enrich achievements with metadata
         const unlockedIds = new Set((user.achievements || []).map(a => a.achievementId));
         const enrichedAchievements = ACHIEVEMENTS.map(def => {
             const unlocked = unlockedIds.has(def.id);
-            const record = (user.achievements || []).find(a => a.achievementId === def.id);
+            const record   = (user.achievements || []).find(a => a.achievementId === def.id);
             return { ...def, unlocked, unlockedAt: record?.unlockedAt || null };
         });
 
@@ -143,29 +210,35 @@ router.get('/stats', protect, async (req, res) => {
                 categoryStats,
                 recentResults,
                 achievements: enrichedAchievements,
-                preferences: user.preferences
+                preferences:  user.preferences
             }
         });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        next(error);
     }
 });
 
 // @route   PUT /api/user/daily-goal
 // @desc    Update daily goal target
 // @access  Private
-router.put('/daily-goal', protect, async (req, res) => {
+router.put('/daily-goal', protect, async (req, res, next) => {
     try {
         const { targetQuizzes } = req.body;
         if (!targetQuizzes || targetQuizzes < 1 || targetQuizzes > 20) {
-            return res.status(400).json({ success: false, message: 'targetQuizzes must be between 1 and 20' });
+            const err = new Error('targetQuizzes must be between 1 and 20');
+            err.statusCode = 400;
+            return next(err);
         }
-        const user = await User.findById(req.user.id);
-        user.dailyGoal.targetQuizzes = targetQuizzes;
-        await user.save();
-        res.json({ success: true, data: user.dailyGoal });
+
+        const updated = await User.findByIdAndUpdate(
+            req.user.id,
+            { $set: { 'dailyGoal.targetQuizzes': targetQuizzes } },
+            { new: true }
+        );
+
+        res.json({ success: true, data: updated.dailyGoal });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        next(error);
     }
 });
 
@@ -174,52 +247,63 @@ router.put('/daily-goal', protect, async (req, res) => {
 // ─────────────────────────────────────────────────────
 
 // @route   GET /api/user/leaderboard
-// @desc    XP-based leaderboard with optional timeRange filter (paginated)
+// @desc    XP-based leaderboard with optional timeRange filter (paginated).
+//          Redis cache (TTL 5 min) avoids re-running the aggregation pipeline on every page load.
+//          Cache is invalidated by quiz submission so scores stay fresh.
 // @access  Private
-router.get('/leaderboard', protect, paginationValidation, async (req, res) => {
+router.get('/leaderboard', protect, paginationValidation, async (req, res, next) => {
     try {
         const { timeRange = 'all', category = 'all' } = req.query;
-        const page = parseInt(req.query.page) || 1;
+        const page  = parseInt(req.query.page)  || 1;
         const limit = Math.min(parseInt(req.query.limit) || 50, 100);
-        const skip = (page - 1) * limit;
+        const skip  = (page - 1) * limit;
 
-        // For all-time: rank by totalXP in user stats
+        // ── Redis cache check ──────────────────────────────────────────────
+        // Key encodes all query dimensions so different filters get separate cache entries.
+        const cacheKey = `lb:${timeRange}:${category}:${page}:${limit}`;
+        const cached = await cacheGet(cacheKey);
+        if (cached) return res.json({ ...cached, fromCache: true });
+
+        // ── All-time leaderboard: rank active users by stored XP ──────────
         if (timeRange === 'all' && category === 'all') {
-            // Count total users first
-            const totalUsers = await User.countDocuments({ role: 'user' });
-            
-            const users = await User.find({ role: 'user' })
-                .select('username stats')
-                .sort({ 'stats.currentXP': -1 })
-                .skip(skip)
-                .limit(limit);
+            const [users, totalUsers] = await Promise.all([
+                User.find({ role: 'user', isActive: true })
+                    .select('username stats')
+                    .sort({ 'stats.currentXP': -1 }) // uses compound index
+                    .skip(skip)
+                    .limit(limit),
+                User.countDocuments({ role: 'user', isActive: true })
+            ]);
 
             const leaderboard = users.map((u, index) => ({
-                rank: skip + index + 1,
-                username: u.username,
-                totalScore: u.stats.currentXP,
-                level: u.stats.level,
-                quizzesTaken: u.stats.totalQuizzes,
+                rank:          skip + index + 1,
+                username:      u.username,
+                totalScore:    u.stats.currentXP,
+                level:         u.stats.level,
+                quizzesTaken:  u.stats.totalQuizzes,
                 currentStreak: u.stats.currentStreak,
-                averageScore: u.stats.averageScore || 0
+                averageScore:  u.stats.averageScore || 0
             }));
 
-            // Find current user's rank across all users
+            // Find current user's rank using countDocuments (no full-scan)
             const currentUserRank = await User.countDocuments({
-                role: 'user',
-                'stats.currentXP': { $gt: (req.user.stats?.currentXP || 0) }
+                role:             'user',
+                isActive:         true,
+                'stats.currentXP': { $gt: req.user.stats?.currentXP || 0 }
             }).then(count => count + 1);
 
-            return res.json({
+            const payload = {
                 success: true,
                 count: leaderboard.length,
                 data: leaderboard,
                 currentUserRank,
                 pagination: { page, limit, total: totalUsers, pages: Math.ceil(totalUsers / limit) }
-            });
+            };
+            await cacheSet(cacheKey, payload, 300); // 5-minute TTL
+            return res.json(payload);
         }
 
-        // For time-filtered: sum XP from QuizResults in period
+        // ── Time-filtered leaderboard: aggregate XP from QuizResults ─────
         let dateFilter = {};
         const now = new Date();
         if (timeRange === 'weekly') {
@@ -232,13 +316,7 @@ router.get('/leaderboard', protect, paginationValidation, async (req, res) => {
             dateFilter = { createdAt: { $gte: monthAgo } };
         }
 
-        // Category filter on quiz
-        let categoryMatchStage = {};
-        if (category !== 'all') {
-            categoryMatchStage = { 'quizData.category': category };
-        }
-
-        const pipeline = [
+        const basePipeline = [
             { $match: dateFilter },
             {
                 $lookup: {
@@ -252,56 +330,80 @@ router.get('/leaderboard', protect, paginationValidation, async (req, res) => {
             ...(category !== 'all' ? [{ $match: { 'quizData.category': category } }] : []),
             {
                 $group: {
-                    _id: '$user',
-                    totalXP: { $sum: '$xpEarned' },
-                    quizzesTaken: { $sum: 1 },
-                    avgScore: { $avg: '$percentage' }
+                    _id:         '$user',
+                    totalXP:     { $sum: '$xpEarned' },
+                    quizzesTaken:{ $sum: 1 },
+                    avgScore:    { $avg: '$percentage' }
                 }
             },
-            { $sort: { totalXP: -1 } },
-            { $skip: skip },
-            { $limit: limit },
-            {
-                $lookup: {
-                    from: 'users',
-                    localField: '_id',
-                    foreignField: '_id',
-                    as: 'userData'
-                }
-            },
-            { $unwind: '$userData' },
-            {
-                $project: {
-                    username: '$userData.username',
-                    level: '$userData.stats.level',
-                    currentStreak: '$userData.stats.currentStreak',
-                    totalScore: '$totalXP',
-                    quizzesTaken: 1,
-                    avgScore: { $round: ['$avgScore', 1] }
-                }
-            }
+            { $sort: { totalXP: -1 } }
         ];
 
-        // Get total count for pagination (without skip/limit)
-        const countPipeline = pipeline.filter((stage, i) => {
-            const keys = Object.keys(stage)[0];
-            return keys !== '$skip' && keys !== '$limit';
-        });
-        const totalResults = await QuizResult.aggregate([
-            ...countPipeline.slice(0, -1)
-        ]).then(docs => docs.length);
+        // Get current user's period XP for rank calculation (no category lookup needed if 'all')
+        const userPeriodPipeline = [
+            { $match: { user: req.user._id, ...dateFilter } },
+            ...(category !== 'all' ? [
+                { $lookup: { from: 'quizzes', localField: 'quiz', foreignField: '_id', as: 'quizData' } },
+                { $unwind: '$quizData' },
+                { $match: { 'quizData.category': category } }
+            ] : []),
+            { $group: { _id: null, totalXP: { $sum: '$xpEarned' } } }
+        ];
 
-        const results = await QuizResult.aggregate(pipeline);
-        const leaderboard = results.map((r, i) => ({ rank: skip + i + 1, ...r }));
+        // Use $count aggregation stage — no full document load into JS memory
+        const [countResult, results, userPeriodResult] = await Promise.all([
+            QuizResult.aggregate([...basePipeline, { $count: 'total' }]),
+            QuizResult.aggregate([
+                ...basePipeline,
+                { $skip: skip },
+                { $limit: limit },
+                {
+                    $lookup: {
+                        from: 'users',
+                        localField: '_id',
+                        foreignField: '_id',
+                        as: 'userData'
+                    }
+                },
+                { $unwind: '$userData' },
+                {
+                    $project: {
+                        username:      '$userData.username',
+                        level:         '$userData.stats.level',
+                        currentStreak: '$userData.stats.currentStreak',
+                        totalScore:    '$totalXP',
+                        quizzesTaken:  1,
+                        avgScore:      { $round: ['$avgScore', 1] }
+                    }
+                }
+            ]),
+            QuizResult.aggregate(userPeriodPipeline)
+        ]);
 
-        res.json({
+        const totalResults        = countResult[0]?.total || 0;
+        const leaderboard         = results.map((r, i) => ({ rank: skip + i + 1, ...r }));
+        const currentUserPeriodXP = userPeriodResult[0]?.totalXP || 0;
+
+        // Count users with more period XP than current user (basePipeline without the trailing $sort)
+        const basePipelineWithoutSort = basePipeline.slice(0, -1);
+        const [rankAboveResult] = await QuizResult.aggregate([
+            ...basePipelineWithoutSort,
+            { $match: { totalXP: { $gt: currentUserPeriodXP } } },
+            { $count: 'total' }
+        ]);
+        const currentUserRank = (rankAboveResult?.total || 0) + 1;
+
+        const payload = {
             success: true,
             count: leaderboard.length,
             data: leaderboard,
+            currentUserRank,
             pagination: { page, limit, total: totalResults, pages: Math.ceil(totalResults / limit) }
-        });
+        };
+        await cacheSet(cacheKey, payload, 300); // 5-minute TTL
+        res.json(payload);
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        next(error);
     }
 });
 
@@ -310,13 +412,12 @@ router.get('/leaderboard', protect, paginationValidation, async (req, res) => {
 // ─────────────────────────────────────────────────────
 
 // @route   GET /api/user/bookmarks
-// @desc    Get user's bookmarks (paginated)
 // @access  Private
-router.get('/bookmarks', protect, paginationValidation, async (req, res) => {
+router.get('/bookmarks', protect, paginationValidation, async (req, res, next) => {
     try {
-        const page = parseInt(req.query.page) || 1;
+        const page  = parseInt(req.query.page)  || 1;
         const limit = Math.min(parseInt(req.query.limit) || 20, 100);
-        const skip = (page - 1) * limit;
+        const skip  = (page - 1) * limit;
 
         const [bookmarks, total] = await Promise.all([
             Bookmark.find({ user: req.user.id })
@@ -333,30 +434,42 @@ router.get('/bookmarks', protect, paginationValidation, async (req, res) => {
             pagination: { page, limit, total, pages: Math.ceil(total / limit) }
         });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        next(error);
     }
 });
 
 // @route   POST /api/user/bookmarks
-// @desc    Add a bookmark
 // @access  Private
-router.post('/bookmarks', protect, addBookmarkValidation, async (req, res) => {
+router.post('/bookmarks', protect, addBookmarkValidation, async (req, res, next) => {
     try {
         const { quizId, quizTitle, questionIndex, questionText, explanation, options, difficulty } = req.body;
 
-        if (!quizId || questionIndex === undefined || !questionText) {
-            return res.status(400).json({ success: false, message: 'quizId, questionIndex and questionText are required' });
-        }
-
-        // Find the quiz document ObjectId
         const Quiz = require('../models/Quiz');
         const quiz = await Quiz.findOne({ id: quizId });
-        if (!quiz) return res.status(404).json({ success: false, message: 'Quiz not found' });
+        if (!quiz) {
+            const err = new Error('Quiz not found');
+            err.statusCode = 404;
+            return next(err);
+        }
 
-        // Upsert — ignore if already bookmarked
+        // Strip isCorrect from stored options so the bookmark API does not
+        // reveal correct answers to a client that queries all bookmarks.
+        const safeOptions = (options || []).map(({ isCorrect: _, ...opt }) => opt);
+
+        // findOneAndUpdate with upsert — idempotent, handles race conditions
         const bookmark = await Bookmark.findOneAndUpdate(
             { user: req.user.id, quizId, questionIndex },
-            { user: req.user.id, quiz: quiz._id, quizId, quizTitle, questionIndex, questionText, explanation, options, difficulty },
+            {
+                user: req.user.id,
+                quiz: quiz._id,
+                quizId,
+                quizTitle,
+                questionIndex,
+                questionText,
+                explanation,
+                options: safeOptions,
+                difficulty
+            },
             { upsert: true, new: true, setDefaultsOnInsert: true }
         );
 
@@ -365,54 +478,57 @@ router.post('/bookmarks', protect, addBookmarkValidation, async (req, res) => {
         if (error.code === 11000) {
             return res.status(200).json({ success: true, message: 'Already bookmarked' });
         }
-        res.status(500).json({ success: false, message: error.message });
+        next(error);
     }
 });
 
 // @route   DELETE /api/user/bookmarks/:bookmarkId
 // @access  Private
-router.delete('/bookmarks/:bookmarkId', protect, async (req, res) => {
+router.delete('/bookmarks/:bookmarkId', protect, async (req, res, next) => {
     try {
         const bookmark = await Bookmark.findOneAndDelete({
             _id: req.params.bookmarkId,
             user: req.user.id
         });
-        if (!bookmark) return res.status(404).json({ success: false, message: 'Bookmark not found' });
+        if (!bookmark) {
+            const err = new Error('Bookmark not found');
+            err.statusCode = 404;
+            return next(err);
+        }
         res.json({ success: true, message: 'Bookmark removed' });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        next(error);
     }
 });
 
 // @route   DELETE /api/user/bookmarks/quiz/:quizId/question/:questionIndex
 // @desc    Remove bookmark by quiz+question (frontend convenience)
 // @access  Private
-router.delete('/bookmarks/quiz/:quizId/question/:questionIndex', protect, async (req, res) => {
+router.delete('/bookmarks/quiz/:quizId/question/:questionIndex', protect, async (req, res, next) => {
     try {
         await Bookmark.findOneAndDelete({
-            user: req.user.id,
-            quizId: req.params.quizId,
+            user:          req.user.id,
+            quizId:        req.params.quizId,
             questionIndex: parseInt(req.params.questionIndex)
         });
         res.json({ success: true, message: 'Bookmark removed' });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        next(error);
     }
 });
 
 // ─────────────────────────────────────────────────────
-// RECOMMENDATIONS (FEAT-02)
+// RECOMMENDATIONS
 // ─────────────────────────────────────────────────────
 
 // @route   GET /api/user/recommendations
-// @desc    Get personalized quiz recommendations
 // @access  Private
-router.get('/recommendations', protect, async (req, res) => {
+router.get('/recommendations', protect, async (req, res, next) => {
     try {
         const recommendations = await getRecommendations(req.user.id);
         res.json({ success: true, data: recommendations });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        next(error);
     }
 });
 

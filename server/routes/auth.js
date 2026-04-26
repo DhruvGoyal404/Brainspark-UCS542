@@ -3,49 +3,38 @@ const router = express.Router();
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const User = require('../models/User');
+const TokenBlacklist = require('../models/TokenBlacklist');
 const { protect } = require('../middleware/auth');
-const { registerValidation, loginValidation, changePasswordValidation, forgotPasswordValidation, resetPasswordValidation } = require('../middleware/validate');
+const {
+    registerValidation,
+    loginValidation,
+    changePasswordValidation,
+    forgotPasswordValidation,
+    resetPasswordValidation
+} = require('../middleware/validate');
 const { sendPasswordResetEmail } = require('../utils/email');
 
-// Generate JWT token
+// Generate JWT token — 30-day expiry stored in the payload so the blacklist TTL matches
 const generateToken = (id) => {
-    return jwt.sign({ id }, process.env.JWT_SECRET, {
-        expiresIn: '30d'
-    });
+    return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '30d' });
 };
 
 // @route   POST /api/auth/register
-// @desc    Register a new user
 // @access  Public
-router.post('/register', registerValidation, async (req, res) => {
+router.post('/register', registerValidation, async (req, res, next) => {
     try {
         const { username, email, password } = req.body;
 
-        // Validation
-        if (!username || !email || !password) {
-            return res.status(400).json({
-                success: false,
-                message: 'Please provide all required fields'
-            });
-        }
-
-        // Check if user exists
+        // Check for existing user using a single query (OR on both fields)
         const userExists = await User.findOne({ $or: [{ email }, { username }] });
         if (userExists) {
-            return res.status(400).json({
+            return res.status(409).json({
                 success: false,
-                message: 'User already exists with this email or username'
+                message: 'A user with that email or username already exists'
             });
         }
 
-        // Create user
-        const user = await User.create({
-            username,
-            email,
-            password
-        });
-
-        // Generate token
+        const user = await User.create({ username, email, password });
         const token = generateToken(user._id);
 
         res.status(201).json({
@@ -63,47 +52,34 @@ router.post('/register', registerValidation, async (req, res) => {
             }
         });
     } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: error.message
-        });
+        next(error);
     }
 });
 
 // @route   POST /api/auth/login
-// @desc    Login user
 // @access  Public
-router.post('/login', loginValidation, async (req, res) => {
+router.post('/login', loginValidation, async (req, res, next) => {
     try {
         const { email, password } = req.body;
 
-        // Validation
-        if (!email || !password) {
-            return res.status(400).json({
-                success: false,
-                message: 'Please provide email and password'
-            });
-        }
-
-        // Check for user
         const user = await User.findOne({ email });
         if (!user) {
-            return res.status(401).json({
+            return res.status(401).json({ success: false, message: 'Invalid credentials' });
+        }
+
+        // Block deactivated accounts before checking password (avoids timing oracle)
+        if (user.isActive === false) {
+            return res.status(403).json({
                 success: false,
-                message: 'Invalid credentials'
+                message: 'Your account has been deactivated. Please contact support.'
             });
         }
 
-        // Check password
         const isMatch = await user.comparePassword(password);
         if (!isMatch) {
-            return res.status(401).json({
-                success: false,
-                message: 'Invalid credentials'
-            });
+            return res.status(401).json({ success: false, message: 'Invalid credentials' });
         }
 
-        // Generate token
         const token = generateToken(user._id);
 
         res.json({
@@ -121,118 +97,171 @@ router.post('/login', loginValidation, async (req, res) => {
             }
         });
     } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: error.message
-        });
+        next(error);
     }
 });
 
 // @route   GET /api/auth/me
-// @desc    Get current user
 // @access  Private
-router.get('/me', protect, async (req, res) => {
+router.get('/me', protect, async (req, res, next) => {
     try {
         const user = await User.findById(req.user.id).select('-password');
+        res.json({ success: true, data: user });
+    } catch (error) {
+        next(error);
+    }
+});
+
+// @route   POST /api/auth/logout
+// @desc    Invalidate the current token by adding it to the MongoDB blacklist.
+//          The TTL index on expiresAt means MongoDB auto-deletes the entry once
+//          the JWT would have expired anyway — the collection stays bounded.
+// @access  Private
+router.post('/logout', protect, async (req, res, next) => {
+    try {
+        const token = req.token; // attached by protect middleware
+
+        // Decode without verify — just to read exp (already verified by protect)
+        const decoded = jwt.decode(token);
+        const expiresAt = decoded?.exp
+            ? new Date(decoded.exp * 1000)
+            : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // fallback: 30d
+
+        // findOneAndUpdate with upsert: idempotent — safe to call twice
+        await TokenBlacklist.findOneAndUpdate(
+            { token },
+            { token, expiresAt },
+            { upsert: true, new: true }
+        );
+
+        res.json({ success: true, message: 'Logged out successfully' });
+    } catch (error) {
+        next(error);
+    }
+});
+
+// @route   POST /api/auth/change-password
+// @desc    Change password for authenticated user
+// @access  Private
+router.post('/change-password', protect, changePasswordValidation, async (req, res, next) => {
+    try {
+        const { currentPassword, newPassword } = req.body;
+
+        // Load user with password field (select('-password') was applied in protect)
+        const user = await User.findById(req.user.id);
+        const isMatch = await user.comparePassword(currentPassword);
+        if (!isMatch) {
+            const err = new Error('Current password is incorrect');
+            err.statusCode = 400;
+            return next(err);
+        }
+
+        user.password = newPassword;
+        await user.save(); // pre-save hook re-hashes
+
+        // Blacklist the current token so the user must log in again with the new password
+        const decoded = jwt.decode(req.token);
+        if (decoded?.exp) {
+            await TokenBlacklist.findOneAndUpdate(
+                { token: req.token },
+                { token: req.token, expiresAt: new Date(decoded.exp * 1000) },
+                { upsert: true }
+            );
+        }
 
         res.json({
             success: true,
-            data: user
+            message: 'Password changed successfully. Please log in again with your new password.'
         });
     } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: error.message
-        });
+        next(error);
     }
 });
 
 // @route   POST /api/auth/forgot-password
-// @desc    Send password reset email
+// @desc    Send password reset email.
+//          SECURITY: Always returns 200 regardless of whether the email exists.
+//          This prevents user enumeration attacks where an attacker can probe
+//          which email addresses are registered.
 // @access  Public
-router.post('/forgot-password', forgotPasswordValidation, async (req, res) => {
+router.post('/forgot-password', forgotPasswordValidation, async (req, res, next) => {
     try {
         const { email } = req.body;
 
         const user = await User.findOne({ email });
+
+        // Always respond with generic 200 — don't reveal whether email is registered
         if (!user) {
-            return res.status(404).json({
-                success: false,
-                message: 'User not found with that email'
+            return res.json({
+                success: true,
+                message: 'If an account with that email exists, we\'ve sent a password reset link.'
             });
         }
 
-        // Generate reset token (valid for 15 minutes)
         const resetToken = crypto.randomBytes(32).toString('hex');
         const resetTokenHash = crypto.createHash('sha256').update(resetToken).digest('hex');
-        
-        user.passwordResetToken = resetTokenHash;
-        user.passwordResetExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
-        await user.save();
 
-        // Create reset link (frontend will handle the actual reset)
+        // Use updateOne with $set to avoid triggering the pre-save password hash hook
+        await User.updateOne(
+            { _id: user._id },
+            {
+                $set: {
+                    passwordResetToken: resetTokenHash,
+                    passwordResetExpires: new Date(Date.now() + 15 * 60 * 1000) // 15 min
+                }
+            }
+        );
+
         const resetLink = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/reset-password/${resetToken}`;
-
-        // Send email
         const emailResult = await sendPasswordResetEmail(email, resetLink);
 
-        if (emailResult.success) {
-            res.json({
-                success: true,
-                message: 'Password reset email sent. Check your email.'
-            });
-        } else {
-            res.status(500).json({
-                success: false,
-                message: 'Failed to send reset email: ' + emailResult.message
-            });
+        if (!emailResult.success) {
+            // Clear the token so it can be re-requested
+            await User.updateOne(
+                { _id: user._id },
+                { $unset: { passwordResetToken: '', passwordResetExpires: '' } }
+            );
+            const err = new Error('Failed to send reset email: ' + emailResult.message);
+            err.statusCode = 500;
+            return next(err);
         }
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: error.message
+
+        res.json({
+            success: true,
+            message: 'If an account with that email exists, we\'ve sent a password reset link.'
         });
+    } catch (error) {
+        next(error);
     }
 });
 
 // @route   POST /api/auth/reset-password
-// @desc    Reset password using token
 // @access  Public
-router.post('/reset-password', resetPasswordValidation, async (req, res) => {
+router.post('/reset-password', resetPasswordValidation, async (req, res, next) => {
     try {
         const { token, password } = req.body;
 
-        // Hash the token to compare
         const resetTokenHash = crypto.createHash('sha256').update(token).digest('hex');
 
-        // Find user with valid token
         const user = await User.findOne({
             passwordResetToken: resetTokenHash,
             passwordResetExpires: { $gt: new Date() }
         });
 
         if (!user) {
-            return res.status(400).json({
-                success: false,
-                message: 'Invalid or expired reset token'
-            });
+            const err = new Error('Invalid or expired reset token');
+            err.statusCode = 400;
+            return next(err);
         }
 
-        // Update password
         user.password = password;
         user.passwordResetToken = undefined;
         user.passwordResetExpires = undefined;
         await user.save();
 
-        res.json({
-            success: true,
-            message: 'Password reset successful. Please login with your new password.'
-        });
+        res.json({ success: true, message: 'Password reset successful. Please log in with your new password.' });
     } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: error.message
-        });
+        next(error);
     }
 });
 

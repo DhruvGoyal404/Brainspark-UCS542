@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, useNavig
 import { useEffect } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
+import { BookmarkProvider } from './context/BookmarkContext';
 import Header from './components/common/Header';
 import LandingPage from './pages/LandingPage';
 import RegisterPage from './pages/RegisterPage';
@@ -222,9 +223,13 @@ function App() {
         <AuthProvider>
           <Router>
             <AuthErrorHandler>
-              <Layout>
-                <AppRoutes />
-              </Layout>
+              {/* BookmarkProvider is inside Router+AuthProvider so it can
+                  use useAuth() and make API calls with the active token */}
+              <BookmarkProvider>
+                <Layout>
+                  <AppRoutes />
+                </Layout>
+              </BookmarkProvider>
             </AuthErrorHandler>
           </Router>
         </AuthProvider>

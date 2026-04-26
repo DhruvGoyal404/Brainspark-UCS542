@@ -66,6 +66,24 @@ const changePasswordValidation = [
     validate
 ];
 
+// ─── Profile Update Validation ────────────────────────────────
+const updateProfileValidation = [
+    body('username')
+        .optional()
+        .trim()
+        .isLength({ min: 3, max: 30 })
+        .withMessage('Username must be between 3 and 30 characters')
+        .matches(/^[a-zA-Z0-9_]+$/)
+        .withMessage('Username can only contain letters, numbers, and underscores'),
+    body('email')
+        .optional()
+        .trim()
+        .isEmail()
+        .withMessage('Please provide a valid email address')
+        .normalizeEmail(),
+    validate
+];
+
 // ─── Quiz Validations ─────────────────────────────────────────
 const createQuizValidation = [
     body('title')
@@ -222,6 +240,7 @@ module.exports = {
     registerValidation,
     loginValidation,
     changePasswordValidation,
+    updateProfileValidation,
     createQuizValidation,
     submitQuizValidation,
     addBookmarkValidation,

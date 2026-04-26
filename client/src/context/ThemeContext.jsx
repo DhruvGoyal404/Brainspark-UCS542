@@ -34,26 +34,24 @@ export const ThemeProvider = ({ children }) => {
     return saved === null ? true : saved === 'true';
   });
 
-  // Debounce timer ref for syncing to DB
   const syncTimer = useRef(null);
 
-  // ── Sync preferences to DB (debounced 800ms) ──
+  // ── Sync preferences to DB (debounced 800ms) ──────────────────────────────
   const syncToServer = (updates) => {
     const token = localStorage.getItem('auth_token');
-    if (!token) return; // Not logged in — skip API call
+    if (!token) return;
 
     clearTimeout(syncTimer.current);
     syncTimer.current = setTimeout(async () => {
       try {
         await api.put('/user/preferences', updates);
       } catch (err) {
-        // Silently fail — localStorage is still updated
         console.warn('Could not sync preferences to server:', err.message);
       }
     }, 800);
   };
 
-  // ── Setters that update both localStorage AND DB ──
+  // ── Setters that update localStorage AND DB ────────────────────────────────
   const setTheme = (newTheme) => {
     setThemeState(newTheme);
     localStorage.setItem('theme', newTheme);
@@ -61,7 +59,9 @@ export const ThemeProvider = ({ children }) => {
   };
 
   const toggleTheme = () => {
-    setTheme(theme === 'light' ? 'dark' : 'light');
+    // Cycles light → dark → system → light
+    const next = theme === 'light' ? 'dark' : theme === 'dark' ? 'system' : 'light';
+    setTheme(next);
   };
 
   const setFontSize = (newSize) => {
@@ -82,12 +82,53 @@ export const ThemeProvider = ({ children }) => {
     syncToServer({ reducedMotion: val });
   };
 
-  // ── Apply theme to DOM ──
+  /**
+   * Load preferences that came from the server (called by AuthContext after login/checkAuth).
+   * This enables cross-device sync: preferences set on one device appear instantly on another.
+   * Does NOT trigger a DB sync — the source already is the DB.
+   */
+  const loadUserPreferences = (prefs) => {
+    if (!prefs) return;
+    if (prefs.theme) {
+      setThemeState(prefs.theme);
+      localStorage.setItem('theme', prefs.theme);
+    }
+    if (prefs.fontSize) {
+      setFontSizeState(prefs.fontSize);
+      localStorage.setItem('font_size', prefs.fontSize);
+    }
+    if (typeof prefs.soundEnabled === 'boolean') {
+      setSoundEnabledState(prefs.soundEnabled);
+      localStorage.setItem('sound_enabled', String(prefs.soundEnabled));
+    }
+    if (typeof prefs.reducedMotion === 'boolean') {
+      setReducedMotionState(prefs.reducedMotion);
+      localStorage.setItem('reduced_motion', String(prefs.reducedMotion));
+    }
+  };
+
+  // ── Apply theme to DOM ─────────────────────────────────────────────────────
+  // When theme === 'system', listen to the OS preference and update the DOM attribute
+  // whenever the user switches their OS dark mode.
   useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
+    if (theme !== 'system') {
+      document.documentElement.setAttribute('data-theme', theme);
+      return;
+    }
+
+    // System theme: mirror OS preference
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    document.documentElement.setAttribute('data-theme', mediaQuery.matches ? 'dark' : 'light');
+
+    const handler = (e) => {
+      document.documentElement.setAttribute('data-theme', e.matches ? 'dark' : 'light');
+    };
+
+    mediaQuery.addEventListener('change', handler);
+    return () => mediaQuery.removeEventListener('change', handler);
   }, [theme]);
 
-  // ── Apply font size to DOM ──
+  // ── Apply font size to DOM ─────────────────────────────────────────────────
   useEffect(() => {
     const fontSizes = { small: '14px', medium: '16px', large: '18px' };
     document.documentElement.style.fontSize = fontSizes[fontSize] || '16px';
@@ -102,7 +143,8 @@ export const ThemeProvider = ({ children }) => {
     fontSize,
     setFontSize,
     soundEnabled,
-    setSoundEnabled
+    setSoundEnabled,
+    loadUserPreferences
   };
 
   return (

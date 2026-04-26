@@ -352,14 +352,17 @@
 
 /* User Select */
 .select-none {
+    -webkit-user-select: none;
     user-select: none;
 }
 
 .select-text {
+    -webkit-user-select: text;
     user-select: text;
 }
 
 .select-all {
+    -webkit-user-select: all;
     user-select: all;
 }
 

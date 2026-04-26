@@ -6,35 +6,36 @@ import Input from '../ui/Input';
 import Select from '../ui/Select';
 import './QuestionBank.css';
 import api from '../../utils/api';
+import useDebounce from '../../hooks/useDebounce';
 
 const QuestionBank = () => {
-    const [questions, setQuestions] = useState([]);
+    const [questions, setQuestions]               = useState([]);
     const [filteredQuestions, setFilteredQuestions] = useState([]);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [categoryFilter, setCategoryFilter] = useState('all');
+    const [loading, setLoading]                   = useState(false);
+    const [error, setError]                       = useState(null);
+    const [searchTerm, setSearchTerm]             = useState('');
+    const [categoryFilter, setCategoryFilter]     = useState('all');
     const [difficultyFilter, setDifficultyFilter] = useState('all');
 
-    // Fetch all quizzes with their questions on mount
+    // Debounce search — avoids re-filtering on every keystroke in a potentially large list
+    const debouncedSearch = useDebounce(searchTerm, 350);
+
     useEffect(() => {
         const fetchQuestions = async () => {
             setLoading(true);
             setError(null);
             try {
-                // Fetch all quizzes from API
                 const response = await api.get('/quiz?page=1&limit=1000');
                 if (response.data.success && response.data.data) {
-                    // Flatten questions from all quizzes
                     const allQuestions = [];
                     response.data.data.forEach(quiz => {
                         quiz.questions?.forEach((q, idx) => {
                             allQuestions.push({
                                 ...q,
-                                _id: `${quiz.id}_${idx}`,
-                                quizId: quiz.id,
+                                _id:       `${quiz.id}_${idx}`,
+                                quizId:    quiz.id,
                                 quizTitle: quiz.title,
-                                category: quiz.category
+                                category:  quiz.category
                             });
                         });
                     });
@@ -52,16 +53,14 @@ const QuestionBank = () => {
         fetchQuestions();
     }, []);
 
+    // Re-filter whenever debounced search or dropdowns change
     useEffect(() => {
-        filterQuestions();
-    }, [questions, searchTerm, categoryFilter, difficultyFilter]);
-
-    const filterQuestions = () => {
         let filtered = questions;
 
-        if (searchTerm) {
+        if (debouncedSearch) {
+            const term = debouncedSearch.toLowerCase();
             filtered = filtered.filter(q =>
-                q.questionText?.toLowerCase().includes(searchTerm.toLowerCase())
+                q.questionText?.toLowerCase().includes(term)
             );
         }
 
@@ -74,7 +73,7 @@ const QuestionBank = () => {
         }
 
         setFilteredQuestions(filtered);
-    };
+    }, [questions, debouncedSearch, categoryFilter, difficultyFilter]);
 
     const deleteQuestion = (id) => {
         if (!window.confirm('Are you sure you want to delete this question?')) return;
@@ -99,7 +98,7 @@ const QuestionBank = () => {
                     </div>
                 ) : (
                     <>
-                        {/* Filters */}
+                        {/* Filters — search is debounced, dropdowns trigger immediately */}
                         <div className="filters">
                             <Input
                                 placeholder="Search questions..."
@@ -112,12 +111,14 @@ const QuestionBank = () => {
                                 value={categoryFilter}
                                 onChange={(e) => setCategoryFilter(e.target.value)}
                                 options={[
-                                    { value: 'all', label: 'All Categories' },
-                                    { value: 'dsa', label: 'DSA' },
-                                    { value: 'dbms', label: 'DBMS' },
+                                    { value: 'all',               label: 'All Categories' },
+                                    { value: 'dsa',               label: 'DSA' },
+                                    { value: 'dbms',              label: 'DBMS' },
                                     { value: 'operating-systems', label: 'Operating Systems' },
-                                    { value: 'networks', label: 'Networks' },
-                                    { value: 'other', label: 'Other' },
+                                    { value: 'networks',          label: 'Networks' },
+                                    { value: 'oops',              label: 'OOP' },
+                                    { value: 'web',               label: 'Web Dev' },
+                                    { value: 'other',             label: 'Other' },
                                 ]}
                             />
 
@@ -125,15 +126,18 @@ const QuestionBank = () => {
                                 value={difficultyFilter}
                                 onChange={(e) => setDifficultyFilter(e.target.value)}
                                 options={[
-                                    { value: 'all', label: 'All Difficulties' },
-                                    { value: 'easy', label: 'Easy' },
+                                    { value: 'all',    label: 'All Difficulties' },
+                                    { value: 'easy',   label: 'Easy' },
                                     { value: 'medium', label: 'Medium' },
-                                    { value: 'hard', label: 'Hard' },
+                                    { value: 'hard',   label: 'Hard' },
                                 ]}
                             />
                         </div>
 
-                        {/* Questions List */}
+                        <div style={{ color: 'var(--text-secondary)', fontSize: '13px', marginBottom: '12px' }}>
+                            Showing {filteredQuestions.length} of {questions.length} questions
+                        </div>
+
                         <div className="questions-list">
                             {filteredQuestions.map((question, index) => (
                                 <Card key={question._id} className="question-item">
@@ -146,6 +150,9 @@ const QuestionBank = () => {
                                                     {question.difficulty}
                                                 </span>
                                                 <span className="category-badge">{question.category}</span>
+                                                <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
+                                                    {question.quizTitle}
+                                                </span>
                                             </div>
                                         </div>
                                     </div>

@@ -5,9 +5,12 @@ node_modules/
 dist/
 dist-ssr/
 build/
+lectureNotes/
 
 # Environment files and secrets
 .env
+content.txt
+Brainspark_viva.txt
 .env.development
 .env.production
 .env.prod
@@ -37,5 +40,8 @@ lerna-debug.log*
 
 # Optional large local docs/artifacts
 *.pdf
+
+# Local reference documents — not for version control
+report.html
 
 # Keep deployment and automation scripts in repo (including .ps1)

@@ -1,17 +1,21 @@
 import { useState, useEffect } from 'react';
-import { Users, Search, Shield, Grid, List, Crown, Trash2 } from 'lucide-react';
+import { Users, Search, Shield, Grid, List, Crown, Trash2, UserX, UserCheck } from 'lucide-react';
 import Card from '../ui/Card';
 import Avatar from '../ui/Avatar';
 import Input from '../ui/Input';
 import Button from '../ui/Button';
 import api from '../../utils/api';
+import useDebounce from '../../hooks/useDebounce';
 import './UserManagement.css';
 
 const UserManagement = () => {
-    const [users, setUsers] = useState([]);
+    const [users, setUsers]       = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
-    const [viewMode, setViewMode] = useState('list'); // 'list' or 'card'
+    const [viewMode, setViewMode] = useState('list');
     const [updating, setUpdating] = useState(null);
+
+    // Debounce the search — prevents a re-filter on every keystroke
+    const debouncedSearch = useDebounce(searchTerm, 350);
 
     useEffect(() => {
         fetchUsers();
@@ -19,43 +23,50 @@ const UserManagement = () => {
 
     const fetchUsers = async () => {
         try {
-            const response = await api.get('/admin/users');
-            // Backend returns { success: true, data: [...] }
+            const response = await api.get('/admin/users?limit=100');
             setUsers(response.data?.data || []);
         } catch (error) {
             console.error('Failed to fetch users:', error);
-            setUsers([]); // Ensure it's an array even on error
+            setUsers([]);
         }
     };
 
-    // Filter to ONLY show users with role="user" (exclude admins)
+    // Client-side filter — applied to already-loaded user list using debounced value
     const filteredUsers = users.filter(user => {
-        // Exclude any user with admin role
-        if (user.role === 'admin' || user.isAdmin === true) {
-            return false;
-        }
-        const matchesSearch = user.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            user.email?.toLowerCase().includes(searchTerm.toLowerCase());
-        return matchesSearch;
+        if (user.role === 'admin' || user.isAdmin === true) return false;
+        if (!debouncedSearch) return true;
+        const term = debouncedSearch.toLowerCase();
+        return (
+            user.username?.toLowerCase().includes(term) ||
+            user.email?.toLowerCase().includes(term)
+        );
     });
 
     const handleToggleRole = async (userId, currentRole) => {
         const newRole = currentRole === 'admin' ? 'user' : 'admin';
         setUpdating(userId);
-
         try {
             await api.put(`/admin/users/${userId}/role`, { role: newRole });
-
-            // Update local state
-            setUsers(prev => prev.map(u =>
-                u._id === userId ? { ...u, role: newRole } : u
-            ));
-
-            // Show success feedback
-            console.log(`User role updated to ${newRole}`);
+            setUsers(prev => prev.map(u => u._id === userId ? { ...u, role: newRole } : u));
         } catch (error) {
             console.error('Failed to update user role:', error);
             alert('Failed to update user role. Please try again.');
+        } finally {
+            setUpdating(null);
+        }
+    };
+
+    const handleDeactivate = async (userId, username) => {
+        if (!window.confirm(`Deactivate user "${username}"? They will no longer be able to log in. This can be reversed via the database.`)) return;
+
+        setUpdating(userId);
+        try {
+            await api.delete(`/admin/users/${userId}`);
+            // Mark locally as inactive so the badge updates immediately
+            setUsers(prev => prev.map(u => u._id === userId ? { ...u, isActive: false } : u));
+        } catch (error) {
+            console.error('Failed to deactivate user:', error);
+            alert(error.response?.data?.message || 'Failed to deactivate user. Please try again.');
         } finally {
             setUpdating(null);
         }
@@ -94,7 +105,10 @@ const UserManagement = () => {
 
                 <div className={`users-container ${viewMode === 'card' ? 'users-grid' : 'users-list'}`}>
                     {filteredUsers.map(user => (
-                        <Card key={user._id} className={`user-item ${viewMode === 'card' ? 'user-card' : 'user-row'}`}>
+                        <Card
+                            key={user._id}
+                            className={`user-item ${viewMode === 'card' ? 'user-card' : 'user-row'} ${user.isActive === false ? 'user-inactive' : ''}`}
+                        >
                             <div className="user-info">
                                 <Avatar
                                     src={user.avatar}
@@ -104,6 +118,19 @@ const UserManagement = () => {
                                 <div className="user-details">
                                     <div className="user-name">
                                         {user.username}
+                                        {user.isActive === false && (
+                                            <span style={{
+                                                marginLeft: '8px',
+                                                fontSize: '11px',
+                                                padding: '2px 6px',
+                                                borderRadius: '999px',
+                                                background: 'var(--error-bg, rgba(239,68,68,0.1))',
+                                                color: 'var(--error)',
+                                                fontWeight: 600
+                                            }}>
+                                                Inactive
+                                            </span>
+                                        )}
                                     </div>
                                     <div className="user-email">{user.email}</div>
                                 </div>
@@ -134,11 +161,24 @@ const UserManagement = () => {
                                     size="sm"
                                     icon={<Crown size={16} />}
                                     onClick={() => handleToggleRole(user._id, user.role)}
-                                    disabled={updating === user._id}
+                                    disabled={updating === user._id || user.isActive === false}
                                     title={user.role === 'admin' ? 'Demote to User' : 'Promote to Admin'}
                                 >
-                                    {updating === user._id ? 'Updating...' : user.role === 'admin' ? 'Admin' : 'Promote'}
+                                    {updating === user._id ? '...' : user.role === 'admin' ? 'Admin' : 'Promote'}
                                 </Button>
+
+                                {user.isActive !== false && (
+                                    <Button
+                                        variant="danger"
+                                        size="sm"
+                                        icon={<UserX size={16} />}
+                                        onClick={() => handleDeactivate(user._id, user.username)}
+                                        disabled={updating === user._id}
+                                        title="Deactivate user account (soft delete)"
+                                    >
+                                        {updating === user._id ? '...' : 'Deactivate'}
+                                    </Button>
+                                )}
                             </div>
                         </Card>
                     ))}

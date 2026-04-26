@@ -4,7 +4,7 @@ import useLocalStorage from './useLocalStorage';
 /**
  * Custom hook for managing quiz state and progress
  */
-const useQuiz = (quizId) => {
+const useQuiz = (quizId, totalQuestions = 0) => {
     const [quizState, setQuizState] = useLocalStorage(`quiz_state_${quizId}`, null);
     const [currentQuestion, setCurrentQuestion] = useState(0);
     const [answers, setAnswers] = useState([]);
@@ -118,8 +118,8 @@ const useQuiz = (quizId) => {
         updateTimer,
         progress: {
             current: currentQuestion + 1,
-            total: answers.length,
-            percentage: answers.length > 0 ? Math.round(((currentQuestion + 1) / answers.length) * 100) : 0,
+            total: totalQuestions,
+            percentage: totalQuestions > 0 ? Math.round(((currentQuestion + 1) / totalQuestions) * 100) : 0,
         },
     };
 };

@@ -108,22 +108,24 @@ app.get('/', (req, res) => {
 });
 
 // ─── Global Error Handler ─────────────────────────────────────
-app.use((err, req, res, next) => {
-    const statusCode = err.statusCode || 500;
-    const message = err.message || 'Internal Server Error';
+// All routes call next(error) — normalizeError sanitises the message so
+// raw DB internals (connection strings, schema details) never reach the client.
+const { normalizeError } = require('./utils/errorHandler');
 
-    // Log error details (but not in production for security)
+app.use((err, req, res, next) => {
     if (process.env.NODE_ENV === 'development') {
         console.error('❌ Error:', {
             message: err.message,
-            statusCode,
+            statusCode: err.statusCode,
             stack: err.stack,
             path: req.path,
             method: req.method
         });
     } else {
-        console.error(`❌ ${req.method} ${req.path} → ${statusCode}: ${message}`);
+        console.error(`❌ ${req.method} ${req.path} → ${err.statusCode || 500}`);
     }
+
+    const { statusCode, message } = normalizeError(err);
 
     res.status(statusCode).json({
         success: false,

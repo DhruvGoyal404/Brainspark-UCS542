@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import api from '../utils/api';
+import { useTheme } from './ThemeContext';
 
 const AuthContext = createContext();
 
@@ -12,21 +13,25 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }) => {
-    const [user, setUser] = useState(null);
+    const [user, setUser]       = useState(null);
     const [loading, setLoading] = useState(true);
-    const [token, setToken] = useState(() => localStorage.getItem('auth_token'));
+    const [token, setToken]     = useState(() => localStorage.getItem('auth_token'));
 
-    // Check if user is logged in on mount
+    // ThemeProvider wraps AuthProvider in App.jsx, so useTheme() is safe here
+    const { loadUserPreferences } = useTheme();
+
+    // Check if user is still logged in on app mount (e.g. page refresh)
     useEffect(() => {
         const checkAuth = async () => {
             const savedToken = localStorage.getItem('auth_token');
-
             if (savedToken) {
                 try {
-                    // Verify token with backend
                     const response = await api.get('/auth/me');
-                    setUser(response.data.data);
+                    const userData = response.data.data;
+                    setUser(userData);
                     setToken(savedToken);
+                    // Cross-device preference sync: load DB preferences into ThemeContext
+                    loadUserPreferences(userData.preferences);
                 } catch (error) {
                     console.error('Auth check failed:', error);
                     logout();
@@ -36,22 +41,23 @@ export const AuthProvider = ({ children }) => {
         };
 
         checkAuth();
-    }, []);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []); // loadUserPreferences is stable — excluded to avoid re-running on theme changes
 
     const login = async (email, password) => {
         try {
             const response = await api.post('/auth/login', { email, password });
-            // Backend returns { success: true, data: { user, token } }
-            const { token, user } = response.data.data;
+            const { token: authToken, user: userData } = response.data.data;
 
-            // Fix: Use consistent localStorage keys matching the rest of the codebase
-            localStorage.setItem('auth_token', token);
-            localStorage.setItem('user_data', JSON.stringify(user));
-            setUser(user);
-            setToken(token);
+            localStorage.setItem('auth_token', authToken);
+            localStorage.setItem('user_data', JSON.stringify(userData));
+            setUser(userData);
+            setToken(authToken);
 
-            // Return the redirect path — the calling component will navigate()
-            const redirectTo = user.role === 'admin' ? '/admin' : '/dashboard';
+            // Sync cross-device preferences immediately on login
+            loadUserPreferences(userData.preferences);
+
+            const redirectTo = userData.role === 'admin' ? '/admin' : '/dashboard';
             return { success: true, redirectTo };
         } catch (error) {
             return {
@@ -67,14 +73,15 @@ export const AuthProvider = ({ children }) => {
 
             if (response.data.success) {
                 const { user: userData, token: authToken } = response.data.data;
-
                 setUser(userData);
                 setToken(authToken);
                 localStorage.setItem('auth_token', authToken);
                 localStorage.setItem('user_data', JSON.stringify(userData));
-
                 return { success: true };
             }
+
+            // Edge case: server returned 2xx with success: false (shouldn't happen but handle it)
+            return { success: false, error: 'Registration failed. Please try again.' };
         } catch (error) {
             console.error('Registration failed:', error);
             return {
@@ -84,7 +91,16 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    const logout = () => {
+    const logout = async () => {
+        // Inform the server so the JWT is blacklisted — prevents token replay after logout
+        try {
+            const currentToken = localStorage.getItem('auth_token');
+            if (currentToken) {
+                await api.post('/auth/logout');
+            }
+        } catch {
+            // Continue with client-side logout even if the server call fails
+        }
         setUser(null);
         setToken(null);
         localStorage.removeItem('auth_token');
@@ -99,9 +115,24 @@ export const AuthProvider = ({ children }) => {
                 localStorage.setItem('user_data', JSON.stringify(response.data.data));
                 return { success: true };
             }
+            return { success: false, error: 'Update failed' };
         } catch (error) {
             console.error('Update failed:', error);
-            return { success: false, error: error.message };
+            return { success: false, error: error.response?.data?.message || error.message };
+        }
+    };
+
+    const changePassword = async (currentPassword, newPassword) => {
+        try {
+            await api.post('/auth/change-password', { currentPassword, newPassword });
+            // Server blacklists the token after password change — log out on client too
+            await logout();
+            return { success: true };
+        } catch (error) {
+            return {
+                success: false,
+                message: error.response?.data?.message || 'Failed to change password'
+            };
         }
     };
 
@@ -113,6 +144,7 @@ export const AuthProvider = ({ children }) => {
         register,
         logout,
         updateUser,
+        changePassword,
         isAuthenticated: !!user
     };
 
