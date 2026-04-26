@@ -14,7 +14,8 @@
     "seed:dbms": "node seeds/quizzes-dbms.seed.js",
     "seed:networks": "node seeds/quizzes-networks.seed.js",
     "seed:oops": "node seeds/quizzes-oops.seed.js",
-    "seed:web": "node seeds/quizzes-web.seed.js"
+    "seed:web": "node seeds/quizzes-web.seed.js",
+    "seed:admin": "node seeds/create-admin.seed.js"
   },
   "keywords": [],
   "author": "",
@@ -22,6 +23,7 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.36.3",
     "bcryptjs": "^3.0.3",
+    "cloudinary": "^2.10.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
@@ -32,6 +34,7 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^9.0.0",
     "morgan": "^1.10.1",
+    "multer": "^2.1.1",
     "nodemailer": "^8.0.4"
   },
   "devDependencies": {

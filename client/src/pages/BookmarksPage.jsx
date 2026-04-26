@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useToast } from '../components/ui/Toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
     Bookmark, 
@@ -33,10 +34,12 @@ const categoryIcons = {
 
 const BookmarksPage = () => {
     const { bookmarks: apiBookmarks, loading, removeBookmark: removeBookmarkById, clearAllBookmarks: clearAllApi } = useBookmarks();
+    const toast = useToast();
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('all');
     const [expandedCards, setExpandedCards] = useState({});
     const [showFilters, setShowFilters] = useState(false);
+    const [confirmClear, setConfirmClear] = useState(false);
 
     // Normalize bookmarks from API to display format
     const bookmarks = useMemo(() => apiBookmarks.map(b => ({
@@ -91,9 +94,14 @@ const BookmarksPage = () => {
     };
 
     const clearAllBookmarks = async () => {
-        if (window.confirm('Are you sure you want to remove all bookmarks?')) {
-            await clearAllApi();
+        if (!confirmClear) {
+            setConfirmClear(true);
+            setTimeout(() => setConfirmClear(false), 3000);
+            return;
         }
+        setConfirmClear(false);
+        await clearAllApi();
+        toast.success('All bookmarks cleared');
     };
 
     const formatDate = (timestamp) => {
@@ -125,14 +133,14 @@ const BookmarksPage = () => {
                             </div>
                         </div>
                         {bookmarks.length > 0 && (
-                            <Button 
-                                variant="ghost" 
+                            <Button
+                                variant={confirmClear ? 'danger' : 'ghost'}
                                 size="sm"
                                 onClick={clearAllBookmarks}
                                 className="clear-all-btn"
                             >
                                 <Trash2 size={16} />
-                                Clear All
+                                {confirmClear ? 'Tap again to confirm' : 'Clear All'}
                             </Button>
                         )}
                     </div>

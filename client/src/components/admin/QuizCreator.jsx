@@ -5,7 +5,7 @@ import Button from '../ui/Button';
 import Input from '../ui/Input';
 import Select from '../ui/Select';
 import Checkbox from '../ui/Checkbox';
-import Toast from '../ui/Toast';
+import { useToast } from '../ui/Toast';
 import api from '../../utils/api';
 import './QuizCreator.css';
 
@@ -18,9 +18,8 @@ const QuizCreator = () => {
         estimatedTime: 15,
     });
 
+    const toast = useToast();
     const [questions, setQuestions] = useState([]);
-    const [showToast, setShowToast] = useState(false);
-    const [toastMessage, setToastMessage] = useState('');
 
     const addQuestion = () => {
         setQuestions([
@@ -80,25 +79,21 @@ const QuizCreator = () => {
 
         // Validation
         if (!quizData.title || !quizData.category) {
-            setToastMessage('Please fill in quiz title and category');
-            setShowToast(true);
+            toast.error('Please fill in quiz title and category');
             return;
         }
 
         if (questions.length === 0) {
-            setToastMessage('Please add at least one question');
-            setShowToast(true);
+            toast.error('Please add at least one question');
             return;
         }
 
-        // Check if all questions have correct answers
         const invalidQuestions = questions.filter(q =>
             !q.questionText || q.options.every(opt => !opt.isCorrect) || q.options.some(opt => !opt.text)
         );
 
         if (invalidQuestions.length > 0) {
-            setToastMessage('Please ensure all questions have text, options, and a correct answer');
-            setShowToast(true);
+            toast.error('Please ensure all questions have text, options, and a correct answer');
             return;
         }
 
@@ -124,8 +119,7 @@ const QuizCreator = () => {
                 }
             });
 
-            setToastMessage('Quiz created successfully!');
-            setShowToast(true);
+            toast.success('Quiz created successfully!');
 
             // Reset form
             setQuizData({
@@ -137,8 +131,7 @@ const QuizCreator = () => {
             });
             setQuestions([]);
         } catch (error) {
-            setToastMessage(error.response?.data?.message || 'Failed to create quiz');
-            setShowToast(true);
+            toast.error(error.response?.data?.message || 'Failed to create quiz');
         }
     };
 
@@ -299,15 +292,6 @@ const QuizCreator = () => {
                 </form>
             </Card>
 
-            {showToast && (
-                <Toast
-                    toast={{
-                        message: toastMessage,
-                        type: toastMessage.includes('success') ? 'success' : 'error'
-                    }}
-                    onClose={() => setShowToast(false)}
-                />
-            )}
         </div>
     );
 };

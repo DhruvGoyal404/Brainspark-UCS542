@@ -114,7 +114,7 @@ const QuizModeModal = ({
                                             <li>🏆 Counts toward leaderboard</li>
                                         </ul>
                                     </div>
-                                    <Button variant="primary" fullWidth>
+                                    <Button variant="primary" fullWidth onClick={() => handleSelectMode('timed')}>
                                         Start Timed Quiz
                                     </Button>
                                 </Card>
@@ -145,7 +145,7 @@ const QuizModeModal = ({
                                             <li>🔖 Bookmark questions for review</li>
                                         </ul>
                                     </div>
-                                    <Button variant="outline" fullWidth>
+                                    <Button variant="outline" fullWidth onClick={() => handleSelectMode('practice')}>
                                         Start Practice
                                     </Button>
                                 </Card>

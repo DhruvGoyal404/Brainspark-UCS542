@@ -1,17 +1,23 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { User, Camera, Edit2, Settings as SettingsIcon, Lock } from 'lucide-react';
+import { User, Camera, Edit2, Settings as SettingsIcon, Lock, Check, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
+import { useToast } from '../components/ui/Toast';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import api from '../utils/api';
 import './ProfilePage.css';
 
 const ProfilePage = () => {
-    const { user } = useAuth();
+    const { user, updateUser, refreshUser } = useAuth();
     const { fontSize, soundEnabled, reducedMotion, setFontSize, setSoundEnabled, setReducedMotion } = useTheme();
+    const toast = useToast();
+    const fileInputRef = useRef(null);
     const [isEditing, setIsEditing] = useState(false);
+    const [editForm, setEditForm] = useState({ username: '', email: '' });
+    const [saving, setSaving] = useState(false);
+    const [avatarUploading, setAvatarUploading] = useState(false);
     const [statsData, setStatsData] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -30,6 +36,52 @@ const ProfilePage = () => {
         };
         fetchStats();
     }, []);
+
+    const handleEditOpen = () => {
+        setEditForm({ username: user?.username || '', email: user?.email || '' });
+        setIsEditing(true);
+    };
+
+    const handleEditSave = async () => {
+        setSaving(true);
+        try {
+            const result = await updateUser(editForm);
+            if (result.success) {
+                toast.success('Profile updated!');
+                setIsEditing(false);
+            } else {
+                toast.error(result.error || 'Update failed');
+            }
+        } catch {
+            toast.error('Update failed. Please try again.');
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleAvatarClick = () => fileInputRef.current?.click();
+
+    const handleAvatarChange = async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        if (file.size > 5 * 1024 * 1024) {
+            toast.error('Image must be under 5 MB');
+            return;
+        }
+        setAvatarUploading(true);
+        try {
+            const formData = new FormData();
+            formData.append('avatar', file);
+            await api.post('/user/avatar', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+            await refreshUser();
+            toast.success('Profile picture updated!');
+        } catch (err) {
+            toast.error(err.response?.data?.message || 'Upload failed. Check Cloudinary credentials.');
+        } finally {
+            setAvatarUploading(false);
+            e.target.value = '';
+        }
+    };
 
     // ── Activity calendar: build from real quiz history ──
     const activityData = useMemo(() => {
@@ -91,30 +143,78 @@ const ProfilePage = () => {
                         <div className="profile-header">
                             <div className="profile-avatar-section">
                                 <div className="profile-avatar-wrapper">
-                                    <div className="profile-avatar">
-                                        {user?.username?.charAt(0).toUpperCase() || 'U'}
-                                    </div>
-                                    <button className="avatar-upload-button" aria-label="Change avatar">
+                                    {user?.avatar ? (
+                                        <img
+                                            src={user.avatar}
+                                            alt="Profile"
+                                            className="profile-avatar"
+                                            style={{ objectFit: 'cover', borderRadius: '50%' }}
+                                        />
+                                    ) : (
+                                        <div className="profile-avatar">
+                                            {user?.username?.charAt(0).toUpperCase() || 'U'}
+                                        </div>
+                                    )}
+                                    <button
+                                        className="avatar-upload-button"
+                                        aria-label="Change avatar"
+                                        onClick={handleAvatarClick}
+                                        disabled={avatarUploading}
+                                        title="Upload profile picture"
+                                    >
                                         <Camera size={16} />
                                     </button>
+                                    <input
+                                        ref={fileInputRef}
+                                        type="file"
+                                        accept="image/*"
+                                        style={{ display: 'none' }}
+                                        onChange={handleAvatarChange}
+                                    />
                                 </div>
                                 <div className="profile-info">
-                                    <h1 className="profile-username">{user?.username || 'User'}</h1>
-                                    <p className="profile-email">{user?.email || 'user@example.com'}</p>
-                                    <div className="profile-level">
-                                        <span className="level-badge">Level {user?.stats?.level || 1}</span>
-                                        <span className="xp-text">{user?.stats?.currentXP || 0} XP</span>
-                                        {statsData?.averageScore > 0 && (
-                                            <span className="xp-text" style={{ marginLeft: '8px', color: 'var(--success)' }}>
-                                                {statsData.averageScore}% avg
-                                            </span>
-                                        )}
-                                    </div>
+                                    {isEditing ? (
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', minWidth: '260px' }}>
+                                            <input
+                                                value={editForm.username}
+                                                onChange={e => setEditForm(f => ({ ...f, username: e.target.value }))}
+                                                placeholder="Username"
+                                                style={{ padding: '8px 12px', borderRadius: '8px', border: '1.5px solid var(--color-border)', background: 'var(--color-surface)', color: 'var(--color-text-primary)', fontSize: '0.95rem' }}
+                                            />
+                                            <input
+                                                value={editForm.email}
+                                                onChange={e => setEditForm(f => ({ ...f, email: e.target.value }))}
+                                                placeholder="Email"
+                                                type="email"
+                                                style={{ padding: '8px 12px', borderRadius: '8px', border: '1.5px solid var(--color-border)', background: 'var(--color-surface)', color: 'var(--color-text-primary)', fontSize: '0.95rem' }}
+                                            />
+                                            <div style={{ display: 'flex', gap: '8px' }}>
+                                                <Button variant="primary" size="sm" icon={<Check size={16} />} onClick={handleEditSave} loading={saving}>Save</Button>
+                                                <Button variant="ghost" size="sm" icon={<X size={16} />} onClick={() => setIsEditing(false)}>Cancel</Button>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <h1 className="profile-username">{user?.username || 'User'}</h1>
+                                            <p className="profile-email">{user?.email || 'user@example.com'}</p>
+                                            <div className="profile-level">
+                                                <span className="level-badge">Level {user?.stats?.level || 1}</span>
+                                                <span className="xp-text">{user?.stats?.currentXP || 0} XP</span>
+                                                {statsData?.averageScore > 0 && (
+                                                    <span className="xp-text" style={{ marginLeft: '8px', color: 'var(--success)' }}>
+                                                        {statsData.averageScore}% avg
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </>
+                                    )}
                                 </div>
                             </div>
-                            <Button variant="outline" icon={<Edit2 size={18} />} onClick={() => setIsEditing(!isEditing)}>
-                                Edit Profile
-                            </Button>
+                            {!isEditing && (
+                                <Button variant="outline" icon={<Edit2 size={18} />} onClick={handleEditOpen}>
+                                    Edit Profile
+                                </Button>
+                            )}
                         </div>
                     </Card>
                 </motion.div>

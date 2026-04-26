@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../components/ui/Toast';
 import Button from '../components/ui/Button';
 import Card from '../components/ui/Card';
 import './AuthPages.css';
@@ -17,6 +18,7 @@ const LoginPage = () => {
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     const { login } = useAuth();
+    const toast = useToast();
 
     const validateForm = () => {
         const newErrors = {};
@@ -56,10 +58,10 @@ const LoginPage = () => {
             if (result.success) {
                 navigate(result.redirectTo || '/dashboard');
             } else {
-                setErrors({ submit: result.error || 'Login failed' });
+                toast.error(result.message || 'Login failed');
             }
         } catch (error) {
-            setErrors({ submit: 'An error occurred. Please try again.' });
+            toast.error('An error occurred. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -82,12 +84,6 @@ const LoginPage = () => {
 
                     <Card className="auth-card">
                         <form onSubmit={handleSubmit} className="auth-form">
-                            {errors.submit && (
-                                <div className="error-banner" role="alert">
-                                    {errors.submit}
-                                </div>
-                            )}
-
                             {/* Email Field */}
                             <div className="form-group">
                                 <label htmlFor="email" className="form-label">

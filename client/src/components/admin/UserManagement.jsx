@@ -5,10 +5,12 @@ import Avatar from '../ui/Avatar';
 import Input from '../ui/Input';
 import Button from '../ui/Button';
 import api from '../../utils/api';
+import { useToast } from '../ui/Toast';
 import useDebounce from '../../hooks/useDebounce';
 import './UserManagement.css';
 
 const UserManagement = () => {
+    const toast = useToast();
     const [users, setUsers]       = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [viewMode, setViewMode] = useState('list');
@@ -49,8 +51,7 @@ const UserManagement = () => {
             await api.put(`/admin/users/${userId}/role`, { role: newRole });
             setUsers(prev => prev.map(u => u._id === userId ? { ...u, role: newRole } : u));
         } catch (error) {
-            console.error('Failed to update user role:', error);
-            alert('Failed to update user role. Please try again.');
+            toast.error('Failed to update user role. Please try again.');
         } finally {
             setUpdating(null);
         }
@@ -65,8 +66,7 @@ const UserManagement = () => {
             // Mark locally as inactive so the badge updates immediately
             setUsers(prev => prev.map(u => u._id === userId ? { ...u, isActive: false } : u));
         } catch (error) {
-            console.error('Failed to deactivate user:', error);
-            alert(error.response?.data?.message || 'Failed to deactivate user. Please try again.');
+            toast.error(error.response?.data?.message || 'Failed to deactivate user. Please try again.');
         } finally {
             setUpdating(null);
         }

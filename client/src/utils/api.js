@@ -2,6 +2,19 @@ import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
+/**
+ * Extracts a human-readable error message from any Axios error.
+ * Handles: validation errors array, server message string, network errors.
+ */
+export const getApiError = (err) => {
+    const data = err?.response?.data;
+    if (!data) return err?.message || 'Network error. Please check your connection.';
+    if (Array.isArray(data.errors) && data.errors.length > 0) {
+        return data.errors.map(e => e.message).join(' · ');
+    }
+    return data.message || 'Something went wrong. Please try again.';
+};
+
 const api = axios.create({
     baseURL: API_URL,
     headers: {

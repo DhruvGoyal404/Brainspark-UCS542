@@ -3,12 +3,14 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Lock, CheckCircle, AlertCircle } from 'lucide-react';
 import Button from '../components/ui/Button';
 import Card from '../components/ui/Card';
+import { useToast } from '../components/ui/Toast';
 import api from '../utils/api';
 import './AuthPages.css';
 
 const ResetPasswordPage = () => {
     const { token } = useParams();
     const navigate = useNavigate();
+    const toast = useToast();
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [loading, setLoading] = useState(false);
@@ -24,15 +26,15 @@ const ResetPasswordPage = () => {
 
     const validatePassword = () => {
         if (password.length < 6) {
-            setError('Password must be at least 6 characters');
+            toast.error('Password must be at least 6 characters');
             return false;
         }
         if (!/^(?=.*[a-zA-Z])(?=.*[0-9])/.test(password)) {
-            setError('Password must contain at least one letter and one number');
+            toast.error('Password must contain at least one letter and one number');
             return false;
         }
         if (password !== confirmPassword) {
-            setError('Passwords do not match');
+            toast.error('Passwords do not match');
             return false;
         }
         return true;
@@ -40,7 +42,6 @@ const ResetPasswordPage = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError('');
 
         if (!validatePassword()) return;
 
@@ -54,7 +55,7 @@ const ResetPasswordPage = () => {
             setSuccess(true);
             setTimeout(() => navigate('/login'), 3000);
         } catch (err) {
-            setError(err.response?.data?.message || 'Failed to reset password');
+            toast.error(err.response?.data?.message || 'Failed to reset password');
         } finally {
             setLoading(false);
         }
@@ -113,19 +114,6 @@ const ResetPasswordPage = () => {
                 </div>
 
                 <form onSubmit={handleSubmit}>
-                    {error && (
-                        <div style={{
-                            background: 'rgba(255, 0, 0, 0.1)',
-                            color: 'var(--error)',
-                            padding: '12px',
-                            borderRadius: '8px',
-                            marginBottom: '20px',
-                            fontSize: '14px'
-                        }}>
-                            {error}
-                        </div>
-                    )}
-
                     <div style={{ marginBottom: '20px' }}>
                         <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>
                             New Password

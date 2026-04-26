@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const multer = require('multer');
 const User = require('../models/User');
 const QuizResult = require('../models/QuizResult');
 const Bookmark = require('../models/Bookmark');
@@ -7,12 +8,22 @@ const { protect } = require('../middleware/auth');
 const { ACHIEVEMENTS } = require('../utils/xpCalculator');
 const { getRecommendations } = require('../utils/recommendations');
 const { cacheGet, cacheSet } = require('../utils/redisClient');
+const { uploadBuffer } = require('../utils/cloudinary');
 const {
     addBookmarkValidation,
     preferencesValidation,
     paginationValidation,
     updateProfileValidation
 } = require('../middleware/validate');
+
+const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB max
+    fileFilter: (req, file, cb) => {
+        if (!file.mimetype.startsWith('image/')) return cb(new Error('Only image files are allowed'));
+        cb(null, true);
+    }
+});
 
 // ─────────────────────────────────────────────────────
 // PROFILE
@@ -527,6 +538,35 @@ router.get('/recommendations', protect, async (req, res, next) => {
     try {
         const recommendations = await getRecommendations(req.user.id);
         res.json({ success: true, data: recommendations });
+    } catch (error) {
+        next(error);
+    }
+});
+
+// @route   POST /api/user/avatar
+// @desc    Upload profile picture to Cloudinary and save URL
+// @access  Private
+router.post('/avatar', protect, upload.single('avatar'), async (req, res, next) => {
+    try {
+        if (!req.file) {
+            const err = new Error('No image file provided');
+            err.statusCode = 400;
+            return next(err);
+        }
+
+        const secureUrl = await uploadBuffer(
+            req.file.buffer,
+            'brainspark/avatars',
+            `user_${req.user.id}`
+        );
+
+        const updated = await User.findByIdAndUpdate(
+            req.user.id,
+            { $set: { avatar: secureUrl } },
+            { new: true }
+        ).select('-password');
+
+        res.json({ success: true, data: updated });
     } catch (error) {
         next(error);
     }

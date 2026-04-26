@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Mail, Lock, User, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../components/ui/Toast';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import Card from '../components/ui/Card';
@@ -21,6 +22,7 @@ const RegisterPage = () => {
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     const { register } = useAuth();
+    const toast = useToast();
 
     const validateForm = () => {
         const newErrors = {};
@@ -104,10 +106,10 @@ const RegisterPage = () => {
             if (result.success) {
                 navigate('/dashboard');
             } else {
-                setErrors({ submit: result.error || 'Registration failed' });
+                toast.error(result.error || 'Registration failed');
             }
         } catch (error) {
-            setErrors({ submit: 'An error occurred. Please try again.' });
+            toast.error('An error occurred. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -130,12 +132,6 @@ const RegisterPage = () => {
 
                     <Card className="auth-card">
                         <form onSubmit={handleSubmit} className="auth-form">
-                            {errors.submit && (
-                                <div className="error-banner" role="alert">
-                                    {errors.submit}
-                                </div>
-                            )}
-
                             {/* Username Field */}
                             <div className="form-group">
                                 <label htmlFor="username" className="form-label">

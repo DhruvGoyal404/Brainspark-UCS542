@@ -1,22 +1,47 @@
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
-import { Bell, User, Shield, Palette, Accessibility, CheckCircle } from 'lucide-react';
+import { useToast } from '../components/ui/Toast';
+import { Bell, User, Shield, Palette, Accessibility, CheckCircle, Eye, EyeOff } from 'lucide-react';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import './SettingsPage.css';
 
 const SettingsPage = () => {
-    const { user } = useAuth();
+    const { user, changePassword } = useAuth();
+    const navigate = useNavigate();
+    const toast = useToast();
     const { theme, toggleTheme, fontSize, setFontSize, soundEnabled, setSoundEnabled, reducedMotion, setReducedMotion } = useTheme();
     const [saved, setSaved] = useState(false);
     const [localNotifications, setLocalNotifications] = useState({ email: true, push: false });
+    const [showPwForm, setShowPwForm] = useState(false);
+    const [pwForm, setPwForm] = useState({ current: '', next: '', confirm: '' });
+    const [pwLoading, setPwLoading] = useState(false);
+    const [showPw, setShowPw] = useState(false);
 
-    // Scroll to top on page load
-    useEffect(() => {
-        window.scrollTo(0, 0);
-    }, []);
+    useEffect(() => { window.scrollTo(0, 0); }, []);
+
+    const handleChangePassword = async (e) => {
+        e.preventDefault();
+        if (pwForm.next !== pwForm.confirm) {
+            toast.error('New passwords do not match');
+            return;
+        }
+        if (pwForm.next.length < 6) {
+            toast.error('New password must be at least 6 characters');
+            return;
+        }
+        setPwLoading(true);
+        const result = await changePassword(pwForm.current, pwForm.next);
+        setPwLoading(false);
+        if (result.success) {
+            toast.success('Password changed — you have been logged out');
+        } else {
+            toast.error(result.message || 'Failed to change password');
+        }
+    };
 
     return (
         <main className="settings-page">
@@ -56,7 +81,7 @@ const SettingsPage = () => {
                                         <p>{user?.email || 'Not set'}</p>
                                     </div>
                                 </div>
-                                <Button variant="outline" size="sm">Edit Profile</Button>
+                                <Button variant="outline" size="sm" onClick={() => navigate('/profile')}>Edit Profile</Button>
                             </div>
                         </Card>
                     </motion.section>
@@ -205,9 +230,41 @@ const SettingsPage = () => {
                                     <Shield size={24} />
                                     <h2>Privacy & Security</h2>
                                 </div>
-                                <Button variant="outline" fullWidth>Change Password</Button>
-                                <Button variant="outline" fullWidth>Download My Data</Button>
-                                <Button variant="danger" fullWidth>Delete Account</Button>
+                                <Button variant="outline" fullWidth onClick={() => setShowPwForm(p => !p)}>
+                                    {showPwForm ? 'Cancel' : 'Change Password'}
+                                </Button>
+                                {showPwForm && (
+                                    <form onSubmit={handleChangePassword} style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '8px' }}>
+                                        <div style={{ position: 'relative' }}>
+                                            <input
+                                                type={showPw ? 'text' : 'password'}
+                                                placeholder="Current password"
+                                                value={pwForm.current}
+                                                onChange={e => setPwForm(f => ({ ...f, current: e.target.value }))}
+                                                style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--bg-secondary)', color: 'var(--text-primary)', fontSize: '14px', boxSizing: 'border-box' }}
+                                            />
+                                        </div>
+                                        <input
+                                            type={showPw ? 'text' : 'password'}
+                                            placeholder="New password"
+                                            value={pwForm.next}
+                                            onChange={e => setPwForm(f => ({ ...f, next: e.target.value }))}
+                                            style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--bg-secondary)', color: 'var(--text-primary)', fontSize: '14px', boxSizing: 'border-box' }}
+                                        />
+                                        <input
+                                            type={showPw ? 'text' : 'password'}
+                                            placeholder="Confirm new password"
+                                            value={pwForm.confirm}
+                                            onChange={e => setPwForm(f => ({ ...f, confirm: e.target.value }))}
+                                            style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--bg-secondary)', color: 'var(--text-primary)', fontSize: '14px', boxSizing: 'border-box' }}
+                                        />
+                                        <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', cursor: 'pointer' }}>
+                                            <input type="checkbox" checked={showPw} onChange={e => setShowPw(e.target.checked)} />
+                                            Show passwords
+                                        </label>
+                                        <Button type="submit" variant="primary" fullWidth loading={pwLoading}>Update Password</Button>
+                                    </form>
+                                )}
                             </div>
                         </Card>
                     </motion.section>

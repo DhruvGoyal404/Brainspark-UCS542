@@ -22,6 +22,7 @@ import AboutPage from './pages/AboutPage';
 import BookmarksPage from './pages/BookmarksPage';
 import NotFoundPage from './pages/NotFoundPage';
 import ErrorBoundary from './components/common/ErrorBoundary';
+import { ToastProvider } from './components/ui/Toast';
 import './styles/global.css';
 import './styles/animations.css';
 
@@ -222,15 +223,17 @@ function App() {
       <ThemeProvider>
         <AuthProvider>
           <Router>
-            <AuthErrorHandler>
-              {/* BookmarkProvider is inside Router+AuthProvider so it can
-                  use useAuth() and make API calls with the active token */}
-              <BookmarkProvider>
-                <Layout>
-                  <AppRoutes />
-                </Layout>
-              </BookmarkProvider>
-            </AuthErrorHandler>
+            <ToastProvider>
+              <AuthErrorHandler>
+                {/* BookmarkProvider is inside Router+AuthProvider so it can
+                    use useAuth() and make API calls with the active token */}
+                <BookmarkProvider>
+                  <Layout>
+                    <AppRoutes />
+                  </Layout>
+                </BookmarkProvider>
+              </AuthErrorHandler>
+            </ToastProvider>
           </Router>
         </AuthProvider>
       </ThemeProvider>

@@ -22,6 +22,7 @@ const userSchema = new mongoose.Schema({
         required: [true, 'Password is required'],
         minlength: 6
     },
+    avatar: { type: String, default: null },
     role: {
         type: String,
         enum: ['user', 'admin'],

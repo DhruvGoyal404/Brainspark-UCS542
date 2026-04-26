@@ -1,17 +1,24 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import api from '../utils/api';
 import { motion } from 'framer-motion';
-import { User, Mail, Shield, Settings as SettingsIcon, Edit2, Camera, Calendar } from 'lucide-react';
+import { Shield, Settings as SettingsIcon, Edit2, Camera, Calendar, Check, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
+import { useToast } from '../components/ui/Toast';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import './AdminProfilePage.css';
 
 const AdminProfilePage = () => {
-    const { user, updateUser } = useAuth();
-    const { theme, fontSize, soundEnabled, reducedMotion, setFontSize, setSoundEnabled, setReducedMotion } = useTheme();
+    const { user, updateUser, refreshUser } = useAuth();
+    const { fontSize, soundEnabled, reducedMotion, setFontSize, setSoundEnabled, setReducedMotion } = useTheme();
+    const toast = useToast();
+    const fileInputRef = useRef(null);
+
     const [isEditing, setIsEditing] = useState(false);
+    const [editForm, setEditForm] = useState({ username: '', email: '' });
+    const [saving, setSaving] = useState(false);
+    const [avatarUploading, setAvatarUploading] = useState(false);
     const [analyticsData, setAnalyticsData] = useState(null);
 
     useEffect(() => {
@@ -19,6 +26,47 @@ const AdminProfilePage = () => {
             .then(res => setAnalyticsData(res.data.data))
             .catch(() => {});
     }, []);
+
+    const handleEditOpen = () => {
+        setEditForm({ username: user?.username || '', email: user?.email || '' });
+        setIsEditing(true);
+    };
+
+    const handleEditSave = async () => {
+        setSaving(true);
+        const result = await updateUser(editForm);
+        setSaving(false);
+        if (result.success) {
+            toast.success('Profile updated');
+            setIsEditing(false);
+        } else {
+            toast.error(result.error || 'Failed to update profile');
+        }
+    };
+
+    const handleAvatarClick = () => fileInputRef.current?.click();
+
+    const handleAvatarChange = async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        if (file.size > 5 * 1024 * 1024) {
+            toast.error('Image must be under 5MB');
+            return;
+        }
+        const formData = new FormData();
+        formData.append('avatar', file);
+        setAvatarUploading(true);
+        try {
+            await api.post('/user/avatar', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+            await refreshUser();
+            toast.success('Avatar updated');
+        } catch (err) {
+            toast.error(err.response?.data?.message || 'Failed to upload avatar');
+        } finally {
+            setAvatarUploading(false);
+            e.target.value = '';
+        }
+    };
 
     const stats = [
         { label: 'Total Users',    value: analyticsData ? analyticsData.totalUsers.toLocaleString()   : '—', icon: '👥' },
@@ -40,35 +88,76 @@ const AdminProfilePage = () => {
                         <div className="admin-profile-header">
                             <div className="admin-profile-avatar-section">
                                 <div className="admin-profile-avatar-wrapper">
-                                    <div className="admin-profile-avatar">
-                                        {user?.username?.charAt(0).toUpperCase() || 'A'}
+                                    <div className="admin-profile-avatar" style={{ overflow: 'hidden' }}>
+                                        {user?.avatar
+                                            ? <img src={user.avatar} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                            : (user?.username?.charAt(0).toUpperCase() || 'A')
+                                        }
                                     </div>
-                                    <button className="admin-avatar-upload-button" aria-label="Change avatar">
+                                    <button
+                                        className="admin-avatar-upload-button"
+                                        aria-label="Change avatar"
+                                        onClick={handleAvatarClick}
+                                        disabled={avatarUploading}
+                                    >
                                         <Camera size={16} />
                                     </button>
+                                    <input
+                                        ref={fileInputRef}
+                                        type="file"
+                                        accept="image/*"
+                                        style={{ display: 'none' }}
+                                        onChange={handleAvatarChange}
+                                    />
                                 </div>
                                 <div className="admin-profile-info">
                                     <div className="admin-badge-large">
                                         <Shield size={20} />
                                         <span>Administrator</span>
                                     </div>
-                                    <h1 className="admin-profile-username">{user?.username || 'Admin'}</h1>
-                                    <p className="admin-profile-email">{user?.email || 'admin@example.com'}</p>
-                                    <div className="admin-profile-meta">
-                                        <span className="meta-item">
-                                            <Calendar size={14} />
-                                            Joined {new Date(user?.createdAt || Date.now()).toLocaleDateString()}
-                                        </span>
-                                    </div>
+                                    {isEditing ? (
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '8px' }}>
+                                            <input
+                                                value={editForm.username}
+                                                onChange={e => setEditForm(f => ({ ...f, username: e.target.value }))}
+                                                placeholder="Username"
+                                                style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--bg-secondary)', color: 'var(--text-primary)', fontSize: '14px' }}
+                                            />
+                                            <input
+                                                value={editForm.email}
+                                                onChange={e => setEditForm(f => ({ ...f, email: e.target.value }))}
+                                                placeholder="Email"
+                                                type="email"
+                                                style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--bg-secondary)', color: 'var(--text-primary)', fontSize: '14px' }}
+                                            />
+                                            <div style={{ display: 'flex', gap: '8px' }}>
+                                                <Button variant="primary" size="sm" onClick={handleEditSave} loading={saving} icon={<Check size={14} />}>Save</Button>
+                                                <Button variant="ghost" size="sm" onClick={() => setIsEditing(false)} icon={<X size={14} />}>Cancel</Button>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <h1 className="admin-profile-username">{user?.username || 'Admin'}</h1>
+                                            <p className="admin-profile-email">{user?.email || 'admin@example.com'}</p>
+                                            <div className="admin-profile-meta">
+                                                <span className="meta-item">
+                                                    <Calendar size={14} />
+                                                    Joined {new Date(user?.createdAt || Date.now()).toLocaleDateString()}
+                                                </span>
+                                            </div>
+                                        </>
+                                    )}
                                 </div>
                             </div>
-                            <Button
-                                variant="outline"
-                                icon={<Edit2 size={18} />}
-                                onClick={() => setIsEditing(!isEditing)}
-                            >
-                                Edit Profile
-                            </Button>
+                            {!isEditing && (
+                                <Button
+                                    variant="outline"
+                                    icon={<Edit2 size={18} />}
+                                    onClick={handleEditOpen}
+                                >
+                                    Edit Profile
+                                </Button>
+                            )}
                         </div>
                     </Card>
                 </motion.div>

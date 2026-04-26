@@ -4,7 +4,7 @@ import Card from '../ui/Card';
 import Button from '../ui/Button';
 import Input from '../ui/Input';
 import Select from '../ui/Select';
-import Toast from '../ui/Toast';
+import { useToast } from '../ui/Toast';
 import api from '../../utils/api';
 import './QuestionGenerator.css';
 
@@ -37,21 +37,16 @@ const QuestionGenerator = () => {
         description: '',
     });
 
+    const toast = useToast();
     const [questions, setQuestions]   = useState([]);
     const [loading, setLoading]       = useState(false);
     const [saving, setSaving]         = useState(false);
     const [expanded, setExpanded]     = useState({});
-    const [toast, setToast]           = useState({ show: false, message: '', type: 'success' });
     const [tokensUsed, setTokensUsed] = useState(null);
     const [savedQuiz, setSavedQuiz]   = useState(null);
 
-    const showToast = (message, type = 'success') => {
-        setToast({ show: true, message, type });
-        setTimeout(() => setToast(t => ({ ...t, show: false })), 3500);
-    };
-
     const handleGenerate = async () => {
-        if (!form.topic.trim()) return showToast('Enter a topic first', 'error');
+        if (!form.topic.trim()) return toast.error('Enter a topic first');
         setLoading(true);
         setQuestions([]);
         setSavedQuiz(null);
@@ -64,9 +59,9 @@ const QuestionGenerator = () => {
             });
             setQuestions(data.data.questions);
             setTokensUsed(data.data.tokensUsed);
-            showToast(`${data.data.count} questions generated successfully`);
+            toast.success(`${data.data.count} questions generated successfully`);
         } catch (err) {
-            showToast(err.response?.data?.message || 'Generation failed', 'error');
+            toast.error(err.response?.data?.message || 'Generation failed');
         } finally {
             setLoading(false);
         }
@@ -74,7 +69,7 @@ const QuestionGenerator = () => {
 
     const handleSaveAsQuiz = async () => {
         if (!saveForm.quizTitle.trim() || !saveForm.quizId.trim()) {
-            return showToast('Quiz title and ID are required to save', 'error');
+            return toast.error('Quiz title and ID are required to save');
         }
         setSaving(true);
         try {
@@ -90,9 +85,9 @@ const QuestionGenerator = () => {
             });
             setSavedQuiz(data.data.savedQuiz);
             setQuestions(data.data.questions);
-            showToast(`Quiz "${data.data.savedQuiz.title}" saved to database`);
+            toast.success(`Quiz "${data.data.savedQuiz.title}" saved to database`);
         } catch (err) {
-            showToast(err.response?.data?.message || 'Save failed', 'error');
+            toast.error(err.response?.data?.message || 'Save failed');
         } finally {
             setSaving(false);
         }
@@ -102,8 +97,6 @@ const QuestionGenerator = () => {
 
     return (
         <div className="qgen-root">
-            <Toast show={toast.show} message={toast.message} type={toast.type} />
-
             {/* ── Config card ─────────────────────────────────────────── */}
             <Card className="qgen-config-card">
                 <div className="qgen-config-header">

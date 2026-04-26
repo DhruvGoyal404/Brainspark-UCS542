@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import api from '../utils/api';
+import api, { getApiError } from '../utils/api';
 import { useTheme } from './ThemeContext';
 
 const AuthContext = createContext();
@@ -60,10 +60,7 @@ export const AuthProvider = ({ children }) => {
             const redirectTo = userData.role === 'admin' ? '/admin' : '/dashboard';
             return { success: true, redirectTo };
         } catch (error) {
-            return {
-                success: false,
-                message: error.response?.data?.message || 'Login failed'
-            };
+            return { success: false, message: getApiError(error) };
         }
     };
 
@@ -83,11 +80,7 @@ export const AuthProvider = ({ children }) => {
             // Edge case: server returned 2xx with success: false (shouldn't happen but handle it)
             return { success: false, error: 'Registration failed. Please try again.' };
         } catch (error) {
-            console.error('Registration failed:', error);
-            return {
-                success: false,
-                error: error.response?.data?.message || 'Registration failed. Please try again.'
-            };
+            return { success: false, error: getApiError(error) };
         }
     };
 
@@ -136,6 +129,15 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    const refreshUser = async () => {
+        try {
+            const response = await api.get('/auth/me');
+            setUser(response.data.data);
+        } catch {
+            // ignore — stale data is acceptable if refresh fails
+        }
+    };
+
     const value = {
         user,
         token,
@@ -145,6 +147,7 @@ export const AuthProvider = ({ children }) => {
         logout,
         updateUser,
         changePassword,
+        refreshUser,
         isAuthenticated: !!user
     };
 

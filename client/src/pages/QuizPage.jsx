@@ -6,6 +6,7 @@ import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import ReportQuestionModal from '../components/quiz/ReportQuestionModal';
 import useBookmarks from '../hooks/useBookmarks';
+import { useToast } from '../components/ui/Toast';
 import api from '../utils/api';
 import './QuizPage.css';
 
@@ -33,6 +34,7 @@ const QuizPage = () => {
     const [quizStartTime] = useState(Date.now());
 
     const { isBookmarked, toggleBookmark } = useBookmarks();
+    const toast = useToast();
     const [showReportModal, setShowReportModal] = useState(false);
 
     // ── Fetch quiz from API ──
@@ -171,7 +173,7 @@ const QuizPage = () => {
                     }
                 });
             } catch (err) {
-                console.error('Failed to submit quiz:', err);
+                toast.error('Could not save results — showing offline score');
                 // Fallback to offline results
                 const score = Math.round((correctCount / quiz.questions.length) * 100);
                 navigate(`/quiz/${id}/results`, {
@@ -375,7 +377,7 @@ const QuizPage = () => {
                     questionIndex={currentQuestionIndex}
                     questionText={currentQuestion.questionText}
                     onClose={() => setShowReportModal(false)}
-                    onSuccess={() => alert('Thank you for reporting this question!')}
+                    onSuccess={() => toast.success('Thank you for reporting this question!')}
                 />
             )}
         </div>

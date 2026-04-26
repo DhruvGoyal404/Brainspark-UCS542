@@ -3,31 +3,31 @@ import { useNavigate } from 'react-router-dom';
 import { Mail, ArrowLeft, CheckCircle } from 'lucide-react';
 import Button from '../components/ui/Button';
 import Card from '../components/ui/Card';
+import { useToast } from '../components/ui/Toast';
 import api from '../utils/api';
 import './AuthPages.css';
 
 const ForgotPasswordPage = () => {
     const navigate = useNavigate();
+    const toast = useToast();
     const [email, setEmail] = useState('');
     const [loading, setLoading] = useState(false);
     const [submitted, setSubmitted] = useState(false);
-    const [error, setError] = useState('');
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!email) {
-            setError('Please enter your email address');
+            toast.error('Please enter your email address');
             return;
         }
 
         setLoading(true);
-        setError('');
 
         try {
             await api.post('/auth/forgot-password', { email });
             setSubmitted(true);
         } catch (err) {
-            setError(err.response?.data?.message || 'Failed to send reset email');
+            toast.error(err.response?.data?.message || 'Failed to send reset email');
         } finally {
             setLoading(false);
         }
@@ -87,19 +87,6 @@ const ForgotPasswordPage = () => {
                 </div>
 
                 <form onSubmit={handleSubmit}>
-                    {error && (
-                        <div style={{
-                            background: 'rgba(255, 0, 0, 0.1)',
-                            color: 'var(--error)',
-                            padding: '12px',
-                            borderRadius: '8px',
-                            marginBottom: '20px',
-                            fontSize: '14px'
-                        }}>
-                            {error}
-                        </div>
-                    )}
-
                     <div style={{ marginBottom: '20px' }}>
                         <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>
                             Email Address

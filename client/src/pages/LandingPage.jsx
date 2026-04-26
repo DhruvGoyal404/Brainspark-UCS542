@@ -230,7 +230,7 @@ const LandingPage = () => {
             </section>
 
             {/* Features Section */}
-            <section className="features-section" aria-labelledby="features-title">
+            <section id="features" className="features-section" aria-labelledby="features-title">
                 <div className="container">
                     <motion.header
                         initial={{ opacity: 0, y: 20 }}
@@ -313,8 +313,6 @@ const LandingPage = () => {
                         </div>
                         <nav className="footer-links" aria-label="Footer navigation">
                             <a href="#features">Features</a>
-                            <a href="#contact">Contact</a>
-                            <a href="#privacy">Privacy</a>
                             <Link to="/about">About</Link>
                         </nav>
                     </div>

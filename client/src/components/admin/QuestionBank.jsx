@@ -5,14 +5,15 @@ import Button from '../ui/Button';
 import Input from '../ui/Input';
 import Select from '../ui/Select';
 import './QuestionBank.css';
+import { useToast } from '../ui/Toast';
 import api from '../../utils/api';
 import useDebounce from '../../hooks/useDebounce';
 
 const QuestionBank = () => {
+    const toast = useToast();
     const [questions, setQuestions]               = useState([]);
     const [filteredQuestions, setFilteredQuestions] = useState([]);
     const [loading, setLoading]                   = useState(false);
-    const [error, setError]                       = useState(null);
     const [searchTerm, setSearchTerm]             = useState('');
     const [categoryFilter, setCategoryFilter]     = useState('all');
     const [difficultyFilter, setDifficultyFilter] = useState('all');
@@ -23,7 +24,6 @@ const QuestionBank = () => {
     useEffect(() => {
         const fetchQuestions = async () => {
             setLoading(true);
-            setError(null);
             try {
                 const response = await api.get('/quiz?page=1&limit=1000');
                 if (response.data.success && response.data.data) {
@@ -43,8 +43,7 @@ const QuestionBank = () => {
                     setFilteredQuestions(allQuestions);
                 }
             } catch (err) {
-                console.error('Error fetching questions:', err);
-                setError('Failed to load questions. Please try again.');
+                toast.error('Failed to load questions. Please try again.');
             } finally {
                 setLoading(false);
             }
@@ -84,12 +83,6 @@ const QuestionBank = () => {
         <div className="question-bank">
             <Card className="bank-card">
                 <h2 className="bank-title">Question Bank</h2>
-
-                {error && (
-                    <div className="error-message">
-                        <p>{error}</p>
-                    </div>
-                )}
 
                 {loading ? (
                     <div className="loading-state">

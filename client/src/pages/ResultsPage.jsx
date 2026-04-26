@@ -7,6 +7,7 @@ import Button from '../components/ui/Button';
 import { Share } from 'lucide-react';
 import { generateShareCard } from '../utils/shareCard';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../components/ui/Toast';
 import './ResultsPage.css';
 
 const ResultsPage = () => {
@@ -14,6 +15,7 @@ const ResultsPage = () => {
     const navigate = useNavigate();
     const { id } = useParams();
     const { user } = useAuth();
+    const toast = useToast();
     const [showConfetti, setShowConfetti] = useState(false);
     const [shareCardUrl, setShareCardUrl] = useState(null);
     const [generatingCard, setGeneratingCard] = useState(false);
@@ -67,7 +69,7 @@ const ResultsPage = () => {
                 await navigator.share(shareData);
             } else {
                 await navigator.clipboard.writeText(currentUrl);
-                alert('Link copied to clipboard!');
+                toast.success('Link copied to clipboard!');
             }
         } catch (error) {
             console.error('Error sharing:', error);
@@ -98,8 +100,7 @@ const ResultsPage = () => {
             link.click();
             document.body.removeChild(link);
         } catch (error) {
-            console.error('Error generating share card:', error);
-            alert('Failed to generate share card. Please try again.');
+            toast.error('Failed to generate share card. Please try again.');
         } finally {
             setGeneratingCard(false);
         }
