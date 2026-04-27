@@ -26,8 +26,9 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-// Explicit pre-flight handler — ensures OPTIONS is answered before any other middleware
-app.options('*', cors(corsOptions));
+// Explicit pre-flight handler for all routes.
+// Uses a RegExp instead of '*' because Express 5 (path-to-regexp v8) rejects bare '*' wildcards.
+app.options(/(.*)/, cors(corsOptions));
 
 // ─── Security Middleware ──────────────────────────────────────
 app.use(helmet());
