@@ -121,20 +121,16 @@ const createQuizValidation = [
 
 // ─── Quiz Submission Validation ───────────────────────────────
 const submitQuizValidation = [
-    body('quizId')
-        .trim()
-        .notEmpty()
-        .withMessage('Quiz ID is required'),
+    // quizId is intentionally NOT required here — it comes from the URL param (:id)
     body('answers')
         .isArray({ min: 1 })
         .withMessage('Answers array is required'),
-    body('answers.*.questionIndex')
-        .isInt({ min: 0 })
-        .withMessage('Question index must be a non-negative integer'),
+    // Accept both questionId and questionIndex — client sends questionId
+    body('answers.*.questionId')
+        .optional(),
     body('answers.*.selectedOption')
-        .trim()
-        .notEmpty()
-        .withMessage('Selected option is required'),
+        .optional()   // allow null/empty for timed-out skipped questions
+        .trim(),
     body('timeSpent')
         .optional()
         .isInt({ min: 0 })

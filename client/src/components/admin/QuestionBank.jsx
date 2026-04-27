@@ -25,7 +25,7 @@ const QuestionBank = () => {
         const fetchQuestions = async () => {
             setLoading(true);
             try {
-                const response = await api.get('/quiz?page=1&limit=100');
+                const response = await api.get('/quiz?page=1&limit=100&includeQuestions=true');
                 if (response.data.success && response.data.data) {
                     const allQuestions = [];
                     response.data.data.forEach(quiz => {

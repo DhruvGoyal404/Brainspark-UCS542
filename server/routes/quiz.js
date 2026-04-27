@@ -55,7 +55,7 @@ router.get('/results/my', protect, paginationValidation, async (req, res, next) 
 // @access  Private
 router.get('/', protect, paginationValidation, async (req, res, next) => {
     try {
-        const { category, difficulty, search, excludeCategories, excludeDifficulties, excludeSearch, tags, exactQuestions } = req.query;
+        const { category, difficulty, search, excludeCategories, excludeDifficulties, excludeSearch, tags, exactQuestions, includeQuestions } = req.query;
         const page  = parseInt(req.query.page)  || 1;
         const limit = Math.min(parseInt(req.query.limit) || 20, 100);
         const skip  = (page - 1) * limit;
@@ -99,21 +99,23 @@ router.get('/', protect, paginationValidation, async (req, res, next) => {
 
         let queryBuilder;
 
+        // includeQuestions=true is used by the admin Question Bank.
+        // Omitted by default so quiz list pages don't load full question arrays for every card.
+        const withQuestions = includeQuestions === 'true';
+
         if (search && search.trim()) {
-            // $text search uses the (title, description, category) text index.
-            // Results are ordered by relevance score descending when no other sort is given.
             filter.$text = { $search: search.trim() };
             queryBuilder = Quiz.find(filter, { score: { $meta: 'textScore' } })
-                .select('-questions')
                 .sort({ score: { $meta: 'textScore' } })
                 .skip(skip)
                 .limit(limit);
+            if (!withQuestions) queryBuilder = queryBuilder.select('-questions');
         } else {
             queryBuilder = Quiz.find(filter)
-                .select('-questions')
                 .sort({ createdAt: -1 })
                 .skip(skip)
                 .limit(limit);
+            if (!withQuestions) queryBuilder = queryBuilder.select('-questions');
         }
 
         const [quizzes, total] = await Promise.all([
