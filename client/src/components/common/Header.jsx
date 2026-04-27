@@ -97,8 +97,11 @@ const Header = () => {
                                 aria-expanded={userMenuOpen}
                                 aria-haspopup="true"
                             >
-                                <div className="user-avatar">
-                                    {user?.username?.charAt(0).toUpperCase() || 'U'}
+                                <div className="user-avatar" style={{ overflow: 'hidden', padding: 0 }}>
+                                    {user?.avatar
+                                        ? <img src={user.avatar} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                        : (user?.username?.charAt(0).toUpperCase() || 'U')
+                                    }
                                 </div>
                                 <span className="user-name desktop-only">{user?.username}</span>
                             </button>

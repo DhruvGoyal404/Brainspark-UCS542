@@ -11,8 +11,25 @@ dotenv.config();
 
 const app = express();
 
+// ─── CORS — must be first so preflight OPTIONS responses always carry the header ──
+// Without this, a rate-limit 429 or helmet response on an OPTIONS request would
+// reach the browser without Access-Control-Allow-Origin, blocking all non-simple requests.
+const corsOrigins = process.env.CORS_ORIGINS
+    ? process.env.CORS_ORIGINS.split(',').map(s => s.trim())
+    : ['http://localhost:5173'];
+
+const corsOptions = {
+    origin: corsOrigins,
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+};
+
+app.use(cors(corsOptions));
+// Explicit pre-flight handler — ensures OPTIONS is answered before any other middleware
+app.options('*', cors(corsOptions));
+
 // ─── Security Middleware ──────────────────────────────────────
-// Helmet: sets various HTTP headers for security (XSS, HSTS, content-type sniffing, etc.)
 app.use(helmet());
 
 // Request logging
@@ -41,16 +58,6 @@ const authLimiter = rateLimit({
     legacyHeaders: false,
     message: { success: false, message: 'Too many login attempts, please try again after 15 minutes.' }
 });
-
-// ─── CORS (from env variable) ─────────────────────────────────
-const corsOrigins = process.env.CORS_ORIGINS
-    ? process.env.CORS_ORIGINS.split(',').map(s => s.trim())
-    : ['http://localhost:5173'];
-
-app.use(cors({
-    origin: corsOrigins,
-    credentials: true
-}));
 
 // Body parsers
 app.use(express.json({ limit: '10mb' }));
@@ -123,6 +130,16 @@ app.use((err, req, res, next) => {
         });
     } else {
         console.error(`❌ ${req.method} ${req.path} → ${err.statusCode || 500}`);
+    }
+
+    // Safety net: ensure CORS headers are always present even on error responses.
+    // Without this, a validation 400 reaching the browser without CORS headers
+    // causes a CORS failure that masks the real error.
+    const origin = req.headers.origin;
+    if (origin && corsOrigins.includes(origin)) {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+        res.setHeader('Access-Control-Allow-Credentials', 'true');
+        res.setHeader('Vary', 'Origin');
     }
 
     const { statusCode, message } = normalizeError(err);

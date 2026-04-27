@@ -94,14 +94,16 @@ router.put('/profile', protect, updateProfileValidation, async (req, res, next) 
 // @access  Private
 router.put('/preferences', protect, preferencesValidation, async (req, res, next) => {
     try {
-        const { theme, fontSize, soundEnabled, reducedMotion } = req.body;
+        const { theme, fontSize, soundEnabled, reducedMotion, emailNotifications, pushNotifications } = req.body;
 
         // Build $set map for only the fields that were sent
         const prefUpdates = {};
-        if (theme         !== undefined) prefUpdates['preferences.theme']         = theme;
-        if (fontSize      !== undefined) prefUpdates['preferences.fontSize']      = fontSize;
-        if (soundEnabled  !== undefined) prefUpdates['preferences.soundEnabled']  = soundEnabled;
-        if (reducedMotion !== undefined) prefUpdates['preferences.reducedMotion'] = reducedMotion;
+        if (theme               !== undefined) prefUpdates['preferences.theme']               = theme;
+        if (fontSize            !== undefined) prefUpdates['preferences.fontSize']            = fontSize;
+        if (soundEnabled        !== undefined) prefUpdates['preferences.soundEnabled']        = soundEnabled;
+        if (reducedMotion       !== undefined) prefUpdates['preferences.reducedMotion']       = reducedMotion;
+        if (emailNotifications  !== undefined) prefUpdates['preferences.emailNotifications']  = emailNotifications;
+        if (pushNotifications   !== undefined) prefUpdates['preferences.pushNotifications']   = pushNotifications;
 
         const updated = await User.findByIdAndUpdate(
             req.user.id,

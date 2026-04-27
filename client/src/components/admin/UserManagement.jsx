@@ -4,6 +4,7 @@ import Card from '../ui/Card';
 import Avatar from '../ui/Avatar';
 import Input from '../ui/Input';
 import Button from '../ui/Button';
+import ConfirmationModal from '../ui/ConfirmationModal';
 import api from '../../utils/api';
 import { useToast } from '../ui/Toast';
 import useDebounce from '../../hooks/useDebounce';
@@ -15,6 +16,7 @@ const UserManagement = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [viewMode, setViewMode] = useState('list');
     const [updating, setUpdating] = useState(null);
+    const [deactivateTarget, setDeactivateTarget] = useState(null); // { userId, username }
 
     // Debounce the search — prevents a re-filter on every keystroke
     const debouncedSearch = useDebounce(searchTerm, 350);
@@ -50,6 +52,7 @@ const UserManagement = () => {
         try {
             await api.put(`/admin/users/${userId}/role`, { role: newRole });
             setUsers(prev => prev.map(u => u._id === userId ? { ...u, role: newRole } : u));
+        // eslint-disable-next-line no-unused-vars
         } catch (error) {
             toast.error('Failed to update user role. Please try again.');
         } finally {
@@ -57,13 +60,17 @@ const UserManagement = () => {
         }
     };
 
-    const handleDeactivate = async (userId, username) => {
-        if (!window.confirm(`Deactivate user "${username}"? They will no longer be able to log in. This can be reversed via the database.`)) return;
+    const handleDeactivate = (userId, username) => {
+        setDeactivateTarget({ userId, username });
+    };
 
+    const confirmDeactivate = async () => {
+        if (!deactivateTarget) return;
+        const { userId } = deactivateTarget;
+        setDeactivateTarget(null);
         setUpdating(userId);
         try {
             await api.delete(`/admin/users/${userId}`);
-            // Mark locally as inactive so the badge updates immediately
             setUsers(prev => prev.map(u => u._id === userId ? { ...u, isActive: false } : u));
         } catch (error) {
             toast.error(error.response?.data?.message || 'Failed to deactivate user. Please try again.');
@@ -116,17 +123,18 @@ const UserManagement = () => {
                                     size="md"
                                 />
                                 <div className="user-details">
-                                    <div className="user-name">
-                                        {user.username}
+                                    <div className="user-name" style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.username}</span>
                                         {user.isActive === false && (
                                             <span style={{
-                                                marginLeft: '8px',
+                                                flexShrink: 0,
                                                 fontSize: '11px',
                                                 padding: '2px 6px',
                                                 borderRadius: '999px',
                                                 background: 'var(--error-bg, rgba(239,68,68,0.1))',
                                                 color: 'var(--error)',
-                                                fontWeight: 600
+                                                fontWeight: 600,
+                                                whiteSpace: 'nowrap'
                                             }}>
                                                 Inactive
                                             </span>
@@ -191,6 +199,17 @@ const UserManagement = () => {
                     )}
                 </div>
             </Card>
+
+            <ConfirmationModal
+                isOpen={!!deactivateTarget}
+                onClose={() => setDeactivateTarget(null)}
+                onConfirm={confirmDeactivate}
+                title="Deactivate User"
+                message={`Deactivate "${deactivateTarget?.username}"? They will no longer be able to log in. This can be undone from the database.`}
+                confirmText="Deactivate"
+                cancelText="Cancel"
+                variant="danger"
+            />
         </div>
     );
 };

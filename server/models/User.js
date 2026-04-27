@@ -68,10 +68,12 @@ const userSchema = new mongoose.Schema({
         unlockedAt: { type: Date, default: Date.now }
     }],
     preferences: {
-        theme:          { type: String, default: 'light' },
-        fontSize:       { type: String, default: 'medium' },
-        soundEnabled:   { type: Boolean, default: true },
-        reducedMotion:  { type: Boolean, default: false }
+        theme:                { type: String, default: 'light' },
+        fontSize:             { type: String, default: 'medium' },
+        soundEnabled:         { type: Boolean, default: true },
+        reducedMotion:        { type: Boolean, default: false },
+        emailNotifications:   { type: Boolean, default: true },
+        pushNotifications:    { type: Boolean, default: false }
     },
     passwordResetToken:   String,
     passwordResetExpires: Date

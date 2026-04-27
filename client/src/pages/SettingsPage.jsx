@@ -7,6 +7,7 @@ import { useToast } from '../components/ui/Toast';
 import { Bell, User, Shield, Palette, Accessibility, CheckCircle, Eye, EyeOff } from 'lucide-react';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
+import api from '../utils/api';
 import './SettingsPage.css';
 
 const SettingsPage = () => {
@@ -15,13 +16,29 @@ const SettingsPage = () => {
     const toast = useToast();
     const { theme, toggleTheme, fontSize, setFontSize, soundEnabled, setSoundEnabled, reducedMotion, setReducedMotion } = useTheme();
     const [saved, setSaved] = useState(false);
-    const [localNotifications, setLocalNotifications] = useState({ email: true, push: false });
+    const [localNotifications, setLocalNotifications] = useState({
+        email: user?.preferences?.emailNotifications ?? true,
+        push:  user?.preferences?.pushNotifications  ?? false
+    });
     const [showPwForm, setShowPwForm] = useState(false);
     const [pwForm, setPwForm] = useState({ current: '', next: '', confirm: '' });
     const [pwLoading, setPwLoading] = useState(false);
     const [showPw, setShowPw] = useState(false);
 
     useEffect(() => { window.scrollTo(0, 0); }, []);
+
+    const handleNotificationToggle = async (key, value) => {
+        setLocalNotifications(p => ({ ...p, [key]: value }));
+        try {
+            await api.put('/user/preferences', {
+                emailNotifications: key === 'email' ? value : localNotifications.email,
+                pushNotifications:  key === 'push'  ? value : localNotifications.push
+            });
+        } catch {
+            toast.error('Failed to save notification preference');
+            setLocalNotifications(p => ({ ...p, [key]: !value }));
+        }
+    };
 
     const handleChangePassword = async (e) => {
         e.preventDefault();
@@ -151,7 +168,7 @@ const SettingsPage = () => {
                                         <input
                                             type="checkbox"
                                             checked={localNotifications.email}
-                                            onChange={() => setLocalNotifications(p => ({ ...p, email: !p.email }))}
+                                            onChange={e => handleNotificationToggle('email', e.target.checked)}
                                         />
                                         <span className="toggle-slider"></span>
                                     </label>
@@ -165,7 +182,7 @@ const SettingsPage = () => {
                                         <input
                                             type="checkbox"
                                             checked={localNotifications.push}
-                                            onChange={() => setLocalNotifications(p => ({ ...p, push: !p.push }))}
+                                            onChange={e => handleNotificationToggle('push', e.target.checked)}
                                         />
                                         <span className="toggle-slider"></span>
                                     </label>

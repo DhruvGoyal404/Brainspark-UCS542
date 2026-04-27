@@ -36,7 +36,7 @@ export const BookmarkProvider = ({ children }) => {
         let cancelled = false;
         const fetchBookmarks = async () => {
             try {
-                const res = await api.get('/user/bookmarks?limit=200');
+                const res = await api.get('/user/bookmarks?limit=100');
                 if (!cancelled) setBookmarks(res.data.data || []);
             } catch (err) {
                 console.warn('Could not load bookmarks:', err.message);

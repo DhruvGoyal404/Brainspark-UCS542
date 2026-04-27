@@ -180,6 +180,14 @@ const preferencesValidation = [
         .optional()
         .isBoolean()
         .withMessage('Reduced motion must be a boolean'),
+    body('emailNotifications')
+        .optional()
+        .isBoolean()
+        .withMessage('Email notifications must be a boolean'),
+    body('pushNotifications')
+        .optional()
+        .isBoolean()
+        .withMessage('Push notifications must be a boolean'),
     validate
 ];
 
