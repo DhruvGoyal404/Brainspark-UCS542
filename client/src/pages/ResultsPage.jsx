@@ -79,7 +79,7 @@ const ResultsPage = () => {
     const handleGenerateShareCard = async () => {
         setGeneratingCard(true);
         try {
-            const canvas = await generateShareCard({
+            const { dataUrl } = await generateShareCard({
                 score: percentage,
                 quizTitle,
                 username: user?.username || 'User',
@@ -87,10 +87,9 @@ const ResultsPage = () => {
                 accuracy: percentage,
                 streak: currentStreak || 0
             });
-            
-            // Convert canvas to URL for download
-            const url = canvas.toDataURL('image/png');
-            setShareCardUrl(url);
+
+            setShareCardUrl(dataUrl);
+            const url = dataUrl;
             
             // Auto-download the image
             const link = document.createElement('a');
