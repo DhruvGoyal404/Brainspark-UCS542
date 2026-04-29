@@ -1,15 +1,31 @@
 import { useState } from 'react';
-import { Plus, BookOpen, Users, FileText, Sparkles } from 'lucide-react';
+import { Plus, BookOpen, Users, FileText, Sparkles, Camera } from 'lucide-react';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import QuizCreator from '../components/admin/QuizCreator';
 import QuestionBank from '../components/admin/QuestionBank';
 import UserManagement from '../components/admin/UserManagement';
 import QuestionGenerator from '../components/admin/QuestionGenerator';
+import { useToast } from '../components/ui/Toast';
+import api from '../utils/api';
 import './AdminPage.css';
 
 const AdminPage = () => {
     const [activeTab, setActiveTab] = useState('quizzes');
+    const [snapshotting, setSnapshotting] = useState(false);
+    const toast = useToast();
+
+    const handleSnapshot = async () => {
+        setSnapshotting(true);
+        try {
+            const res = await api.post('/admin/analytics/snapshot');
+            toast.success(res.data.message || 'Leaderboard snapshot saved');
+        } catch (err) {
+            toast.error(err.response?.data?.message || 'Snapshot failed');
+        } finally {
+            setSnapshotting(false);
+        }
+    };
 
     const tabs = [
         { id: 'quizzes',   label: 'Quiz Creator',   icon: Plus      },
@@ -40,6 +56,16 @@ const AdminPage = () => {
                             <p className="admin-subtitle">Manage quizzes, questions, and users</p>
                         </div>
                     </div>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        icon={<Camera size={16} />}
+                        onClick={handleSnapshot}
+                        loading={snapshotting}
+                        title="Save current leaderboard XP totals into leaderboard_snapshots collection"
+                    >
+                        Save Leaderboard Snapshot
+                    </Button>
                 </div>
 
                 {/* Navigation Tabs */}
