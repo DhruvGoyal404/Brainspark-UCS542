@@ -866,6 +866,20 @@ router.post('/analytics/snapshot', protect, adminOnly, async (req, res, next) =>
     }
 });
 
+// @route   GET /api/admin/analytics/snapshot
+// @desc    Fetch all leaderboard snapshot records sorted by XP desc (uses totalXP: -1 index)
+// @access  Private/Admin
+router.get('/analytics/snapshot', protect, adminOnly, async (req, res, next) => {
+    try {
+        const snapshots = await LeaderboardSnapshot.find()
+            .sort({ totalXP: -1 })
+            .lean();
+        res.json({ success: true, count: snapshots.length, data: snapshots });
+    } catch (error) {
+        next(error);
+    }
+});
+
 // @route   DELETE /api/admin/reports/cleanup
 // @desc    Permanently hard-delete dismissed reports older than N days.
 //          Uses deleteMany() — explicit mass hard-delete (contrast with soft-delete elsewhere).
